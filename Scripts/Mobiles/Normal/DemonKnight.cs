@@ -77,11 +77,11 @@ namespace Server.Mobiles
             SetDamageType(ResistanceType.Poison, 20);
             SetDamageType(ResistanceType.Energy, 20);
 
-            SetResistance(ResistanceType.Physical, 60, 70);
-            SetResistance(ResistanceType.Fire, 50, 60);
-            SetResistance(ResistanceType.Cold, 70, 80);
-            SetResistance(ResistanceType.Poison, 70, 80);
-            SetResistance(ResistanceType.Energy, 70, 80);
+            SetResistance(ResistanceType.Physical, 30);
+            SetResistance(ResistanceType.Fire, 30);
+            SetResistance(ResistanceType.Cold, 30);
+            SetResistance(ResistanceType.Poison, 30);
+            SetResistance(ResistanceType.Energy, 30);
 
             SetSkill(SkillName.Wrestling, 120.0);
             SetSkill(SkillName.Tactics, 100.0);
@@ -184,7 +184,7 @@ namespace Server.Mobiles
             double gpoints = pm.GauntletPoints;
             int luck = Math.Max(0, pm.RealLuck);
 
-            pm.GauntletPoints += (int)Math.Max(0, (bc.Fame * (1 + Math.Sqrt(luck) / 100)) / 2);
+            pm.GauntletPoints += (int)Math.Max(0, (bc.Fame * (1 + Math.Sqrt(luck) / 100)) * 2);
 
             const double A = 0.000863316841;
             const double B = 0.00000425531915;
