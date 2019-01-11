@@ -81,7 +81,7 @@ namespace Server.Mobiles
                 }
             }
 
-            if (GivesMLMinorArtifact && 0.5 > Utility.RandomDouble())
+            if (GivesMLMinorArtifact || 1.0 > Utility.RandomDouble())
             {
                 MondainsLegacy.DropPeerlessMinor(c);
             }
