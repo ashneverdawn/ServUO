@@ -532,7 +532,7 @@ namespace Server.Services.TownCryer
                 case 1:
                     greetingsCount = reader.ReadInt();
 
-                    int count = count = reader.ReadInt();
+                    int count = reader.ReadInt();
 
                     for (int i = 0; i < count; i++)
                     {
