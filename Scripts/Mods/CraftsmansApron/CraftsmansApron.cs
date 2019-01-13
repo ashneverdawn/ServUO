@@ -5,7 +5,7 @@ using Server.Gumps;
 namespace Server.Items
 {
     [Flipable(0x153d, 0x153e)]
-    public class CraftsmansApron : BaseShirt
+    public class CraftsmansApron : BaseMiddleTorso
     {
         [Constructable]
         public CraftsmansApron()
