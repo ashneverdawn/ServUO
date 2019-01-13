@@ -6715,6 +6715,8 @@ namespace Server.Mobiles
                             DemonKnight.HandleKill(this, ds.m_Mobile);
                         }
 
+                        ExperienceScroll.HandleKill(this, ds.m_Mobile);
+
                         Server.Engines.Points.PointsSystem.HandleKill(this, ds.m_Mobile, i);
 
                         PlayerMobile pm = ds.m_Mobile as PlayerMobile;

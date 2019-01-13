@@ -11992,6 +11992,10 @@
     <Compile Include="VendorInfo\SBWeaver.cs" />
     <Compile Include="VendorInfo\SBWoodenShields.cs" />
     <Compile Include="VendorInfo\VendorInventory.cs" />
+    <Compile Include="Mods\ExperienceScroll\ExperienceGump.cs" />
+    <Compile Include="Mods\ExperienceScroll\ExperienceScroll.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansApron.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansApronGump.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Services\New Magincia\ReadMe.txt" />
@@ -12009,6 +12013,9 @@
       <Project>{e08cfbe4-e013-44ee-8829-426d05bc083f}</Project>
       <Name>Ultima</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mods\CraftsmansApron\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
