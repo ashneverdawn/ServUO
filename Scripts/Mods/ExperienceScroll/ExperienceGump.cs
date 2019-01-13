@@ -229,7 +229,8 @@ namespace Server.Gumps
             if (scrollsToSpend <= 0)
                 return false;
 
-            int gainAmount = GetSkillGainAmountFromScrollsToSpend(skill, scrollsToSpend, out int scrollsToConsume);
+            int scrollsToConsume;
+            int gainAmount = GetSkillGainAmountFromScrollsToSpend(skill, scrollsToSpend, out scrollsToConsume);
             if (gainAmount <= 0)
                 return false;
 

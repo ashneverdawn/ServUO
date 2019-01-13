@@ -63,7 +63,9 @@ namespace Server.Gumps
                 this.AddButton(cols[2], gumpY + i * gumpOffsetY, 4014, 4016, i + 1, GumpButtonType.Reply, 1);
                 this.AddButton(cols[3], gumpY + i * gumpOffsetY, 4014, 4016, i + 6, GumpButtonType.Reply, 1);
                 this.AddButton(cols[4], gumpY + i * gumpOffsetY, 4014, 4016, i + 11, GumpButtonType.Reply, 1);
-                apron.SkillBonuses.GetValues(i, out SkillName sn, out double value);
+                SkillName sn;
+                double value;
+                apron.SkillBonuses.GetValues(i, out sn, out value);
                 this.AddLabel(cols[5], gumpY + i * gumpOffsetY, 965, (value > 0) ? sn.ToString() + "(+" + value + ")" : "Skill " + (i+1));
             }
         }
@@ -90,7 +92,9 @@ namespace Server.Gumps
                 case 1: case 2: case 3: case 4: case 5:
                     if(radioId > 0)
                     {
-                        m_Apron.SkillBonuses.GetValues(id - 1, out SkillName sn, out double value);
+                        SkillName sn;
+                        double value;
+                        m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
                         m_Apron.SkillBonuses.SetValues(id - 1, apronSkills[radioId - 1], (value == 0) ? 1.0 : value);
 
                     }
@@ -110,7 +114,9 @@ namespace Server.Gumps
                     }
 
                     {
-                        m_Apron.SkillBonuses.GetValues(id - 1, out SkillName sn, out double value);
+                        SkillName sn;
+                        double value;
+                        m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
                         int maxGain = 1200 - (int)(value * 10 + 0.5);
                         if (maxGain < scrollsToUse)
                             scrollsToUse = maxGain;
