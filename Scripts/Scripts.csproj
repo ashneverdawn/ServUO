@@ -11996,6 +11996,7 @@
     <Compile Include="Mods\ExperienceScroll\ExperienceScroll.cs" />
     <Compile Include="Mods\CraftsmansApron\CraftsmansApron.cs" />
     <Compile Include="Mods\CraftsmansApron\CraftsmansApronGump.cs" />
+    <Compile Include="Mods\AdminCommands\AdminCommands.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Services\New Magincia\ReadMe.txt" />
@@ -12016,6 +12017,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Mods\CraftsmansApron\" />
+    <Folder Include="Mods\AdminCommands\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
