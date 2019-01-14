@@ -154,7 +154,7 @@ namespace Server.Engines.Harvest
             HarvestResource fallback = vein.FallbackResource;
             HarvestResource resource = MutateResource(from, tool, def, map, loc, vein, primary, fallback);
 
-            double skillBase = from.Skills[def.Skill].Base;
+            double skillValue = from.Skills[def.Skill].Value;
 
             Type type = null;
 
@@ -218,7 +218,7 @@ namespace Server.Engines.Harvest
 
                         BonusHarvestResource bonus = def.GetBonusResource();
 
-                        if (bonus != null && bonus.Type != null && skillBase >= bonus.ReqSkill)
+                        if (bonus != null && bonus.Type != null && skillValue >= bonus.ReqSkill)
                         {
 							if (bonus.RequiredMap == null || bonus.RequiredMap == from.Map)
 							{

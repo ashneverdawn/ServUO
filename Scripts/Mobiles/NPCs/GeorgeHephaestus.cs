@@ -93,7 +93,7 @@ namespace Server.Engines.Quests
             }
             #endregion
             else
-                return this.Owner.Skills.Blacksmith.Base < 50;
+                return this.Owner.Skills.Blacksmith.Value < 50;
         }
 		
         public override void OnCompleted()

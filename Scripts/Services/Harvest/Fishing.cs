@@ -281,7 +281,7 @@ namespace Server.Engines.Harvest
                 if (!deepWater && entry.m_DeepWater)
                     continue;
 
-                if (skillBase >= entry.m_ReqSkill)
+                if (skillValue >= entry.m_ReqSkill)
                 {
                     double chance = (skillValue - entry.m_MinSkill) / (entry.m_MaxSkill - entry.m_MinSkill);
 
@@ -1051,7 +1051,7 @@ namespace Server.Engines.Harvest
             {
                 MutateEntry entry = m_LavaMutateTable[i];
 
-                if (skillBase >= entry.m_ReqSkill)
+                if (skillValue >= entry.m_ReqSkill)
                 {
                     double chance = (skillValue - entry.m_MinSkill) / (entry.m_MaxSkill - entry.m_MinSkill);
 

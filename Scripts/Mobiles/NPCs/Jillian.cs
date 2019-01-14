@@ -102,7 +102,7 @@ namespace Server.Engines.Quests
             }
             #endregion
             else
-                return this.Owner.Skills.Inscribe.Base < 50;
+                return this.Owner.Skills.Inscribe.Value < 50;
         }
 		
         public override void OnCompleted()

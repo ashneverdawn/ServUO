@@ -186,11 +186,11 @@ namespace Server.Mobiles
 
             HarvestResource resource = system.MutateResource(this, null, def, map, loc, vein, primary, fallback);
 
-            double skillBase = Skills[def.Skill].Base;
+            double skillValue = Skills[def.Skill].Value;
 
             Type type = null;
 
-            if (skillBase >= resource.ReqSkill && CheckSkill(def.Skill, resource.MinSkill, resource.MaxSkill))
+            if (skillValue >= resource.ReqSkill && CheckSkill(def.Skill, resource.MinSkill, resource.MaxSkill))
             {
                 type = system.GetResourceType(this, null, def, map, loc, resource);
 
@@ -230,7 +230,7 @@ namespace Server.Mobiles
                         // Mine for gems
                         BonusHarvestResource bonus = def.GetBonusResource();
 
-                        if (bonus != null && bonus.Type != null && skillBase >= bonus.ReqSkill)
+                        if (bonus != null && bonus.Type != null && skillValue >= bonus.ReqSkill)
                         {
                             Item bonusItem = system.Construct(bonus.Type, this, null);
 

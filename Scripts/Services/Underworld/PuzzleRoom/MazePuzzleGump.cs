@@ -127,7 +127,7 @@ namespace Server.Gumps
 
 			}
 			
-			if(from.Skills[SkillName.Lockpicking].Base >= 100)
+			if(from.Skills[SkillName.Lockpicking].Value >= 100)
 			{
                 AddHtmlLocalized(410, 415, 150, 32, 1153750, false, false); // Attempt to Decipher the Circuit Path
 				AddButton(370, 415, 4005, 4005, 5, GumpButtonType.Reply, 0);

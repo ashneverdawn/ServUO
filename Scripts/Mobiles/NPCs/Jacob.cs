@@ -100,7 +100,7 @@ namespace Server.Engines.Quests
             }
             #endregion
             else
-                return this.Owner.Skills.Mining.Base < 50;
+                return this.Owner.Skills.Mining.Value < 50;
         }
 		
         public override void OnCompleted()

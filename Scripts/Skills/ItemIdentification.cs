@@ -79,7 +79,7 @@ namespace Server.Items
                         {
                             int weight = Imbuing.GetTotalWeight(item);
                             string imbIngred = null;
-                            double skill = from.Skills[SkillName.Imbuing].Base;
+                            double skill = from.Skills[SkillName.Imbuing].Value;
                             bool badSkill = false;
 
                             if (!Imbuing.CanUnravelItem(from, item, false))

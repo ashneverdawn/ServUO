@@ -51,7 +51,7 @@ namespace Server.Items
             {
                 pm.SendLocalizedMessage(1042001); // That must be in your pack for you to use it.
             }
-            else if (pm.Skills[SkillName.Tinkering].Base < 100.0)
+            else if (pm.Skills[SkillName.Tinkering].Value < 100.0)
             {
                 pm.SendMessage("Only a Grandmaster Tinkerer can learn from this book.");
             }

@@ -691,7 +691,7 @@ namespace Server.Items
                 this.AddRightCylinderButton(451, 230, PuzzleChestCylinder.DarkBlue, 16);
                 this.AddRightCylinderButton(451, 280, PuzzleChestCylinder.Yellow, 17);
 
-                double lockpicking = from.Skills.Lockpicking.Base;
+                double lockpicking = from.Skills.Lockpicking.Value;
                 if (lockpicking >= 60.0)
                 {
                     this.AddHtmlLocalized(160, 125, 230, 24, 1018308, false, false); // Lockpicking hint:

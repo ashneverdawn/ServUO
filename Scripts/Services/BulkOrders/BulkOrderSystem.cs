@@ -143,7 +143,7 @@ namespace Server.Engines.BulkOrders
 
         public static double GetBODSkill(Mobile m, SkillName skill)
         {
-            return Math.Max(m.Skills[skill].Base, m.GetRacialSkillBonus(skill));
+            return Math.Max(m.Skills[skill].Value, m.GetRacialSkillBonus(skill));
         }
 
         public static List<CollectionItem> GetRewardCollection(BODType type)
@@ -265,7 +265,7 @@ namespace Server.Engines.BulkOrders
             if (pm.AccessLevel > AccessLevel.Player || fromContextMenu || 0.2 > Utility.RandomDouble())
             {
                 SkillName sk = GetSkillForBOD(type);
-                double theirSkill = pm.Skills[sk].Base;
+                double theirSkill = pm.Skills[sk].Value;
                 bool doLarge = theirSkill >= 70.1 && ((theirSkill - 40.0) / 300.0) > Utility.RandomDouble();
 
                 switch (type)

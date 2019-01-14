@@ -221,12 +221,12 @@ namespace Server.Engines.Harvest
 
                 PlayerMobile pm = from as PlayerMobile;
 
-                if (pm != null && pm.GemMining && pm.ToggleMiningGem && from.Skills[SkillName.Mining].Base >= 100.0 && 0.1 > Utility.RandomDouble())
+                if (pm != null && pm.GemMining && pm.ToggleMiningGem && from.Skills[SkillName.Mining].Value >= 100.0 && 0.1 > Utility.RandomDouble())
                     return Loot.GemTypes[Utility.Random(Loot.GemTypes.Length)];
 
                 double chance = tool is RockHammer ? 0.50 : 0.15;
 
-                if (pm != null && pm.StoneMining && (pm.ToggleMiningStone || pm.ToggleStoneOnly) && from.Skills[SkillName.Mining].Base >= 100.0 && chance > Utility.RandomDouble())
+                if (pm != null && pm.StoneMining && (pm.ToggleMiningStone || pm.ToggleStoneOnly) && from.Skills[SkillName.Mining].Value >= 100.0 && chance > Utility.RandomDouble())
                     return resource.Types[1];
 
                 if (pm != null && pm.ToggleStoneOnly)
@@ -291,7 +291,7 @@ namespace Server.Engines.Harvest
             if (!base.CheckHarvest(from, tool, def, toHarvest))
                 return false;
 
-            if (def == this.m_Sand && !(from is PlayerMobile && from.Skills[SkillName.Mining].Base >= 100.0 && ((PlayerMobile)from).SandMining))
+            if (def == this.m_Sand && !(from is PlayerMobile && from.Skills[SkillName.Mining].Value >= 100.0 && ((PlayerMobile)from).SandMining))
             {
                 this.OnBadHarvestTarget(from, tool, toHarvest);
                 return false;
