@@ -932,7 +932,7 @@ namespace Server.Engines.Craft
 
 					CraftSubRes subResource = resCol.SearchFor(baseType);
 
-					if (subResource != null && from.Skills[craftSystem.MainSkill].Base < subResource.RequiredSkill)
+					if (subResource != null && from.Skills[craftSystem.MainSkill].Value < subResource.RequiredSkill)
 					{
 						message = subResource.Message;
 						return false;
