@@ -391,7 +391,7 @@ namespace Server.Gumps
                                 }
                             case 8: // Drop rune
                                 {
-                                    if (m_Book.CheckAccess(from))
+                                    if (from.Backpack.Items.Contains(m_Book))
                                     {
                                         m_Book.DropRune(from, e, index);
 
