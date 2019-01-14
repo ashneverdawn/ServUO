@@ -28,7 +28,7 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
-            if (IsChildOf(from.Backpack))
+            if (IsChildOf(from) || IsChildOf(from.Backpack))
             {
                 from.SendGump(new CraftsmansApronGump(from, this));
             }
