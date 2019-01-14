@@ -117,6 +117,8 @@ namespace Server.Gumps
                         SkillName sn;
                         double value;
                         m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
+                        if (sn == SkillName.Alchemy)
+                            sn = SkillName.ArmsLore;
                         int maxGain = 1200 - (int)(value * 10 + 0.5);
                         if (maxGain < scrollsToUse)
                             scrollsToUse = maxGain;
