@@ -1,5 +1,6 @@
 ﻿using System;
 using Server.Gumps;
+using Server.Mobiles;
 
 namespace Server.Items
 {
@@ -7,7 +8,7 @@ namespace Server.Items
     {
         public static void HandleKill(Mobile victim, Mobile killer)
         {
-            if(victim.Fame < 2000)
+            if(!(victim as BaseCreature).IsChampionSpawn && victim.Fame < 2000)
             {
                 double chance = (1.0 - (victim.Fame / 2000.0)) * 0.75;
                 if (victim.Fame > 1000)
