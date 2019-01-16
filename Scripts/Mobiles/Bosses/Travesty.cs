@@ -30,6 +30,35 @@ namespace Server.Mobiles
         public override bool CanPeace { get { return _CanPeace; } }
         public override bool CanProvoke { get { return _CanProvoke; } }
 
+        readonly SkillName[] copySkills = new SkillName[] {
+            SkillName.Fencing,
+            SkillName.Swords,
+            SkillName.Macing,
+            SkillName.Archery,
+            SkillName.Throwing,
+            SkillName.MagicResist,
+            SkillName.Healing,
+            SkillName.Poisoning,
+            SkillName.DetectHidden,
+            SkillName.Hiding,
+            SkillName.Parry,
+            SkillName.Magery,
+            SkillName.EvalInt,
+            SkillName.Meditation,
+            SkillName.Necromancy,
+            SkillName.SpiritSpeak,
+            SkillName.Focus,
+            SkillName.Spellweaving,
+            SkillName.Bushido,
+            SkillName.Ninjitsu,
+            SkillName.Chivalry,
+
+            SkillName.Musicianship,
+            SkillName.Discordance,
+            SkillName.Provocation,
+            SkillName.Peacemaking,
+        };
+
         [Constructable]
         public Travesty()
             : base(AIType.AI_Mage, FightMode.Closest, 10, 1, 0.2, 0.4)
@@ -49,37 +78,20 @@ namespace Server.Mobiles
 
             SetDamageType(ResistanceType.Physical, 100);
 
-            SetResistance(ResistanceType.Physical, 50, 70);
-            SetResistance(ResistanceType.Fire, 50, 70);
-            SetResistance(ResistanceType.Cold, 50, 70);
-            SetResistance(ResistanceType.Poison, 50, 70);
-            SetResistance(ResistanceType.Energy, 50, 70);
+            SetResistance(ResistanceType.Physical, 50, 65);
+            SetResistance(ResistanceType.Fire, 50, 65);
+            SetResistance(ResistanceType.Cold, 50, 65);
+            SetResistance(ResistanceType.Poison, 50, 65);
+            SetResistance(ResistanceType.Energy, 50, 65);
 
             SetSkill(SkillName.Wrestling, 100.0, 120.0);
             SetSkill(SkillName.Tactics, 100.0, 120.0);
-            SetSkill(SkillName.MagicResist, 100.0, 120.0);
             SetSkill(SkillName.Anatomy, 100.0, 120.0);
-            SetSkill(SkillName.Healing, 100.0, 120.0);
-            SetSkill(SkillName.Poisoning, 100.0, 120.0);
-            SetSkill(SkillName.DetectHidden, 100.0);
-            SetSkill(SkillName.Hiding, 100.0);
-            SetSkill(SkillName.Parry, 100.0, 110.0);
-            SetSkill(SkillName.Magery, 100.0, 120.0);
-            SetSkill(SkillName.EvalInt, 100.0, 120.0);
-            SetSkill(SkillName.Meditation, 100.0, 120.0);
-            SetSkill(SkillName.Necromancy, 100.0, 120.0);
-            SetSkill(SkillName.SpiritSpeak, 100.0, 120.0);
-            SetSkill(SkillName.Focus, 100.0, 120.0);
-            SetSkill(SkillName.Spellweaving, 100.0, 120.0);
-            SetSkill(SkillName.Discordance, 100.0, 120.0);
-            SetSkill(SkillName.Bushido, 100.0, 120.0);
-            SetSkill(SkillName.Ninjitsu, 100.0, 120.0);
-            SetSkill(SkillName.Chivalry, 100.0, 120.0);
 
-            SetSkill(SkillName.Musicianship, 100.0, 120.0);
-            SetSkill(SkillName.Discordance, 100.0, 120.0);
-            SetSkill(SkillName.Provocation, 100.0, 120.0);
-            SetSkill(SkillName.Peacemaking, 100.0, 120.0);
+            foreach(SkillName s in copySkills)
+            {
+                SetSkill(s, 0);
+            }
 
             Fame = 30000;
             Karma = -30000;
@@ -194,6 +206,11 @@ namespace Server.Mobiles
 
             Mobile attacker = list[Utility.Random(list.Count)];
 
+            foreach (SkillName s in copySkills)
+            {
+                SetSkill(s, attacker.Skills[s].Value);
+            }
+
             BodyMod = attacker.Body;
             HueMod = attacker.Hue;
             NameMod = attacker.Name;
@@ -228,7 +245,7 @@ namespace Server.Mobiles
                             if (i != null)
                                 i.Delete();
 
-                            AddItem(Loot.Construct(item.GetType()));
+                            AddItem(new ClonedItem(item));
                         }
                         else
                         {
@@ -312,6 +329,12 @@ namespace Server.Mobiles
 
         public virtual void RestoreBody()
         {
+
+            foreach (SkillName s in copySkills)
+            {
+                SetSkill(s, 0);
+            }
+
             BodyMod = 0;
             HueMod = -1;
             NameMod = null;
