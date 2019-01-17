@@ -8,6 +8,7 @@ namespace Server.Gumps
     public class CraftsmansApronGump : Gump
     {
         private readonly SkillName[] apronSkills = {
+                SkillName.Alchemy
                 SkillName.ArmsLore,
                 SkillName.Begging,
                 SkillName.Blacksmith,
@@ -18,7 +19,9 @@ namespace Server.Gumps
                 SkillName.Fishing,
                 SkillName.Forensics,
                 SkillName.Imbuing,
+                SkillName.Inscribe,
                 SkillName.Lockpicking,
+                SkillName.Lumberjacking,
                 SkillName.Mining,
                 SkillName.Tailoring,
                 SkillName.TasteID,
@@ -35,7 +38,7 @@ namespace Server.Gumps
             from.CloseGump(typeof(CraftsmansApronGump));
 
             this.AddPage(0);
-            this.AddBackground(0, 0, 450, 450, 0xA3C);
+            this.AddBackground(0, 0, 450, 500, 0xA3C);
 
             int experience = GetExperience(from);
 
@@ -117,8 +120,6 @@ namespace Server.Gumps
                         SkillName sn;
                         double value;
                         m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
-                        if (sn == SkillName.Alchemy)
-                            sn = SkillName.ArmsLore;
                         int maxGain = 1200 - (int)(value * 10 + 0.5);
                         if (maxGain < scrollsToUse)
                             scrollsToUse = maxGain;
