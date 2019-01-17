@@ -8,7 +8,7 @@ namespace Server.Gumps
     public class CraftsmansApronGump : Gump
     {
         private readonly SkillName[] apronSkills = {
-                SkillName.Alchemy
+                SkillName.Alchemy,
                 SkillName.ArmsLore,
                 SkillName.Begging,
                 SkillName.Blacksmith,
