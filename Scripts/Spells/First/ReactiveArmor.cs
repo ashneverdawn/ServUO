@@ -85,7 +85,7 @@ namespace Server.Spells.First
 
                         mods = new ResistanceMod[5]
                         {
-                            new ResistanceMod(ResistanceType.Physical, 15 + (int)(targ.Skills[SkillName.Inscribe].Value / 20)),
+                            new ResistanceMod(ResistanceType.Physical, 15 + (int)(targ.Skills[SkillName.Inscribe].Base / 20)),
                             new ResistanceMod(ResistanceType.Fire, -5),
                             new ResistanceMod(ResistanceType.Cold, -5),
                             new ResistanceMod(ResistanceType.Poison, -5),
@@ -97,7 +97,7 @@ namespace Server.Spells.First
                         for (int i = 0; i < mods.Length; ++i)
                             targ.AddResistanceMod(mods[i]);
 
-                        int physresist = 15 + (int)(targ.Skills[SkillName.Inscribe].Value / 20);
+                        int physresist = 15 + (int)(targ.Skills[SkillName.Inscribe].Base / 20);
                         string args = String.Format("{0}\t{1}\t{2}\t{3}\t{4}", physresist, 5, 5, 5, 5);
 
                         BuffInfo.AddBuff(this.Caster, new BuffInfo(BuffIcon.ReactiveArmor, 1075812, 1075813, args.ToString()));
@@ -132,7 +132,7 @@ namespace Server.Spells.First
                 {
                     if (this.Caster.BeginAction(typeof(DefensiveSpell)))
                     {
-                        int value = (int)(this.Caster.Skills[SkillName.Magery].Value + this.Caster.Skills[SkillName.Meditation].Value + this.Caster.Skills[SkillName.Inscribe].Value);
+                        int value = (int)(this.Caster.Skills[SkillName.Magery].Value + this.Caster.Skills[SkillName.Meditation].Value + this.Caster.Skills[SkillName.Inscribe].Base);
                         value /= 3;
 
                         if (value < 0)

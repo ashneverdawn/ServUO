@@ -274,7 +274,7 @@ namespace Server.Spells
                 if (focus > 12) 
                     focus = 12;
 
-                focus += m_Caster.Skills[SkillName.Inscribe].Value >= 50 ? GetInscribeFixed(m_Caster) / 200 : 0;
+                focus += m_Caster.Skills[SkillName.Inscribe].Base >= 50 ? GetInscribeFixed(m_Caster) / 200 : 0;
 
                 if (focus > 0 && focus > Utility.Random(100))
                 {
@@ -414,14 +414,14 @@ namespace Server.Spells
 		{
 			// There is no chance to gain
 			// m.CheckSkill( SkillName.Inscribe, 0.0, 120.0 );
-			return m.Skills[SkillName.Inscribe].Value;
+			return m.Skills[SkillName.Inscribe].Base;
 		}
 
 		public virtual int GetInscribeFixed(Mobile m)
 		{
 			// There is no chance to gain
 			// m.CheckSkill( SkillName.Inscribe, 0.0, 120.0 );
-			return m.Skills[SkillName.Inscribe].Fixed;
+			return m.Skills[SkillName.Inscribe].BaseFixedPoint;
 		}
 
 		public virtual int GetDamageFixed(Mobile m)
