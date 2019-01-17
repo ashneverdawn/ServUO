@@ -40,7 +40,7 @@ namespace Server.Spells.Mysticism
         {
             get
             {
-                if (Caster.Skills[SkillName.Imbuing].Value >= Caster.Skills[SkillName.Focus].Value)
+                if (Caster.Skills[SkillName.Imbuing].Base >= Caster.Skills[SkillName.Focus].Value)
                     return SkillName.Imbuing;
                 return SkillName.Focus;
             }
@@ -128,7 +128,7 @@ namespace Server.Spells.Mysticism
 
         public static double GetBoostSkill(Mobile m)
         {
-            return Math.Max(m.Skills[SkillName.Imbuing].Value, m.Skills[SkillName.Focus].Value);
+            return Math.Max(m.Skills[SkillName.Imbuing].Base, m.Skills[SkillName.Focus].Value);
         }
     }
 }
