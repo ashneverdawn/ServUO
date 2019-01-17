@@ -2966,7 +2966,7 @@ namespace Server.Items
             int damage = Utility.Dice(dice, sides, bonus) * 100;
             int damageBonus = 0;
 
-            int inscribeSkill = attacker.Skills[SkillName.Inscribe].Fixed;
+            int inscribeSkill = attacker.Skills[SkillName.Inscribe].BaseFixedPoint;
             int inscribeBonus = (inscribeSkill + (1000 * (inscribeSkill / 1000))) / 200;
 
             damageBonus += inscribeBonus;
@@ -3670,7 +3670,7 @@ namespace Server.Items
 			double strengthBonus = GetBonus(attacker.Str, 0.300, 100.0, 5.00);
 			double anatomyBonus = GetBonus(attacker.Skills[SkillName.Anatomy].Value, 0.500, 100.0, 5.00);
 			double tacticsBonus = GetBonus(attacker.Skills[SkillName.Tactics].Value, 0.625, 100.0, 6.25);
-			double lumberBonus = GetBonus(attacker.Skills[SkillName.Lumberjacking].Value, 0.200, 100.0, 10.00);
+			double lumberBonus = GetBonus(attacker.Skills[SkillName.Lumberjacking].Base, 0.200, 100.0, 10.00);
 
 			if (Type != WeaponType.Axe)
 			{
@@ -3750,7 +3750,7 @@ namespace Server.Items
 
 			if (Type == WeaponType.Axe)
 			{
-				double lumberValue = attacker.Skills[SkillName.Lumberjacking].Value;
+				double lumberValue = attacker.Skills[SkillName.Lumberjacking].Base;
 			    lumberValue = (lumberValue/5.0)/100.0;
 			    if (lumberValue > 0.2)
 			        lumberValue = 0.2;
