@@ -979,7 +979,8 @@ namespace Server.Network
 
             int promptSerial = (p != null && p.Sender != null) ? p.Sender.Serial.Value : from.Serial.Value;
 
-            if (p != null && promptSerial == serial && p.TypeId == prompt)
+            if ((p != null && promptSerial == serial && p.TypeId == prompt) 
+                || (p != null && promptSerial == prompt && p.TypeId == serial)) //Added this condition for promptmsg UOS macro command to work. (The variables are reversed)
             {
                 from.Prompt = null;
 
