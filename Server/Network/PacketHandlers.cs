@@ -1748,9 +1748,10 @@ namespace Server.Network
 
 			int range = pvSrc.ReadByte();
 
-			// Don't let range drop below the minimum standard.
-			range = Math.Max(Core.GlobalUpdateRange, range);
-			
+            // Don't let range drop below the minimum standard.
+            //range = Math.Max(Core.GlobalUpdateRange, range);
+            range = Core.GlobalUpdateRange; // Fix fixes the load-in bug at higher resolutions.
+
             int old = state.UpdateRange;
 
 			if (old == range)
