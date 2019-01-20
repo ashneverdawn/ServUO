@@ -87,7 +87,7 @@ namespace Server.Gumps
                 }
 
             }
-
+            bool skillChange = false;
             switch (id)
             {
                 case 0:
@@ -99,6 +99,7 @@ namespace Server.Gumps
                         double value;
                         m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
                         m_Apron.SkillBonuses.SetValues(id - 1, apronSkills[radioId - 1], (value == 0) ? 1.0 : value);
+                        skillChange = true;
 
                     }
                     break;
@@ -138,7 +139,7 @@ namespace Server.Gumps
                     break;
             }
 
-            if (GetExperience(from) > 0)
+            if (skillChange || GetExperience(from) > 0)
             {
                 from.SendGump(new CraftsmansApronGump(from, m_Apron));
             }
