@@ -491,10 +491,12 @@ namespace Server.Items
             }
 
             // teleport party to exit if not already there
-            Fighters.ForEach(x => Exit(x));
+            for (int i = Fighters.Count - 1; i >= 0; --i)
+                Exit(Fighters[i]);
 
             // delete master keys
-            MasterKeys.ForEach(x => x.Delete());
+            for (int i = MasterKeys.Count - 1; i >= 0; --i)
+                MasterKeys[i].Delete();
 
             if (MasterKeys != null)
                 MasterKeys.Clear();
