@@ -603,7 +603,8 @@ namespace Server.Items
             StopSlayTimer();
 
             // delete master keys				
-            MasterKeys.ForEach(x => x.Delete());
+            for (int i = MasterKeys.Count - 1; i >= 0; i--)
+                MasterKeys[i].Delete();
 
             MasterKeys.Clear();
 
