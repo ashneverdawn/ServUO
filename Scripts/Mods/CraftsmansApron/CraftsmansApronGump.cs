@@ -5,9 +5,9 @@ using Server.Misc;
 
 namespace Server.Gumps
 {
-    public class CraftsmansApronGump : Gump
+    public class CraftsmansGump : Gump
     {
-        private readonly SkillName[] apronSkills = {
+        private readonly SkillName[] itemSkills = {
                 SkillName.Alchemy,
                 SkillName.ArmsLore,
                 SkillName.Begging,
@@ -28,14 +28,14 @@ namespace Server.Gumps
                 SkillName.Tinkering};
 
         private readonly Mobile m_From;
-        private readonly CraftsmansApron m_Apron;
-        public CraftsmansApronGump(Mobile from, CraftsmansApron apron)
+        private BaseClothing m_Item;
+        public CraftsmansGump(Mobile from, BaseClothing item)
             : base(100, 100)
         {
             this.m_From = from;
-            this.m_Apron = apron;
+            this.m_Item = item;
 
-            from.CloseGump(typeof(CraftsmansApronGump));
+            from.CloseGump(typeof(CraftsmansGump));
 
             this.AddPage(0);
             this.AddBackground(0, 0, 450, 500, 0xA3C);
@@ -44,7 +44,7 @@ namespace Server.Gumps
 
             int[] cols = { 20, 50, 240, 270, 300, 330 };
 
-            this.AddLabel(cols[0], 10, 965, "Enhance your Apron");
+            this.AddLabel(cols[0], 10, 965, "Enhance your Item");
             this.AddLabel(cols[0], 35, 965, "Experience Scrolls Available: " + experience);
 
             int gumpY = 70;
@@ -55,10 +55,10 @@ namespace Server.Gumps
             gumpY = 90;
             int gumpOffsetY = 20;
             int i = 0;
-            foreach(SkillName skillName in apronSkills)
+            foreach(SkillName skillName in itemSkills)
             {
                 AddRadio(cols[0], gumpY + i * gumpOffsetY, 9727, 9730, false, i+1);
-                this.AddLabel(cols[1] , gumpY + i * gumpOffsetY, 965, apronSkills[i].ToString());
+                this.AddLabel(cols[1] , gumpY + i * gumpOffsetY, 965, itemSkills[i].ToString());
                 i++;
             }
             for(i = 0; i < 5; i++)
@@ -68,9 +68,25 @@ namespace Server.Gumps
                 this.AddButton(cols[4], gumpY + i * gumpOffsetY, 4014, 4016, i + 11, GumpButtonType.Reply, 1);
                 SkillName sn;
                 double value;
-                apron.SkillBonuses.GetValues(i, out sn, out value);
+                item.SkillBonuses.GetValues(i, out sn, out value);
                 this.AddLabel(cols[5], gumpY + i * gumpOffsetY, 965, (value > 0) ? sn.ToString() + "(+" + value + ")" : "Skill " + (i+1));
             }
+
+            gumpY = 240;
+            this.AddButton(cols[2], gumpY, 4014, 4016, 16, GumpButtonType.Reply, 1);
+            this.AddLabel(cols[3], gumpY, 965, "Convert to Fancy Shirt");
+
+            this.AddButton(cols[2], gumpY + 20, 4014, 4016, 17, GumpButtonType.Reply, 1);
+            this.AddLabel(cols[3], gumpY + 20, 965, "Convert to Apron");
+
+            this.AddButton(cols[2], gumpY + 40, 4014, 4016, 18, GumpButtonType.Reply, 1);
+            this.AddLabel(cols[3], gumpY + 40, 965, "Convert to Talisman");
+
+            this.AddButton(cols[2], gumpY + 60, 4014, 4016, 19, GumpButtonType.Reply, 1);
+            this.AddLabel(cols[3], gumpY + 60, 965, "Convert to Earrings");
+
+            this.AddButton(cols[2], gumpY + 80, 4014, 4016, 20, GumpButtonType.Reply, 1);
+            this.AddLabel(cols[3], gumpY + 80, 965, "Convert to Sandals");
         }
 
         public override void OnResponse(NetState sender, RelayInfo info)
@@ -97,8 +113,8 @@ namespace Server.Gumps
                     {
                         SkillName sn;
                         double value;
-                        m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
-                        m_Apron.SkillBonuses.SetValues(id - 1, apronSkills[radioId - 1], (value == 0) ? 1.0 : value);
+                        m_Item.SkillBonuses.GetValues(id - 1, out sn, out value);
+                        m_Item.SkillBonuses.SetValues(id - 1, itemSkills[radioId - 1], (value == 0) ? 1.0 : value);
                         skillChange = true;
 
                     }
@@ -120,7 +136,7 @@ namespace Server.Gumps
                     {
                         SkillName sn;
                         double value;
-                        m_Apron.SkillBonuses.GetValues(id - 1, out sn, out value);
+                        m_Item.SkillBonuses.GetValues(id - 1, out sn, out value);
                         int maxGain = 1200 - (int)(value * 10 + 0.5);
                         if (maxGain < scrollsToUse)
                             scrollsToUse = maxGain;
@@ -134,16 +150,43 @@ namespace Server.Gumps
                         if (newValue > 119.0)
                             newValue = 120.0;
                         newValue = (int)(newValue + 0.5);
-                        m_Apron.SkillBonuses.SetValues(id - 1, sn, newValue);
+                        m_Item.SkillBonuses.SetValues(id - 1, sn, newValue);
                     }
+                    break;
+                case 16:
+                    if (m_Item.Layer != Layer.Shirt)
+                        SwitchItemTo(new CraftsmansFancyShirt());
+                    break;
+                case 17:
+                    if(m_Item.Layer != Layer.MiddleTorso)
+                        SwitchItemTo(new CraftsmansApron());
+                    break;
+                case 18:
+                    if (m_Item.Layer != Layer.Talisman)
+                        SwitchItemTo(new CraftsmansTalisman());
+                    break;
+                case 19:
+                    if (m_Item.Layer != Layer.Earrings)
+                        SwitchItemTo(new CraftsmansEarrings());
+                    break;
+                case 20:
+                    if (m_Item.Layer != Layer.Shoes)
+                        SwitchItemTo(new CraftsmansSandals());
                     break;
             }
 
             if (skillChange || GetExperience(from) > 0)
             {
-                from.SendGump(new CraftsmansApronGump(from, m_Apron));
+                from.SendGump(new CraftsmansGump(from, m_Item));
             }
 
+        }
+        void SwitchItemTo(BaseClothing newItem)
+        {
+            newItem.SkillBonuses = m_Item.SkillBonuses;
+            m_Item.Delete();
+            m_From.Backpack.AddItem(newItem);
+            m_Item = newItem;
         }
 
         int GetExperience(Mobile from)

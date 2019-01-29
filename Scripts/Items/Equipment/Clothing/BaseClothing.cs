@@ -411,6 +411,7 @@ namespace Server.Items
             }
             set
             {
+                m_AosSkillBonuses = value;
             }
         }
 

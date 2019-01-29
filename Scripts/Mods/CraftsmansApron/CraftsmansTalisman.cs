@@ -4,24 +4,23 @@ using Server.Gumps;
 
 namespace Server.Items
 {
-    [Flipable(0x153d, 0x153e)]
-    public class CraftsmansApron : BaseMiddleTorso
+    public class CraftsmansTalisman : BaseClothing
     {
         [Constructable]
-        public CraftsmansApron()
+        public CraftsmansTalisman()
             : this(0)
         {
         }
 
         [Constructable]
-        public CraftsmansApron(int hue)
-            : base(0x153d, hue)
+        public CraftsmansTalisman(int hue)
+            : base(0x2F5B, Layer.Talisman, hue)
         {
-            this.Name = "Craftsman's Apron";
+            this.Name = "Craftsman's Talisman";
             this.Weight = 1.0;
         }
 
-        public CraftsmansApron(Serial serial)
+        public CraftsmansTalisman(Serial serial)
             : base(serial)
         {
         }
