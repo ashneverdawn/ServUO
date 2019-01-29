@@ -8263,9 +8263,9 @@ namespace Server
 			get { return m_Str; }
 			set
 			{
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
@@ -8314,9 +8314,9 @@ namespace Server
 			{
 				int value = m_Str + GetStatOffset(StatType.Str);
 
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
@@ -8347,9 +8347,9 @@ namespace Server
 			get { return m_Dex; }
 			set
 			{
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
@@ -8398,9 +8398,9 @@ namespace Server
 			{
 				int value = m_Dex + GetStatOffset(StatType.Dex);
 
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
@@ -8431,9 +8431,9 @@ namespace Server
 			get { return m_Int; }
 			set
 			{
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
@@ -8482,9 +8482,9 @@ namespace Server
 			{
 				int value = m_Int + GetStatOffset(StatType.Int);
 
-				if (value < 1)
+				if (value < 10)
 				{
-					value = 1;
+					value = 10;
 				}
 				else if (value > 65000)
 				{
