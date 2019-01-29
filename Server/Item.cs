@@ -1319,6 +1319,10 @@ namespace Server
             {
                 list.Add(1060446, v.ToString()); // energy resist ~1_val~%
             }
+
+            int total = PhysicalResistance + FireResistance + ColdResistance + PoisonResistance + EnergyResistance;
+            if (total != 0)
+                list.Add("Total Resist {0}%", total.ToString()); // total resist ~1_val~%
         }
 
         /// <summary>
