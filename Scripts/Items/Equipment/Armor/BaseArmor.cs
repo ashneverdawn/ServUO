@@ -580,9 +580,7 @@ namespace Server.Items
             if (RefinedDefenseChance != 0)
                 list.Add(1153733, String.Format("{0}\t{1}", "", RefinedDefenseChance.ToString()));
 
-            int total = PhysicalResistance + FireResistance + ColdResistance + PoisonResistance + EnergyResistance;
-            if (total != 0)
-                list.Add("Total Resist {0}%", total.ToString()); // total resist ~1_val~%
+            AddTotalResistanceProperty(list);
         }
 
         public static int GetInherentLowerManaCost(Mobile from)

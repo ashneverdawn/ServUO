@@ -1320,9 +1320,27 @@ namespace Server
                 list.Add(1060446, v.ToString()); // energy resist ~1_val~%
             }
 
-            int total = PhysicalResistance + FireResistance + ColdResistance + PoisonResistance + EnergyResistance;
-            if (total != 0)
+            AddTotalResistanceProperty(list);
+        }
+        public virtual void AddTotalResistanceProperty(ObjectPropertyList list)
+        {
+            int numResists = 0;
+            if (PhysicalResistance != 0)
+                numResists++;
+            if (FireResistance != 0)
+                numResists++;
+            if (ColdResistance != 0)
+                numResists++;
+            if (PoisonResistance != 0)
+                numResists++;
+            if (EnergyResistance != 0)
+                numResists++;
+
+            if (numResists >= 2)
+            {
+                int total = PhysicalResistance + FireResistance + ColdResistance + PoisonResistance + EnergyResistance;
                 list.Add("Total Resist {0}%", total.ToString()); // total resist ~1_val~%
+            }
         }
 
         /// <summary>
