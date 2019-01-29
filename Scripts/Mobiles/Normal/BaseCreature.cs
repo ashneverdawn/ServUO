@@ -4505,7 +4505,7 @@ namespace Server.Mobiles
             {
                 if (!m_Creature.Deleted && m_Creature.Controlled && m_Creature.ControlMaster == from)
                 {
-                    if (Utility.IsAlpha(text))
+                    if (Utility.IsAlphaWithSpace(text))
                     {
                         m_Creature.Name = text;
                         from.SendLocalizedMessage(1115559); // Pet name changed.

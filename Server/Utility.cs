@@ -1514,6 +1514,11 @@ namespace Server
             return !Regex.IsMatch(str, "[^a-z]", RegexOptions.IgnoreCase);
         }
 
+        public static bool IsAlphaWithSpace(String str)
+        {
+            return !Regex.IsMatch(str, "[^a-z ]|^ | $| {2,}", RegexOptions.IgnoreCase);
+        }
+
         public static bool IsAlphaNumeric(String str)
         {
             return !Regex.IsMatch(str, "[^a-z0-9]", RegexOptions.IgnoreCase);
