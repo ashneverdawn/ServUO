@@ -31,7 +31,7 @@ namespace Server.Items
         {
             get
             {
-                return Core.HS ? 1.0 : 1.5;
+                return 1.5; //Core.HS ? 1.0 : 1.5;
             }
         }
 
