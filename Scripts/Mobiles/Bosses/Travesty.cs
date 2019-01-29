@@ -98,7 +98,6 @@ namespace Server.Mobiles
 
             VirtualArmor = 50;
             PackTalismans(5);
-            PackResources(8);
 
             for (int i = 0; i < Utility.RandomMinMax(1, 6); i++)
             {
@@ -117,6 +116,7 @@ namespace Server.Mobiles
         {
             base.OnDeath(c);
 
+            DropResources(c, 8);
             c.DropItem(new EyeOfTheTravesty());
             c.DropItem(new OrdersFromMinax());
 

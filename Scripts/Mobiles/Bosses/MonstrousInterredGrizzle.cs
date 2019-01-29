@@ -63,7 +63,6 @@ namespace Server.Mobiles
             Karma = -24000;
 
             VirtualArmor = 80;
-            PackResources(8);
             PackTalismans(5);
 
             for (int i = 0; i < Utility.RandomMinMax(1, 6); i++)
@@ -101,8 +100,9 @@ namespace Server.Mobiles
 
         public override void OnDeath(Container c)
         {
-            base.OnDeath(c);		
-			
+            base.OnDeath(c);
+
+            DropResources(c, 8);
             c.DropItem(new GrizzledBones());
 			
             switch ( Utility.Random(4) )

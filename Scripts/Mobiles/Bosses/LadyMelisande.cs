@@ -41,7 +41,6 @@ namespace Server.Mobiles
             SetSkill(SkillName.Necromancy, 120);
             SetSkill(SkillName.SpiritSpeak, 120);
 
-            PackResources(8);
             PackTalismans(5);
 
             Timer.DelayCall(TimeSpan.FromSeconds(1), new TimerCallback(SpawnSatyrs));
@@ -69,6 +68,7 @@ namespace Server.Mobiles
         {
             base.OnDeath(c);
 
+            DropResources(c, 8);
             c.DropItem(new DiseasedBark());
             c.DropItem(new EternallyCorruptTree());
 

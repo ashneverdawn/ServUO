@@ -55,7 +55,6 @@ namespace Server.Mobiles
 			Fame = 32000;
 			Karma = -32000;
 			
-			PackResources( 8 );
 			PackTalismans( 5 );
 			
 			m_Change = DateTime.UtcNow;
@@ -95,9 +94,10 @@ namespace Server.Mobiles
 		
 		public override void OnDeath( Container c )
 		{
-			base.OnDeath( c );		
-			
-			c.DropItem( new DreadHornMane() );	
+			base.OnDeath( c );
+
+            DropResources(c, 8);
+            c.DropItem( new DreadHornMane() );	
 			
 			if ( Utility.RandomDouble() < 0.6 )
 				c.DropItem( new TaintedMushroom() );

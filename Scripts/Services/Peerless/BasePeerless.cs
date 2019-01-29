@@ -283,7 +283,38 @@ namespace Server.Mobiles
                         break;
                 }
         }
-		
+        public virtual void DropResources(Container c, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+                switch (Utility.Random(6))
+                {
+                    case 0:
+                        if (!c.TryDropItem(this, new Blight(), false))
+                            c.DropItem(new Blight());
+                        break;
+                    case 1:
+                        if (!c.TryDropItem(this, new Scourge(), false))
+                            c.DropItem(new Scourge());
+                        break;
+                    case 2:
+                        if (!c.TryDropItem(this, new Taint(), false))
+                            c.DropItem(new Taint());
+                        break;
+                    case 3:
+                        if (!c.TryDropItem(this, new Putrefication(), false))
+                            c.DropItem(new Putrefication());
+                        break;
+                    case 4:
+                        if (!c.TryDropItem(this, new Corruption(), false))
+                            c.DropItem(new Corruption());
+                        break;
+                    case 5:
+                        if (!c.TryDropItem(this, new Muculent(), false))
+                            c.DropItem(new Muculent());
+                        break;
+                }
+        }
+
         public virtual void PackItems(Item item, int amount)
         {
             for (int i = 0; i < amount; i ++)

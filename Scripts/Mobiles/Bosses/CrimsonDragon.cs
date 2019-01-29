@@ -43,9 +43,6 @@ namespace Server.Mobiles
             this.SetSkill(SkillName.Anatomy, 118.7, 125.0);
             this.SetSkill(SkillName.DetectHidden, 120.0);
 
-            // ingredients
-            this.PackResources(8);
-
             this.Fame = 20000;
             this.Karma = -20000;
 
@@ -283,6 +280,8 @@ namespace Server.Mobiles
         public override void OnDeath(Container c)
         {
             base.OnDeath(c);
+
+            DropResources(c, 8);
 
             if (Utility.RandomDouble() < 0.6)
                 c.DropItem(new ParrotItem());

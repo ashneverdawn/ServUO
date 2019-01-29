@@ -36,7 +36,6 @@ namespace Server.Mobiles
             SetSkill(SkillName.Anatomy, 120.0);
             SetSkill(SkillName.Poisoning, 120.0);
 
-            PackResources(8);
             PackTalismans(5);
             Timer.DelayCall(TimeSpan.FromSeconds(1), new TimerCallback(SpawnBulbous));  //BulbousPutrification
 
@@ -90,8 +89,9 @@ namespace Server.Mobiles
 
         public override void OnDeath(Container c)
         {
-            base.OnDeath(c);		
-			
+            base.OnDeath(c);
+
+            DropResources(c, 8);
             c.DropItem(new LardOfParoxysmus());
 			
             switch ( Utility.Random(3) )
