@@ -100,6 +100,7 @@ namespace Server.Engines.Shadowguard
                     int luck = ds.m_Mobile is PlayerMobile ? ((PlayerMobile)ds.m_Mobile).RealLuck : ds.m_Mobile.Luck;
 
                     int chance = 1000 + (luck / 15);
+                    chance *= 2;
 
                     if (chance > Utility.Random(5000))
                     {
