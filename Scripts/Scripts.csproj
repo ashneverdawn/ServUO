@@ -22,7 +22,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>Output\</OutputPath>
     <DefineConstants>TRACE;NEWTIMERS;ServUO</DefineConstants>
@@ -11997,6 +11996,12 @@
     <Compile Include="Mods\CraftsmansApron\CraftsmansApron.cs" />
     <Compile Include="Mods\CraftsmansApron\CraftsmansApronGump.cs" />
     <Compile Include="Mods\AdminCommands\AdminCommands.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansTalisman.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansEarrings.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansSandals.cs" />
+    <Compile Include="Mods\CraftsmansApron\CraftsmansFancyShirt.cs" />
+    <Compile Include="Mods\AltarOfPower\AltarOfPowerGump.cs" />
+    <Compile Include="Mods\AltarOfPower\AltarOfPower.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Services\New Magincia\ReadMe.txt" />
@@ -12018,6 +12023,7 @@
   <ItemGroup>
     <Folder Include="Mods\CraftsmansApron\" />
     <Folder Include="Mods\AdminCommands\" />
+    <Folder Include="Mods\AltarOfPower\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
