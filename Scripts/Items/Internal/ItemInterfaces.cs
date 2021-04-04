@@ -1,17 +1,17 @@
-using System;
-using Server.Mobiles;
 using Server.Engines.Craft;
+using Server.Mobiles;
 
 namespace Server.Items
 {
+    public interface IUsesRemaining
+    {
+        int UsesRemaining { get; set; }
+        bool ShowUsesRemaining { get; set; }
+    }
+
     public interface IAccountRestricted
     {
         string Account { get; set; }
-    }
-
-    public interface IVvVItem
-    {
-        bool IsVvVItem { get; set; }
     }
 
     public interface IOwnerRestricted
@@ -22,7 +22,7 @@ namespace Server.Items
 
     public interface IFlipable
     {
-        void OnFlip();
+        void OnFlip(Mobile m);
     }
 
     public interface IQuality : ICraftable
@@ -31,7 +31,7 @@ namespace Server.Items
         bool PlayerConstructed { get; }
     }
 
-    public interface IResource : IQuality
+    public interface IResource
     {
         CraftResource Resource { get; set; }
     }
@@ -45,6 +45,9 @@ namespace Server.Items
     {
         int TimesImbued { get; set; }
         bool IsImbued { get; set; }
+
+        int[] BaseResists { get; }
+        void OnAfterImbued(Mobile m, int mod, int value);
     }
 
     public interface ICombatEquipment : IImbuableEquipement
@@ -59,13 +62,21 @@ namespace Server.Items
     {
         Low,
         Normal,
-        Exceptional,
+        Exceptional
     }
 
     public enum DirectionType
     {
         None = 0,
         South = 1,
-        East = 2
+        East = 2,
+        North = 3,
+        West = 4
+    }
+
+    public enum ItemSize
+    {
+        Small,
+        Large,
     }
 }

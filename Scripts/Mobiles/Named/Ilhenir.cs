@@ -1,9 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Server.Engines.CannedEvil;
 using Server.Items;
 using Server.Network;
+using System;
+using System.Collections.Generic;
 
 namespace Server.Mobiles
 {
@@ -53,20 +52,7 @@ namespace Server.Mobiles
             Fame = 24000;
             Karma = -24000;
 
-            VirtualArmor = 44;
-
-            for (int i = 0; i < Utility.RandomMinMax(1, 3); i++)
-            {
-                PackItem(Loot.RandomScroll(0, Loot.ArcanistScrollTypes.Length, SpellbookType.Arcanist));
-            }
-
-            if (Core.ML)
-            {
-                PackResources(8);
-                PackTalismans(5);
-            }
-
-            AddItem(new Gold(2000, 2500));
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public Ilhenir(Serial serial)
@@ -74,111 +60,28 @@ namespace Server.Mobiles
         {
         }
 
-        public override ChampionSkullType SkullType
-        {
-            get
-            {
-                return ChampionSkullType.Pain;
-            }
-        }
-        public override Type[] UniqueList
-        {
-            get
-            {
-                return new Type[] { };
-            }
-        }
-        public override Type[] SharedList
-        {
-            get
-            {
-                return new Type[]
+        public override ChampionSkullType SkullType => ChampionSkullType.Pain;
+        public override Type[] UniqueList => new Type[] { };
+        public override Type[] SharedList => new Type[]
                 {
                     typeof(ANecromancerShroud),
                     typeof(LieutenantOfTheBritannianRoyalGuard),
                     typeof(OblivionsNeedle),
                     typeof(TheRobeOfBritanniaAri)
                 };
-            }
-        }
-        public override Type[] DecorativeList
-        {
-            get
-            {
-                return new Type[] { typeof(MonsterStatuette) };
-            }
-        }
-        public override MonsterStatuetteType[] StatueTypes
-        {
-            get
-            {
-                return new MonsterStatuetteType[]
-                {
-                    MonsterStatuetteType.PlagueBeast,
-                    MonsterStatuetteType.RedDeath
-                };
-            }
-        }
-        public override bool Unprovokable { get { return true; } }
-        public override bool Uncalmable { get { return true; } }
-        public override Poison PoisonImmune { get { return Poison.Lethal; } }
-        public override int TreasureMapLevel { get { return 5; } }
-        public override bool HasBreath { get { return true; } }
-
-        public virtual void PackResources(int amount)
-        {
-            for (int i = 0; i < amount; i++)
-                switch( Utility.Random(6) )
-                {
-                    case 0:
-                        PackItem(new Blight());
-                        break;
-                    case 1:
-                        PackItem(new Scourge());
-                        break;
-                    case 2:
-                        PackItem(new Taint());
-                        break;
-                    case 3:
-                        PackItem(new Putrefication());
-                        break;
-                    case 4:
-                        PackItem(new Corruption());
-                        break;
-                    case 5:
-                        PackItem(new Muculent());
-                        break;
-                }
-        }
-
-        public virtual void PackTalismans(int amount)
-        {
-            int count = Utility.Random(amount);
-
-            for (int i = 0; i < count; i++)
-                PackItem(new RandomTalisman());
-        }
+        public override Type[] DecorativeList => new Type[] { typeof(MonsterStatuette) };
+        public override MonsterStatuetteType[] StatueTypes => new MonsterStatuetteType[] { };
+        public override bool Unprovokable => true;
+        public override bool Uncalmable => true;
+        public override Poison PoisonImmune => Poison.Lethal;
+        public override int TreasureMapLevel => 5;
 
         public override void GenerateLoot()
         {
             AddLoot(LootPack.UltraRich, 4);
             AddLoot(LootPack.FilthyRich);
-        }
-
-        public override void OnDeath(Container c)
-        {
-            base.OnDeath(c);
-
-            if (Core.ML)
-            {
-                c.DropItem(new GrizzledBones());
-
-                if (Utility.RandomDouble() < 0.05)
-                    c.DropItem(new GrizzledMareStatuette());
-
-                if (Utility.RandomDouble() < 0.025)
-                    c.DropItem(new CrimsonCincture());
-            }
+            AddLoot(LootPack.Talisman, 5);
+            AddLoot(LootPack.ArcanistScrolls, Utility.RandomMinMax(1, 3));
         }
 
         public override void OnDamage(int amount, Mobile from, bool willKill)
@@ -217,7 +120,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -346,7 +249,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
             writer.Write(m_Corrosive);
         }

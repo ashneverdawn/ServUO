@@ -1,5 +1,5 @@
-using System;
 using Server.Items;
+using System;
 
 namespace Server.Mobiles
 {
@@ -48,57 +48,47 @@ namespace Server.Mobiles
         public Leviathan(Mobile fisher)
             : base(AIType.AI_Mage, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            this.m_Fisher = fisher;
-            this.m_NextWaterBall = DateTime.UtcNow;
+            m_Fisher = fisher;
+            m_NextWaterBall = DateTime.UtcNow;
 
             // May not be OSI accurate; mostly copied from krakens
-            this.Name = "a leviathan";
-            this.Body = 77;
-            this.BaseSoundID = 353;
+            Name = "a leviathan";
+            Body = 77;
+            BaseSoundID = 353;
 
-            this.Hue = 0x481;
+            Hue = 0x481;
 
-            this.SetStr(1000);
-            this.SetDex(501, 520);
-            this.SetInt(501, 515);
+            SetStr(1000);
+            SetDex(501, 520);
+            SetInt(501, 515);
 
-            this.SetHits(1500);
+            SetHits(1500);
 
-            this.SetDamage(25, 33);
+            SetDamage(25, 33);
 
-            this.SetDamageType(ResistanceType.Physical, 70);
-            this.SetDamageType(ResistanceType.Cold, 30);
+            SetDamageType(ResistanceType.Physical, 70);
+            SetDamageType(ResistanceType.Cold, 30);
 
-            this.SetResistance(ResistanceType.Physical, 55, 65);
-            this.SetResistance(ResistanceType.Fire, 45, 55);
-            this.SetResistance(ResistanceType.Cold, 45, 55);
-            this.SetResistance(ResistanceType.Poison, 35, 45);
-            this.SetResistance(ResistanceType.Energy, 25, 35);
+            SetResistance(ResistanceType.Physical, 55, 65);
+            SetResistance(ResistanceType.Fire, 45, 55);
+            SetResistance(ResistanceType.Cold, 45, 55);
+            SetResistance(ResistanceType.Poison, 35, 45);
+            SetResistance(ResistanceType.Energy, 25, 35);
 
-            this.SetSkill(SkillName.EvalInt, 97.6, 107.5);
-            this.SetSkill(SkillName.Magery, 97.6, 107.5);
-            this.SetSkill(SkillName.MagicResist, 97.6, 107.5);
-            this.SetSkill(SkillName.Meditation, 97.6, 107.5);
-            this.SetSkill(SkillName.Tactics, 97.6, 107.5);
-            this.SetSkill(SkillName.Wrestling, 97.6, 107.5);
+            SetSkill(SkillName.EvalInt, 97.6, 107.5);
+            SetSkill(SkillName.Magery, 97.6, 107.5);
+            SetSkill(SkillName.MagicResist, 97.6, 107.5);
+            SetSkill(SkillName.Meditation, 97.6, 107.5);
+            SetSkill(SkillName.Tactics, 97.6, 107.5);
+            SetSkill(SkillName.Wrestling, 97.6, 107.5);
 
-            this.Fame = 22500;
-            this.Karma = -22500;
+            Fame = 22500;
+            Karma = -22500;
 
-            this.VirtualArmor = 50;
+            CanSwim = true;
+            CantWalk = true;
 
-            this.CanSwim = true;
-            this.CantWalk = true;
-
-            this.PackItem(new MessageInABottle());
-
-            Rope rope = new Rope();
-            rope.ItemID = 0x14F8;
-            this.PackItem(rope);
-
-            rope = new Rope();
-            rope.ItemID = 0x14FA;
-            this.PackItem(rope);
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public Leviathan(Serial serial)
@@ -106,12 +96,12 @@ namespace Server.Mobiles
         {
         }
 
-        public static Type[] Artifacts { get { return m_Artifacts; } }
+        public static Type[] Artifacts => m_Artifacts;
 
         public Mobile Fisher
         {
-            get { return this.m_Fisher; }
-            set { this.m_Fisher = value; }
+            get { return m_Fisher; }
+            set { m_Fisher = value; }
         }
 
         public override int DefaultHitsRegen
@@ -144,25 +134,18 @@ namespace Server.Mobiles
             }
         }
 
-        public override bool HasBreath { get { return true; } }
-        public override int BreathPhysicalDamage { get { return 70; } }
-        public override int BreathColdDamage { get { return 30; } }
-        public override int BreathFireDamage { get { return 0; } }
-        public override int BreathEffectHue { get { return 0x1ED; } }
-        public override double BreathDamageScalar { get { return 0.05; } }
-        public override double BreathMinDelay { get { return 5.0; } }
-        public override double BreathMaxDelay { get { return 7.5; } }
-        public override double TreasureMapChance { get { return 0.25; } }
-        public override int TreasureMapLevel { get { return 5; } }
+        public override double TreasureMapChance => 0.25;
+
+        public override int TreasureMapLevel => 5;
 
         public override void OnActionCombat()
         {
-            Mobile combatant = this.Combatant as Mobile;
+            Mobile combatant = Combatant as Mobile;
 
-            if (combatant == null || combatant.Deleted || combatant.Map != this.Map || !this.InRange(combatant, 12) || !this.CanBeHarmful(combatant) || !this.InLOS(combatant))
+            if (combatant == null || combatant.Deleted || combatant.Map != Map || !InRange(combatant, 12) || !CanBeHarmful(combatant) || !InLOS(combatant))
                 return;
 
-            if (DateTime.UtcNow >= this.m_NextWaterBall)
+            if (DateTime.UtcNow >= m_NextWaterBall)
             {
                 double damage = combatant.Hits * 0.3;
 
@@ -171,8 +154,8 @@ namespace Server.Mobiles
                 else if (damage > 40.0)
                     damage = 40.0;
 
-                this.DoHarmful(combatant);
-                this.MovingParticles(combatant, 0x36D4, 5, 0, false, false, 195, 0, 9502, 3006, 0, 0, 0);
+                DoHarmful(combatant);
+                MovingParticles(combatant, 0x36D4, 5, 0, false, false, 195, 0, 9502, 3006, 0, 0, 0);
                 AOS.Damage(combatant, this, (int)damage, 100, 0, 0, 0, 0);
 
                 if (combatant is PlayerMobile && combatant.Mount != null)
@@ -200,13 +183,15 @@ namespace Server.Mobiles
 
         public override void GenerateLoot()
         {
-            this.AddLoot(LootPack.FilthyRich, 5);
+            AddLoot(LootPack.FilthyRich, 5);
+            AddLoot(LootPack.LootItem<Rope>(2));
+            AddLoot(LootPack.LootItem<MessageInABottle>());
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -225,8 +210,8 @@ namespace Server.Mobiles
             {
                 GiveArtifactTo(mob);
 
-                if (mob == this.m_Fisher)
-                    this.m_Fisher = null;
+                if (mob == m_Fisher)
+                    m_Fisher = null;
             }
         }
 
@@ -234,10 +219,10 @@ namespace Server.Mobiles
         {
             base.OnDeath(c);
 
-            if (this.m_Fisher != null && 25 > Utility.Random(100))
-                GiveArtifactTo(this.m_Fisher);
+            if (m_Fisher != null && 25 > Utility.Random(100))
+                GiveArtifactTo(m_Fisher);
 
-            this.m_Fisher = null;
+            m_Fisher = null;
         }
     }
 }

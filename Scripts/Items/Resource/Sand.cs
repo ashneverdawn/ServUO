@@ -1,11 +1,9 @@
-using System;
-
 namespace Server.Items
 {
-    [FlipableAttribute(0x11EA, 0x11EB)]
     public class Sand : Item, ICommodity
     {
-        public override double DefaultWeight { get { return 0.1; } }
+        public override int LabelNumber => 1044626;  // sand
+        public override double DefaultWeight => 0.1;
 
         [Constructable]
         public Sand()
@@ -15,9 +13,11 @@ namespace Server.Items
 
         [Constructable]
         public Sand(int amount)
-            : base(0x11EA)
+            : base(0x423A)
         {
-            this.Stackable = Core.ML;
+            Hue = 2413;
+            Stackable = true;
+            Amount = amount;
         }
 
         public Sand(Serial serial)
@@ -25,45 +25,25 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1044626;
-            }
-        }// sand
-        TextDefinition ICommodity.Description
-        {
-            get
-            {
-                return this.LabelNumber;
-            }
-        }
-        bool ICommodity.IsDeedable
-        {
-            get
-            {
-                return true;
-            }
-        }
+        TextDefinition ICommodity.Description => LabelNumber;
+        bool ICommodity.IsDeedable => true;
+
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)1); // version
+            writer.Write(1); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
 
-            if (version == 2) // Reset from Resource System
-                reader.ReadString();
-
-            if (version == 0 && this.Name == "sand")
-                this.Name = null;
+            if (ItemID != 0x423A)
+            {
+                ItemID = 0x423A;
+                Hue = 2413;
+            }
         }
     }
 }

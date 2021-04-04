@@ -1,10 +1,7 @@
-using System;
-using Server;
-using System.Collections.Generic;
-using System.Linq;
-using Server.Items;
-using Server.Network;
 using Server.Gumps;
+using Server.Network;
+using System;
+using System.Collections.Generic;
 
 namespace Server.Mobiles
 {
@@ -28,6 +25,9 @@ namespace Server.Mobiles
         public bool HasIncreasedControlSlot { get; set; }
 
         [CommandProperty(AccessLevel.GameMaster)]
+        public int TrainedThisLevel { get; set; }
+
+        [CommandProperty(AccessLevel.GameMaster)]
         public bool HasRecievedControlSlotWarning { get; set; }
 
         [CommandProperty(AccessLevel.GameMaster)]
@@ -40,19 +40,19 @@ namespace Server.Mobiles
         public BaseCreature Creature { get; private set; }
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public double TrainingProgressPercentile { get { return TrainingProgress / TrainingProgressMax; } }
+        public double TrainingProgressPercentile => TrainingProgress / TrainingProgressMax;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public int ControlSlots { get { return Creature.ControlSlots; } }
+        public int ControlSlots => Creature.ControlSlots;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public int ControlSlotsMin { get { return Creature.ControlSlotsMin; } }
+        public int ControlSlotsMin => Creature.ControlSlotsMin;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public int ControlSlotsMax { get { return Creature.ControlSlotsMax; } }
+        public int ControlSlotsMax => Creature.ControlSlotsMax;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public bool CanApplyOptions { get { return HasBegunTraining && TrainingProgressPercentile >= 1.0; } }
+        public bool CanApplyOptions => HasBegunTraining && TrainingProgressPercentile >= 1.0;
 
         private int _TrainingPoints;
         private int _StartingTrainingPoints;
@@ -102,22 +102,22 @@ namespace Server.Mobiles
         [CommandProperty(AccessLevel.GameMaster)]
         public bool InPowerHour { get; set; }
 
-        public double PowerHourMultiplier
+        public int PowerHourMultiplier
         {
             get
             {
                 if (InPowerHour)
                 {
-                    return 2.0; // 2x gains from creatures during power hour
+                    return 2; // 2x gains from creatures during power hour
                 }
 
-                return 1.0;
+                return 1;
             }
         }
 
-        private static readonly int BaseGainsPerCreature = 50;
+        private static readonly int MaxTrainingProgress = 100;
 
-        private Dictionary<BaseCreature, int> _ProgressTable;
+        private readonly Dictionary<BaseCreature, int> _ProgressTable;
 
         public TrainingProfile(BaseCreature bc)
         {
@@ -130,14 +130,14 @@ namespace Server.Mobiles
         {
             if (ControlSlots != ControlSlotsMin)
             {
-                 return 1501;
+                return 1501;
             }
-            
+
             if (ControlSlotsMin == 1 && ControlSlotsMax == 2)
             {
                 return 2556;
             }
-            
+
             if (ControlSlotsMin == 1 && ControlSlotsMax == 3)
             {
                 return 2381;
@@ -154,26 +154,64 @@ namespace Server.Mobiles
                 HasBegunTraining = true;
 
                 TrainingProgress = 0;
-                TrainingProgressMax = 100;
+                TrainingProgressMax = MaxTrainingProgress;
             }
         }
 
         public void OnTrain(PlayerMobile pm, int points)
         {
+            int reqInc;
+
             if (!HasIncreasedControlSlot)
             {
+                reqInc = GetRequirementIncrease(true);
+
                 Creature.RemoveFollowers();
                 Creature.ControlSlots++;
                 Creature.AddFollowers();
+                TrainedThisLevel = 0;
 
                 pm.SendLocalizedMessage(1157537); // Your pet's control slot have been updated.
-
                 HasIncreasedControlSlot = true;
-
-                Creature.AdjustTameRequirements();
+            }
+            else
+            {
+                TrainedThisLevel++;
+                reqInc = GetRequirementIncrease(false);
             }
 
+            Creature.CurrentTameSkill = Math.Min(BaseCreature.MaxTameRequirement, Creature.CurrentTameSkill + reqInc);
             TrainingPoints -= points;
+        }
+
+        public int GetRequirementIncrease(bool slotIncreased)
+        {
+            if (slotIncreased)
+            {
+                // First level
+                if (ControlSlotsMin + 1 == ControlSlots)
+                {
+                    return 21;
+                }
+                // subsequent trains of that level
+                else
+                {
+                    return 22;
+                }
+            }
+            else
+            {
+                // First train of that level (after level increase, so actually 2nd train)
+                if (TrainedThisLevel == 1)
+                {
+                    return 3;
+                }
+                // subsequent trains of that level
+                else
+                {
+                    return 2;
+                }
+            }
         }
 
         public void EndTraining()
@@ -185,11 +223,11 @@ namespace Server.Mobiles
             HasIncreasedControlSlot = false;
         }
 
-        private bool CheckCanProgress(BaseCreature bc)
+        private bool CheckCanProgress(BaseCreature bc, double toGain)
         {
             if (_ProgressTable.ContainsKey(bc))
             {
-                int gains = GetGainsPerCreature();
+                int gains = GetGainsPerCreature(toGain);
 
                 if (_ProgressTable[bc] >= gains)
                 {
@@ -206,11 +244,24 @@ namespace Server.Mobiles
             return true;
         }
 
-        private int GetGainsPerCreature()
+        private int GetGainsPerCreature(double toGain)
         {
-            int level = 1 + (ControlSlots - ControlSlotsMin);
+            int gains = 0;
 
-            return (int)(((double)BaseGainsPerCreature / ((double)level * 1.5)) * PowerHourMultiplier);
+            switch (ControlSlots)
+            {
+                case 1: gains = int.MaxValue; break;
+                case 2: gains = int.MaxValue; break;
+                case 3: gains = (int)((MaxTrainingProgress / toGain) / 2.0); break;
+                default: gains = (int)((MaxTrainingProgress / toGain) / 4.0); break;
+            }
+
+            if (gains < int.MaxValue)
+            {
+                gains *= PowerHourMultiplier;
+            }
+
+            return gains;
         }
 
         public void CheckProgress(BaseCreature bc)
@@ -218,64 +269,82 @@ namespace Server.Mobiles
             if (ControlSlots >= ControlSlotsMax || !HasBegunTraining || TrainingProgress >= TrainingProgressMax || Creature.ControlMaster == null)
                 return;
 
-            int dif = (int)(Creature.BardingDifficulty - bc.BardingDifficulty);
-            int level = 1 + (ControlSlots - ControlSlotsMin);
+            double ourDif = Creature.BardingDifficulty;
+            double theirDif = bc.BardingDifficulty;
+            Mobile master = Creature.ControlMaster;
 
-            if (Utility.Random(100) < (8 - level))
+            if (Utility.Random(100) < 8 - (1 + (ControlSlots - ControlSlotsMin)))
             {
-                if (dif <= 50 && CheckCanProgress(bc))
+                double toGain = GetAdvance(theirDif); // Math.Round(.25 + (Math.Max(0, (bc.BardingDifficulty / Creature.BardingDifficulty)) * 1.0), 2);
+
+                if (ourDif - theirDif <= 50 && CheckCanProgress(bc, toGain))
                 {
                     if (PowerHourBegin + PowerHourDelay < DateTime.UtcNow)
                     {
                         _ProgressTable.Clear();
-                        
+
                         PowerHourBegin = DateTime.UtcNow;
                         InPowerHour = true;
-                        Creature.ControlMaster.SendLocalizedMessage(1157569); // [Pet Training Power Hour]:  Your pet is under the effects of enhanced training progress for the next hour!
+                        master.SendLocalizedMessage(1157569); // [Pet Training Power Hour]:  Your pet is under the effects of enhanced training progress for the next hour!
                     }
                     else if (InPowerHour && PowerHourBegin + PowerHourDuration < DateTime.UtcNow)
                     {
                         InPowerHour = false;
-                        Creature.ControlMaster.SendLocalizedMessage(1157570); // [Pet Training Power Hour]:  Your pet is no longer under the effects of enhanced training progress.
+                        master.SendLocalizedMessage(1157570); // [Pet Training Power Hour]:  Your pet is no longer under the effects of enhanced training progress.
                     }
 
-                    double toAdd = Math.Round(.25 + (Math.Max(0, (bc.BardingDifficulty / Creature.BardingDifficulty)) * 1.0), 2);
+                    TrainingProgress = Math.Min(TrainingProgressMax, TrainingProgress + toGain);
 
-                    TrainingProgress = Math.Min(TrainingProgressMax, TrainingProgress + toAdd);
-
-                    if (!bc.Controlled && !bc.Summoned)
+                    if (!bc.Controlled && !bc.Summoned && master is PlayerMobile)
                     {
                         int cliloc = 1157574; // *The pet's battle experience has greatly increased!*
 
-                        if (toAdd < 1.3)
+                        if (toGain < 1.3)
                             cliloc = 1157565; // *The pet's battle experience has slightly increased!*
-                        else if (toAdd < 2.5)
+                        else if (toGain < 2.5)
                             cliloc = 1157573; // *The pet's battle experience has fairly increased!*
 
-                        if (Creature.ControlMaster.HasGump(typeof(PetTrainingProgressGump)))
+                        if (master.HasGump(typeof(PetTrainingProgressGump)))
                         {
-                            ResendProgressGump(Creature.ControlMaster);
+                            ResendProgressGump(master);
+                        }
+                        else
+                        {
+                            if (master.InRange(Creature.Location, 12))
+                            {
+                                BaseGump.SendGump(new PetTrainingProgressGump((PlayerMobile)master, Creature));
+                            }
                         }
 
-                        Creature.PrivateOverheadMessage(MessageType.Regular, 0x59, cliloc, Creature.ControlMaster.NetState);
+                        Creature.PrivateOverheadMessage(MessageType.Regular, 0x59, cliloc, master.NetState);
 
                         if (TrainingProgress >= TrainingProgressMax)
                         {
-                            Creature.PrivateOverheadMessage(MessageType.Regular, 0x59, 1157543, Creature.ControlMaster.NetState); // *The creature surges with battle experience and is ready to train!*
+                            Creature.PrivateOverheadMessage(MessageType.Regular, 0x59, 1157543, master.NetState); // *The creature surges with battle experience and is ready to train!*
 
-                            Server.Engines.Quests.LeadingIntoBattleQuest.CheckComplete(Creature.ControlMaster as PlayerMobile);
+                            Engines.Quests.LeadingIntoBattleQuest.CheckComplete((PlayerMobile)master);
                         }
                     }
                     else
                     {
-                        Creature.PrivateOverheadMessage(MessageType.Regular, 0x21, 1157564, Creature.ControlMaster.NetState); // *The pet does not appear to train from that*
+                        Creature.PrivateOverheadMessage(MessageType.Regular, 0x21, 1157564, master.NetState); // *The pet does not appear to train from that*
                     }
                 }
                 else
                 {
-                    Creature.PrivateOverheadMessage(MessageType.Regular, 0x21, 1157564, Creature.ControlMaster.NetState); // *The pet does not appear to train from that*
+                    Creature.PrivateOverheadMessage(MessageType.Regular, 0x21, 1157564, master.NetState); // *The pet does not appear to train from that*
                 }
             }
+        }
+
+        private double GetAdvance(double difficulty)
+        {
+            double advance = difficulty / 64;
+
+            if (advance >= 2.5)
+                advance = 2.5;
+
+            return advance;
         }
 
         public void ResendProgressGump(Mobile m)
@@ -289,7 +358,7 @@ namespace Server.Mobiles
 
             if (g == null)
             {
-                Server.Gumps.BaseGump.SendGump(new PetTrainingProgressGump((PlayerMobile)m, Creature));
+                BaseGump.SendGump(new PetTrainingProgressGump((PlayerMobile)m, Creature));
             }
             else
             {
@@ -308,6 +377,9 @@ namespace Server.Mobiles
 
             switch (version)
             {
+                case 2:
+                    TrainedThisLevel = reader.ReadInt();
+                    goto case 1;
                 case 1:
                     PowerHourBegin = reader.ReadDateTime();
                     InPowerHour = reader.ReadBool();
@@ -336,7 +408,9 @@ namespace Server.Mobiles
 
         public void Serialize(GenericWriter writer)
         {
-            writer.Write(1);
+            writer.Write(2);
+
+            writer.Write(TrainedThisLevel);
 
             writer.Write(PowerHourBegin);
             writer.Write(InPowerHour);

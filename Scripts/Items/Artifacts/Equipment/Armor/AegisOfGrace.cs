@@ -1,11 +1,23 @@
-using System;
-
 namespace Server.Items
 {
-    public class AegisOfGrace : DragonHelm
+    public class AegisOfGrace : DragonHelm, ICanBeElfOrHuman
     {
-        public override int LabelNumber { get { return 1075047; } } // Aegis of Grace
-        public override bool IsArtifact { get { return true; } }
+        public override int LabelNumber => 1075047;  // Aegis of Grace
+        public override bool IsArtifact => true;
+        public override int BasePhysicalResistance => 10;
+        public override int BaseFireResistance => 9;
+        public override int BaseColdResistance => 7;
+        public override int BasePoisonResistance => 7;
+        public override int BaseEnergyResistance => 15;
+
+        public override ArmorMaterialType MaterialType => ArmorMaterialType.Dragon;
+        public override CraftResource DefaultResource => CraftResource.Iron;
+
+        public override int InitMinHits => 255;
+        public override int InitMaxHits => 255;
+
+        [CommandProperty(AccessLevel.GameMaster)]
+        public bool ElfOnly { get { return false; } set { } }
 
         [Constructable]
         public AegisOfGrace()
@@ -19,6 +31,8 @@ namespace Server.Items
                 ItemID = 0x2B6E;
                 Weight = 2.0;
                 StrRequirement = 10;
+
+                MeditationAllowance = ArmorMeditationAllowance.All;
             }
         }
 
@@ -26,23 +40,11 @@ namespace Server.Items
             : base(serial)
         {
         }
-        
-        public override int BasePhysicalResistance { get { return 10; } }
-        public override int BaseFireResistance { get { return 9; } }
-        public override int BaseColdResistance { get { return 7; } }
-        public override int BasePoisonResistance { get { return 7; } }
-        public override int BaseEnergyResistance { get { return 15; } }
-
-        public override ArmorMaterialType MaterialType { get { return ArmorMaterialType.Dragon; } }
-        public override CraftResource DefaultResource { get { return CraftResource.Iron; } }
-
-        public override int InitMinHits { get { return 255; } }
-        public override int InitMaxHits { get { return 255; } }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.WriteEncodedInt(0); // version
+            writer.WriteEncodedInt(1); // version
         }
 
         public override void Deserialize(GenericReader reader)

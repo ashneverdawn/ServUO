@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using Server.Items;
 
 namespace Server.Mobiles
 {
@@ -15,7 +13,7 @@ namespace Server.Mobiles
             Name = "a tsuki wolf";
             Body = 250;
 
-            switch( Utility.Random(3) )
+            switch (Utility.Random(3))
             {
                 case 0:
                     Hue = Utility.RandomNeutralHue();
@@ -54,12 +52,6 @@ namespace Server.Mobiles
             Fame = 8500;
             Karma = -8500;
 
-            
-            if (Core.ML && Utility.RandomDouble() < .33)
-                PackItem(Engines.Plants.Seed.RandomPeculiarSeed(1));
-
-            PackBodyPartOrBones();
-            
             Tamable = true;
             ControlSlots = 3;
             MinTameSkill = 96.0;
@@ -72,29 +64,18 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool CanAngerOnTame { get { return true; } }
+        public override bool CanAngerOnTame => true;
 
-        public override int Meat { get { return 4; } }
-        public override int Hides { get { return 25; } }
-        public override FoodType FavoriteFood { get { return FoodType.Meat; } }
+        public override int TreasureMapLevel => 3;
+        public override int Meat => 4;
+        public override int Hides => 25;
+        public override FoodType FavoriteFood => FoodType.Meat;
 
         public override void GenerateLoot()
         {
             AddLoot(LootPack.FilthyRich);
-        }
-
-        public override void Serialize(GenericWriter writer)
-        {
-            base.Serialize(writer);
-
-            writer.Write((int)0);
-        }
-
-        public override void Deserialize(GenericReader reader)
-        {
-            base.Deserialize(reader);
-
-            int version = reader.ReadInt();
+            AddLoot(LootPack.BodyPartsAndBones);
+            AddLoot(LootPack.PeculiarSeed1);
         }
 
         public override int GetAngerSound()
@@ -120,6 +101,20 @@ namespace Server.Mobiles
         public override int GetDeathSound()
         {
             return 0x52A;
+        }
+
+        public override void Serialize(GenericWriter writer)
+        {
+            base.Serialize(writer);
+
+            writer.Write(0);
+        }
+
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
+
+            int version = reader.ReadInt();
         }
     }
 }

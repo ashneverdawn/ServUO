@@ -1,7 +1,8 @@
+using Server.Items;
+using Server.Network;
+using Server.Spells;
 using System;
 using System.Collections.Generic;
-
-using Server.Items;
 
 namespace Server.Mobiles
 {
@@ -46,59 +47,44 @@ namespace Server.Mobiles
             Fame = 15000;
             Karma = -15000;
 
-            VirtualArmor = 60;
-
             Tamable = false;
 
             SetWeaponAbility(WeaponAbility.Bladeweave);
             SetWeaponAbility(WeaponAbility.TalonStrike);
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public StygianDragon(Serial serial)
             : base(serial)
         {
-        }        
+        }
 
-        public override Type[] UniqueSAList
-        {
-            get
-            {
-                return new Type[]
+        public override Type[] UniqueSAList => new[]
                 {
                     typeof(BurningAmber), typeof(DraconisWrath), typeof(DragonHideShield), typeof(FallenMysticsSpellbook),
                     typeof(LifeSyphon), typeof(GargishSignOfOrder), typeof(HumanSignOfOrder), typeof(VampiricEssence)
                 };
-            }
-        }
-        public override Type[] SharedSAList
-        {
-            get
-            {
-                return new Type[]
+        public override Type[] SharedSAList => new[]
                 {
-                    typeof(AxesOfFury), typeof(SummonersKilt), typeof(GiantSteps), typeof(StoneDragonsTooth),
+                    typeof(AxesOfFury), typeof(SummonersKilt), typeof(GiantSteps),
                     typeof(TokenOfHolyFavor)
                 };
-            }
-        }
 
-        public override bool CausesTrueFear { get { return true; } }
-        public override bool AlwaysMurderer { get { return true; } }
-        public override bool Unprovokable { get { return false; } }
-        public override bool BardImmune { get { return false; } }
-        public override bool HasBreath { get { return true; } } // fire breath enabled
-        public override bool AutoDispel { get { return !Controlled; } }
-        public override int Meat { get { return 19; } }
-        public override int Hides { get { return 30; } }
-        public override HideType HideType { get { return HideType.Barbed; } }
-        public override int Scales { get { return 7; } }
-        public override ScaleType ScaleType { get { return (Body == 12 ? ScaleType.Yellow : ScaleType.Red); } }
-        public override int DragonBlood { get { return 48; } }
-        public override bool CanFlee { get { return false; } }
+        public override bool AlwaysMurderer => true;
+        public override bool Unprovokable => false;
+        public override bool BardImmune => false;
+        public override bool AutoDispel => !Controlled;
+        public override int Meat => 19;
+        public override int Hides => 30;
+        public override HideType HideType => HideType.Barbed;
+        public override int Scales => 7;
+        public override ScaleType ScaleType => (Body == 12 ? ScaleType.Yellow : ScaleType.Red);
+        public override int DragonBlood => 48;
+        public override bool CanFlee => false;
 
         public override void GenerateLoot()
         {
-            AddLoot(LootPack.AosSuperBoss, 4);
+            AddLoot(LootPack.SuperBoss, 4);
             AddLoot(LootPack.Gems, 8);
         }
 
@@ -106,17 +92,19 @@ namespace Server.Mobiles
         {
             base.OnThink();
 
-            if (Combatant == null)
+            if (Combatant == null || !(Combatant is Mobile))
                 return;
 
             if (DateTime.UtcNow > m_Delay)
             {
-                if (Utility.RandomBool())
-                    CrimsonMeteor(this, Combatant.Location, 75, 120, true, false, true, 15, 15, 25);
-                else
-                    DoStygianFireball();
+                switch (Utility.Random(3))
+                {
+                    case 0: CrimsonMeteor(this, (Mobile)Combatant, 70, 125); break;
+                    case 1: DoStygianFireball(); break;
+                    case 2: DoFireColumn(); break;
+                }
 
-                m_Delay = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(30, 45));
+                m_Delay = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(30, 60));
             }
         }
 
@@ -125,15 +113,15 @@ namespace Server.Mobiles
             base.OnDeath(c);
 
             c.DropItem(new StygianDragonHead());
-			
-			if ( Paragon.ChestChance > Utility.RandomDouble() )
-            	c.DropItem( new ParagonChest( Name, TreasureMapLevel ) );
+
+            if (Paragon.ChestChance > Utility.RandomDouble())
+                c.DropItem(new ParagonChest(Name, 5));
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)1);
+            writer.Write(1);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -143,62 +131,52 @@ namespace Server.Mobiles
         }
 
         #region Crimson Meteor
-        public static void CrimsonMeteor(Mobile from, int damage)
+        public static void CrimsonMeteor(Mobile owner, Mobile combatant, int minDamage, int maxDamage)
         {
-            CrimsonMeteor(from, from.Location, damage, damage, true, false, false, 5, 5, 30);
-        }
-
-        public static void CrimsonMeteor(Mobile from, Point3D loc, int minDam, int maxDam, bool doField, bool fromTop, bool damage, int width, int height, int duration)
-        {
-            if (!from.Alive || !from.Frozen || !from.Paralyzed || from.Map == null || from.Map == Map.Internal)
+            if (!combatant.Alive || combatant.Map == null || combatant.Map == Map.Internal)
                 return;
 
-            //from.Say("*Shooting Meteor !!*");  
-
-            new CrimsonMeteorTimer(from, loc, minDam, maxDam, doField, fromTop, damage, width, height, duration).Start();
+            new CrimsonMeteorTimer(owner, combatant.Location, minDamage, maxDamage).Start();
         }
 
         public class CrimsonMeteorTimer : Timer
         {
-            private Mobile m_From;
-            private Map m_Map;
-            private int m_MinDamage, m_MaxDamage;
+            private readonly Mobile m_From;
+            private readonly Map m_Map;
             private int m_Count;
-            private int m_MaxCount;
-            private bool m_Field, m_FromTop, m_DoneDamage;
+            private readonly int m_MaxCount;
+            private bool m_DoneDamage;
             private Point3D m_LastTarget;
             private Rectangle2D m_ShowerArea;
-            private List<Mobile> m_ToDamage;
+            private readonly List<Mobile> m_ToDamage;
 
-            public CrimsonMeteorTimer(Mobile from, Point3D loc, int minDam, int maxDam, bool doField, bool fromTop, bool damage, int width, int height, int duration)
+            private readonly int m_MinDamage, m_MaxDamage;
+
+            public CrimsonMeteorTimer(Mobile from, Point3D loc, int min, int max)
                 : base(TimeSpan.FromMilliseconds(250.0), TimeSpan.FromMilliseconds(250.0))
             {
                 m_From = from;
                 m_Map = from.Map;
-                m_MinDamage = minDam;
-                m_MaxDamage = maxDam;
                 m_Count = 0;
-                m_MaxCount = duration; // in ticks
+                m_MaxCount = 25; // in ticks
                 m_LastTarget = loc;
-                m_Field = doField;
-                m_FromTop = fromTop;
                 m_DoneDamage = false;
-                m_ShowerArea = new Rectangle2D(loc.X - (width / 2), loc.Y - (height / 2), width, height);
+                m_ShowerArea = new Rectangle2D(loc.X - 2, loc.Y - 2, 4, 4);
 
-                if (damage)
+                m_MinDamage = min;
+                m_MaxDamage = max;
+
+                m_ToDamage = new List<Mobile>();
+
+                IPooledEnumerable eable = m_Map.GetMobilesInBounds(m_ShowerArea);
+
+                foreach (Mobile m in eable)
                 {
-                    m_ToDamage = new List<Mobile>();
-
-                    IPooledEnumerable eable = m_Map.GetMobilesInBounds(m_ShowerArea);
-
-                    foreach (Mobile m in eable)
-                    {
-                        if (m != from && m_From.CanBeHarmful(m))
-                            m_ToDamage.Add(m);
-                    }
-
-                    eable.Free();
+                    if (m != from && m_From.CanBeHarmful(m))
+                        m_ToDamage.Add(m);
                 }
+
+                eable.Free();
             }
 
             protected override void OnTick()
@@ -209,29 +187,26 @@ namespace Server.Mobiles
                     return;
                 }
 
-                if (m_Field && 0.33 > Utility.RandomDouble())
-                    new FireField(m_From, 25, 10, 30, Utility.RandomBool(), m_LastTarget, m_Map);
+                if (0.33 > Utility.RandomDouble())
+                {
+                    FireField field = new FireField(m_From, 25, Utility.RandomBool());
+                    field.MoveToWorld(m_LastTarget, m_Map);
+                }
 
                 Point3D start = new Point3D();
-                Point3D finish = new Point3D();
-
-                finish.X = m_ShowerArea.X + Utility.Random(m_ShowerArea.Width);
-                finish.Y = m_ShowerArea.Y + Utility.Random(m_ShowerArea.Height);
-                finish.Z = m_Map.GetAverageZ(finish.X, finish.Y);
-
-                if (m_FromTop)
+                Point3D finish = new Point3D
                 {
-                    start.X = m_ShowerArea.X + Utility.Random(m_ShowerArea.Width);
-                    start.Y = m_ShowerArea.Y + Utility.Random(m_ShowerArea.Height);
-                    start.Z = finish.Z + 50;
-                }
-                else
-                {
-                    //objects move from upper right/right to left as per OSI
-                    start.X = finish.X + Utility.RandomMinMax(-8, 8);
-                    start.Y = finish.Y - 15;
-                    start.Z = finish.Z + 50;
-                }
+                    X = m_ShowerArea.X + Utility.Random(m_ShowerArea.Width),
+                    Y = m_ShowerArea.Y + Utility.Random(m_ShowerArea.Height),
+                    Z = m_From.Z
+                };
+
+                SpellHelper.AdjustField(ref finish, m_Map, 16, false);
+
+                //objects move from upper right/right to left as per OSI
+                start.X = finish.X + Utility.RandomMinMax(-4, 4);
+                start.Y = finish.Y - 15;
+                start.Z = finish.Z + 50;
 
                 Effects.SendMovingParticles(
                     new Entity(Serial.Zero, start, m_Map),
@@ -270,39 +245,67 @@ namespace Server.Mobiles
         }
         #endregion
 
+        #region Fire Column
+        public void DoFireColumn()
+        {
+            Map map = Map;
+
+            if (map == null)
+                return;
+
+            Direction columnDir = Utility.GetDirection(this, Combatant);
+
+            Packet flash = ScreenLightFlash.Instance;
+            IPooledEnumerable e = Map.GetClientsInRange(Location, Core.GlobalUpdateRange);
+
+            foreach (NetState ns in e)
+            {
+                if (ns.Mobile != null)
+                    ns.Mobile.Send(flash);
+            }
+
+            e.Free();
+
+            int x = X;
+            int y = Y;
+            bool south = columnDir == Direction.East || columnDir == Direction.West;
+
+            Movement.Movement.Offset(columnDir, ref x, ref y);
+            Point3D p = new Point3D(x, y, Z);
+            SpellHelper.AdjustField(ref p, map, 16, false);
+
+            FireField fire = new FireField(this, Utility.RandomMinMax(25, 32), south);
+            fire.MoveToWorld(p, map);
+
+            for (int i = 0; i < 7; i++)
+            {
+                Movement.Movement.Offset(columnDir, ref x, ref y);
+
+                p = new Point3D(x, y, Z);
+                SpellHelper.AdjustField(ref p, map, 16, false);
+
+                fire = new FireField(this, Utility.RandomMinMax(25, 32), south);
+                fire.MoveToWorld(p, map);
+            }
+        }
+        #endregion
+
         #region Fire Field
         public class FireField : Item
         {
-            private Mobile m_Owner;
-            private int m_MinDamage;
-            private int m_MaxDamage;
-            private DateTime m_Destroy;
-            private Point3D m_MoveToPoint;
-            private Map m_MoveToMap;
-            private Timer m_Timer;
-            private List<Mobile> m_List;
+            private readonly Mobile m_Owner;
+            private readonly Timer m_Timer;
+            private readonly DateTime m_Destroy;
 
             [Constructable]
-            public FireField(int duration, int min, int max, bool south, Point3D point, Map map)
-                : this(null, duration, min, max, south, point, map)
-            {
-            }
-
-            [Constructable]
-            public FireField(Mobile owner, int duration, int min, int max, bool south, Point3D point, Map map)
+            public FireField(Mobile owner, int duration, bool south)
                 : base(GetItemID(south))
             {
                 Movable = false;
+                m_Destroy = DateTime.UtcNow + TimeSpan.FromSeconds(duration);
 
                 m_Owner = owner;
-                m_MinDamage = min;
-                m_MaxDamage = max;
-                m_Destroy = DateTime.Now + TimeSpan.FromSeconds((double)duration + 1.5);
-                m_MoveToPoint = point;
-                m_MoveToMap = map;
-                m_List = new List<Mobile>();
-                m_Timer = Timer.DelayCall(TimeSpan.Zero, TimeSpan.FromSeconds(1), new TimerCallback(OnTick));
-                Timer.DelayCall(TimeSpan.Zero, TimeSpan.FromSeconds(1.5), new TimerCallback(Move));
+                m_Timer = Timer.DelayCall(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), OnTick);
             }
 
             private static int GetItemID(bool south)
@@ -319,50 +322,44 @@ namespace Server.Mobiles
                     m_Timer.Stop();
             }
 
-            private void Move()
-            {
-                if (!Visible)
-                    ItemID = 0x36FE;
-
-                MoveToWorld(m_MoveToPoint, m_MoveToMap);
-            }
-
             private void OnTick()
             {
-                if (DateTime.Now > m_Destroy)
-                    Delete();
-                else if (m_MinDamage != 0)
+                if (DateTime.UtcNow > m_Destroy)
                 {
-                    IPooledEnumerable eable = GetMobilesInRange(15);
+                    Delete();
+                }
+                else
+                {
+                    IPooledEnumerable eable = GetMobilesInRange(0);
+                    List<Mobile> list = new List<Mobile>();
+
                     foreach (Mobile m in eable)
                     {
                         if (m == null)
-                            continue;
-                        else if (m_Owner != null)
                         {
-                            if (CanTargetMob(m))
-                                m_List.Add(m);
+                            continue;
                         }
-                        else
-                            m_List.Add(m);
+
+                        if (m_Owner == null || CanTargetMob(m))
+                        {
+                            list.Add(m);
+                        }
                     }
+
                     eable.Free();
 
-                    for (int i = 0; i < m_List.Count; i++)
+                    foreach (Mobile mob in list)
                     {
-                        if (m_List[i] != null)
-                            DealDamage(m_List[i]);
+                        DealDamage(mob);
                     }
 
-                    m_List.Clear();
-                    m_List = new List<Mobile>();
+                    ColUtility.Free(list);
                 }
             }
 
             public override bool OnMoveOver(Mobile m)
             {
-                if (m_MinDamage != 0)
-                    DealDamage(m);
+                DealDamage(m);
 
                 return true;
             }
@@ -370,7 +367,7 @@ namespace Server.Mobiles
             public void DealDamage(Mobile m)
             {
                 if (m != m_Owner && (m_Owner == null || CanTargetMob(m)))
-                    AOS.Damage(m, (m_Owner == null) ? m : m_Owner, Utility.RandomMinMax(m_MinDamage, m_MaxDamage), 0, 100, 0, 0, 0);
+                    AOS.Damage(m, m_Owner, Utility.RandomMinMax(2, 4), 0, 100, 0, 0, 0);
             }
 
             public bool CanTargetMob(Mobile m)
@@ -406,8 +403,8 @@ namespace Server.Mobiles
 
         private class StygianFireballTimer : Timer
         {
-            private StygianDragon m_Dragon;
-            private Mobile m_Combatant;
+            private readonly StygianDragon m_Dragon;
+            private readonly Mobile m_Combatant;
             private int m_Ticks;
 
             public StygianFireballTimer(StygianDragon dragon, Mobile combatant)
@@ -427,7 +424,7 @@ namespace Server.Mobiles
                 {
                     int damage = Utility.RandomMinMax(120, 150);
 
-                    Timer.DelayCall(TimeSpan.FromSeconds(.20), new TimerStateCallback(DoDamage_Callback), new object[] { m_Combatant, m_Dragon, damage });
+                    DelayCall(TimeSpan.FromSeconds(.20), new TimerStateCallback(DoDamage_Callback), new object[] { m_Combatant, m_Dragon, damage });
 
                     Stop();
                 }

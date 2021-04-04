@@ -1,5 +1,7 @@
-using System;
 using Server.Items;
+using Server.Spells;
+using Server.Spells.Spellweaving;
+using System;
 using System.Collections.Generic;
 
 namespace Server.Mobiles
@@ -11,42 +13,41 @@ namespace Server.Mobiles
         public TanglingRoots()
             : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            this.Name = "a tangling root";
-            this.Body = 8;
-            this.BaseSoundID = 684;
+            Name = "a tangling root";
+            Body = 8;
+            BaseSoundID = 684;
 
-            this.SetStr(157, 189);
-            this.SetDex(51, 64);
-            this.SetInt(26, 39);
+            SetStr(157, 189);
+            SetDex(51, 64);
+            SetInt(26, 39);
 
-            this.SetHits(231, 246);
-            this.SetMana(0);
+            SetHits(231, 246);
+            SetMana(0);
 
-            this.SetDamage(10, 23);
+            SetDamage(10, 23);
 
-            this.SetDamageType(ResistanceType.Physical, 60);
-            this.SetDamageType(ResistanceType.Poison, 40);
+            SetDamageType(ResistanceType.Physical, 60);
+            SetDamageType(ResistanceType.Poison, 40);
 
-            this.SetResistance(ResistanceType.Physical, 35, 40);
-            this.SetResistance(ResistanceType.Cold, 10, 20);
-            this.SetResistance(ResistanceType.Poison, 100);
-            this.SetResistance(ResistanceType.Energy, 10, 20);
+            SetResistance(ResistanceType.Physical, 35, 40);
+            SetResistance(ResistanceType.Cold, 10, 20);
+            SetResistance(ResistanceType.Poison, 100);
+            SetResistance(ResistanceType.Energy, 10, 20);
 
-            this.SetSkill(SkillName.MagicResist, 15.1, 20.0);
-            this.SetSkill(SkillName.Tactics, 45.1, 60.0);
-            this.SetSkill(SkillName.Wrestling, 45.1, 60.0);
+            SetSkill(SkillName.MagicResist, 15.1, 20.0);
+            SetSkill(SkillName.Tactics, 45.1, 60.0);
+            SetSkill(SkillName.Wrestling, 45.1, 60.0);
 
-            this.Fame = 3000;
-            this.Karma = -3000;
+            Fame = 3000;
+            Karma = -3000;
+        }
 
-            this.VirtualArmor = 18;
-
-            if (0.25 > Utility.RandomDouble())
-                this.PackItem(new Board(10));
-            else
-                this.PackItem(new Log(10));
-
-            this.PackItem(new MandrakeRoot(3));
+        public override void GenerateLoot()
+        {
+            AddLoot(LootPack.FilthyRich);
+            AddLoot(LootPack.LootItem<LuckyCoin>(2.0));
+            AddLoot(LootPack.RandomLootItem(new[] { typeof(Board), typeof(Log) }, 100.0, 10, false, true));
+            AddLoot(LootPack.LootItem<MandrakeRoot>(3, true));
         }
 
         public TanglingRoots(Serial serial)
@@ -54,18 +55,17 @@ namespace Server.Mobiles
         {
         }
 
-        public override Poison PoisonImmune { get { return Poison.Lesser; } }
-        public override bool DisallowAllMoves { get { return true; } }
-        public override OppositionGroup OppositionGroup { get { return OppositionGroup.FeyAndUndead; } }
+        public override Poison PoisonImmune => Poison.Lesser;
+        public override bool DisallowAllMoves => true;
 
-        private static List<Mobile> m_TangleCooldown = new List<Mobile>();
-        private Dictionary<Mobile, Timer> m_DamageTable = new Dictionary<Mobile, Timer>();
+        private static readonly List<Mobile> m_TangleCooldown = new List<Mobile>();
+        private readonly Dictionary<Mobile, Timer> m_DamageTable = new Dictionary<Mobile, Timer>();
 
         public override void OnMovement(Mobile m, Point3D oldLocation)
         {
-            if (m.Alive && !m.IsDeadBondedPet && m.AccessLevel == AccessLevel.Player && !m.Hidden)
+            if (m.Alive && !m.IsDeadBondedPet && m.AccessLevel == AccessLevel.Player && !m.Hidden && !TransformationSpellHelper.UnderTransformation(m, typeof(EtherealVoyageSpell)))
             {
-                if (0.2 > Utility.RandomDouble() && !m_TangleCooldown.Contains(m) && this.InRange(m, 6) && !FountainOfFortune.UnderProtection(m))
+                if (0.2 > Utility.RandomDouble() && !m_TangleCooldown.Contains(m) && InRange(m, 6) && !FountainOfFortune.UnderProtection(m))
                 {
                     m.Frozen = true;
                     m.MoveToWorld(Location, Map);
@@ -75,14 +75,14 @@ namespace Server.Mobiles
 
                     m_TangleCooldown.Add(m);
 
-                    Timer.DelayCall(TimeSpan.FromSeconds(Utility.RandomMinMax(3, 6)), new TimerStateCallback<Mobile>(Untangle), m);
-                    Timer.DelayCall(TimeSpan.FromSeconds(15.0), new TimerStateCallback<Mobile>(RemoveCooldown), m);
+                    Timer.DelayCall(TimeSpan.FromSeconds(Utility.RandomMinMax(3, 6)), Untangle, m);
+                    Timer.DelayCall(TimeSpan.FromSeconds(15.0), RemoveCooldown, m);
                 }
 
                 if (m.InRange(this, 1) && !m_DamageTable.ContainsKey(m))
                 {
                     // Should start the timer
-                    m_DamageTable[m] = Timer.DelayCall(TimeSpan.Zero, TimeSpan.FromSeconds(1.0), new TimerStateCallback<Mobile>(DoDamage), m);
+                    m_DamageTable[m] = Timer.DelayCall(TimeSpan.Zero, TimeSpan.FromSeconds(1.0), DoDamage, m);
                 }
             }
         }
@@ -115,29 +115,15 @@ namespace Server.Mobiles
             }
         }
 
-        public override void OnDeath(Container c)
-        {
-            base.OnDeath(c);
-
-            if (Utility.RandomDouble() < 0.02)
-                c.DropItem(new LuckyCoin());
-        }
-
-        public override void GenerateLoot()
-        {
-            this.AddLoot(LootPack.FilthyRich);
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }

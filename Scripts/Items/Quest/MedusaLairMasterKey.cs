@@ -1,14 +1,14 @@
-using System;
-
 namespace Server.Items
 {
     public class MedusaKey : MasterKey
     {
+        public override int Lifespan => 600;
+        public override int LabelNumber => 1112303;  // Medusa's Lair
+
         public MedusaKey()
             : base(0x1012)
         {
-            this.Name = "Medusa's Lair";
-            this.Hue = 0x481;
+            Hue = 0x481;
         }
 
         public MedusaKey(Serial serial)
@@ -16,25 +16,15 @@ namespace Server.Items
         {
         }
 
-        //public override int LabelNumber{ get{ return 1113739; } } 
-        public override int Lifespan
-        {
-            get
-            {
-                return 600;
-            }
-        }
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
 
@@ -42,7 +32,7 @@ namespace Server.Items
         {
             if (from.Region != null && from.Region.IsPartOf("MedusasLair"))
                 return base.CanOfferConfirmation(from);
-				
+
             return false;
         }
     }

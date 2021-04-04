@@ -1,10 +1,21 @@
-using System;
 using Server.Engines.Craft;
 using Server.Mobiles;
 using Server.Regions;
+using System;
 
 namespace Server.Items
 {
+    public enum RepairSkillType
+    {
+        Smithing,
+        Tailoring,
+        Tinkering,
+        Carpentry,
+        Fletching,
+        Masonry,
+        Glassblowing
+    }
+
     public class RepairDeed : Item
     {
         private RepairSkillType m_Skill;
@@ -53,23 +64,7 @@ namespace Server.Items
         {
         }
 
-        public enum RepairSkillType
-        {
-            Smithing,
-            Tailoring,
-            Tinkering,
-            Carpentry,
-            Fletching,
-            Masonry,
-            Glassblowing
-        }
-        public override bool DisplayLootType
-        {
-            get
-            {
-                return Core.ML;
-            }
-        }
+        public override bool DisplayLootType => true;
         [CommandProperty(AccessLevel.GameMaster)]
         public RepairSkillType RepairSkill
         {
@@ -92,7 +87,7 @@ namespace Server.Items
             }
             set
             {
-                m_SkillLevel = Math.Max(Math.Min(value, 120.0), 0) ;
+                m_SkillLevel = Math.Max(Math.Min(value, 120.0), 0);
                 InvalidateProperties();
             }
         }
@@ -122,31 +117,31 @@ namespace Server.Items
 
         public override void AddNameProperty(ObjectPropertyList list)
         {
-            list.Add(1061133, String.Format("{0}\t{1}", GetSkillTitle(m_SkillLevel).ToString(), RepairSkillInfo.GetInfo(m_Skill).Name)); // A repair service contract from ~1_SKILL_TITLE~ ~2_SKILL_NAME~.
+            list.Add(1061133, string.Format("{0}\t{1}", GetSkillTitle(m_SkillLevel).ToString(), RepairSkillInfo.GetInfo(m_Skill).Name)); // A repair service contract from ~1_SKILL_TITLE~ ~2_SKILL_NAME~.
+        }
+
+        public override void AddWeightProperty(ObjectPropertyList list)
+        {
+            if (m_Crafter != null)
+                list.Add(1050043, m_Crafter.TitleName); // crafted by ~1_NAME~
+
+            list.Add(1060636); // exceptional
+
+            base.AddWeightProperty(list);
         }
 
         public override void GetProperties(ObjectPropertyList list)
         {
             base.GetProperties(list);
 
-            if (m_Crafter != null)
-                list.Add(1050043, m_Crafter.TitleName); // crafted by ~1_NAME~
+            list.Add(1071345, string.Format("{0:F1}", m_SkillLevel)); // Skill: ~1_val~
 
-            var type = RepairSkillInfo.GetInfo(m_Skill);
+            TextDefinition desc = RepairSkillInfo.GetInfo(m_Skill).Description;
 
-            if (type.Description != null)
-                TextDefinition.AddTo(list, type.Description);
-        }
-
-        public override void OnSingleClick(Mobile from)
-        {
-            if (Deleted || !from.CanSee(this))
-                return;
-
-            LabelTo(from, 1061133, String.Format("{0}\t{1}", GetSkillTitle(m_SkillLevel).ToString(), RepairSkillInfo.GetInfo(m_Skill).Name)); // A repair service contract from ~1_SKILL_TITLE~ ~2_SKILL_NAME~.
-
-            if (m_Crafter != null)
-				LabelTo(from, 1050043, m_Crafter.TitleName); // crafted by ~1_NAME~
+            if (desc != null)
+            {
+                list.Add(desc.ToString());
+            }
         }
 
         public override void OnDoubleClick(Mobile from)
@@ -173,14 +168,63 @@ namespace Server.Items
             if (!m.Region.IsPartOf<TownRegion>())
                 return false;
 
-            return Server.Factions.Faction.IsNearType(m, RepairSkillInfo.GetInfo(m_Skill).NearbyTypes, 6);
+            return IsNearType(m, RepairSkillInfo.GetInfo(m_Skill).NearbyTypes, 6);
+        }
+
+        public static bool IsNearType(Mobile mob, Type type, int range)
+        {
+            bool mobs = type.IsSubclassOf(typeof(Mobile));
+            bool items = type.IsSubclassOf(typeof(Item));
+
+            IPooledEnumerable eable;
+
+            if (mobs)
+                eable = mob.GetMobilesInRange(range);
+            else if (items)
+                eable = mob.GetItemsInRange(range);
+            else
+                return false;
+
+            foreach (object obj in eable)
+            {
+                if (type.IsAssignableFrom(obj.GetType()))
+                {
+                    eable.Free();
+                    return true;
+                }
+            }
+
+            eable.Free();
+            return false;
+        }
+
+        public static bool IsNearType(Mobile mob, Type[] types, int range)
+        {
+            IPooledEnumerable eable = mob.GetObjectsInRange(range);
+
+            foreach (object obj in eable)
+            {
+                Type objType = obj.GetType();
+
+                for (int i = 0; i < types.Length; i++)
+                {
+                    if (types[i].IsAssignableFrom(objType))
+                    {
+                        eable.Free();
+                        return true;
+                    }
+                }
+            }
+
+            eable.Free();
+            return false;
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
             writer.Write((int)m_Skill);
             writer.Write(m_SkillLevel);
@@ -193,7 +237,7 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch( version )
+            switch (version)
             {
                 case 0:
                     {
@@ -215,7 +259,7 @@ namespace Server.Items
             else if (skill >= 5)
                 return (1061123 + skill - 5);
 
-            switch( skill )
+            switch (skill)
             {
                 case 4:
                     return "a Novice";
@@ -225,11 +269,12 @@ namespace Server.Items
                     return "a Newbie";		//On OSI, it shouldn't go below 50, but, this is for 'custom' support.
             }
         }
+    }
 
-        private class RepairSkillInfo
+    public class RepairSkillInfo
+    {
+        private static readonly RepairSkillInfo[] m_Table = new RepairSkillInfo[]
         {
-            private static readonly RepairSkillInfo[] m_Table = new RepairSkillInfo[]
-            {
                 new RepairSkillInfo(DefBlacksmithy.CraftSystem,     typeof(Blacksmith), 1047013, 1023015),
                 new RepairSkillInfo(DefTailoring.CraftSystem,       typeof(Tailor),     1061132, 1022981),
                 new RepairSkillInfo(DefTinkering.CraftSystem,       typeof(Tinker),     1061166, 1022983),
@@ -237,79 +282,42 @@ namespace Server.Items
                 new RepairSkillInfo(DefBowFletching.CraftSystem,    typeof(Bowyer),     1061134, 1023005),
                 new RepairSkillInfo(DefMasonry.CraftSystem,         typeof(Carpenter),  1061135, 1060774, 1044635),
                 new RepairSkillInfo(DefGlassblowing.CraftSystem,    typeof(Alchemist),  1111838, 1115634, 1044636),
-            };
+        };
 
-            private readonly CraftSystem m_System;
-            private readonly Type[] m_NearbyTypes;
-            private readonly TextDefinition m_NotNearbyMessage;
-            private readonly TextDefinition m_Name;
-            private readonly TextDefinition m_Description;
+        private readonly CraftSystem m_System;
+        private readonly Type[] m_NearbyTypes;
+        private readonly TextDefinition m_NotNearbyMessage;
+        private readonly TextDefinition m_Name;
+        private readonly TextDefinition m_Description;
 
-            public RepairSkillInfo(CraftSystem system, Type[] nearbyTypes, TextDefinition notNearbyMessage, TextDefinition name, TextDefinition description = null)
-            {
-                m_System = system;
-                m_NearbyTypes = nearbyTypes;
-                m_NotNearbyMessage = notNearbyMessage;
-                m_Name = name;
-                m_Description = description;
-            }
+        public RepairSkillInfo(CraftSystem system, Type[] nearbyTypes, TextDefinition notNearbyMessage, TextDefinition name, TextDefinition description = null)
+        {
+            m_System = system;
+            m_NearbyTypes = nearbyTypes;
+            m_NotNearbyMessage = notNearbyMessage;
+            m_Name = name;
+            m_Description = description;
+        }
 
-            public RepairSkillInfo(CraftSystem system, Type nearbyType, TextDefinition notNearbyMessage, TextDefinition name, TextDefinition description = null)
-                : this(system, new Type[] { nearbyType }, notNearbyMessage, name, description)
-            {
-            }
+        public RepairSkillInfo(CraftSystem system, Type nearbyType, TextDefinition notNearbyMessage, TextDefinition name, TextDefinition description = null)
+            : this(system, new Type[] { nearbyType }, notNearbyMessage, name, description)
+        {
+        }
 
-            public static RepairSkillInfo[] Table
-            {
-                get
-                {
-                    return m_Table;
-                }
-            }
-            public TextDefinition NotNearbyMessage
-            {
-                get
-                {
-                    return m_NotNearbyMessage;
-                }
-            }
-            public TextDefinition Name
-            {
-                get
-                {
-                    return m_Name;
-                }
-            }
-            public TextDefinition Description
-            {
-                get
-                {
-                    return m_Description;
-                }
-            }
-            public CraftSystem System
-            {
-                get
-                {
-                    return m_System;
-                }
-            }
-            public Type[] NearbyTypes
-            {
-                get
-                {
-                    return m_NearbyTypes;
-                }
-            }
-            public static RepairSkillInfo GetInfo(RepairSkillType type)
-            {
-                int v = (int)type;
+        public static RepairSkillInfo[] Table => m_Table;
+        public TextDefinition NotNearbyMessage => m_NotNearbyMessage;
+        public TextDefinition Name => m_Name;
+        public TextDefinition Description => m_Description;
+        public CraftSystem System => m_System;
+        public Type[] NearbyTypes => m_NearbyTypes;
+        public static RepairSkillInfo GetInfo(RepairSkillType type)
+        {
+            int v = (int)type;
 
-                if (v < 0 || v >= m_Table.Length)
-                    v = 0;
+            if (v < 0 || v >= m_Table.Length)
+                v = 0;
 
-                return m_Table[v];
-            }
+            return m_Table[v];
         }
     }
 }

@@ -1,24 +1,17 @@
-using System;
-using System.Collections.Generic;
 using Server.ContextMenus;
 using Server.Gumps;
 using Server.Mobiles;
 using Server.Multis;
 using Server.Network;
 using Server.Targeting;
+using System.Collections.Generic;
 
 namespace Server.Items
 {
-    [FlipableAttribute(0x14E7, 0x14E8)]
+    [Flipable(0x14E7, 0x14E8)]
     public class HitchingPost : Item, ISecurable
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return m_Replica ? 1071127 : 1025351;
-            }
-        }// hitching post (replica)
+        public override int LabelNumber => m_Replica ? 1071127 : 1025351;// hitching post (replica)
 
         private int m_UsesRemaining;
         private int m_Charges;
@@ -111,13 +104,7 @@ namespace Server.Items
         {
         }
 
-        public override bool ForceShowProperties
-        {
-            get
-            {
-                return ObjectPropertyList.Enabled;
-            }
-        }
+        public override bool ForceShowProperties => true;
 
         public override void GetProperties(ObjectPropertyList list)
         {
@@ -174,7 +161,7 @@ namespace Server.Items
                         continue;
 
                     AddButton(15, 39 + (i * 20), 10006, 10006, i + 1, GumpButtonType.Reply, 0);
-                    AddHtml(32, 35 + (i * 20), 275, 18, String.Format("<BASEFONT COLOR=#C0C0EE>{0}</BASEFONT>", pet.Name), false, false);
+                    AddHtml(32, 35 + (i * 20), 275, 18, string.Format("<BASEFONT COLOR=#C0C0EE>{0}</BASEFONT>", pet.Name), false, false);
                 }
             }
 
@@ -188,36 +175,6 @@ namespace Server.Items
                     m_Post.EndClaimList(m_From, m_List[index]);
                 }
             }
-        }
-
-        public static int GetMaxStabled(Mobile from)
-        {
-            double taming = from.Skills[SkillName.AnimalTaming].Value;
-            double anlore = from.Skills[SkillName.AnimalLore].Value;
-            double vetern = from.Skills[SkillName.Veterinary].Value;
-            double sklsum = taming + anlore + vetern;
-
-            int max;
-
-            if (sklsum >= 240.0)
-                max = 5;
-            else if (sklsum >= 200.0)
-                max = 4;
-            else if (sklsum >= 160.0)
-                max = 3;
-            else
-                max = 2;
-
-            if (taming >= 100.0)
-                max += (int)((taming - 90.0) / 10);
-
-            if (anlore >= 100.0)
-                max += (int)((anlore - 90.0) / 10);
-
-            if (vetern >= 100.0)
-                max += (int)((vetern - 90.0) / 10);
-
-            return max;
         }
 
         private class StableTarget : Target
@@ -329,7 +286,7 @@ namespace Server.Items
                     from.SendLocalizedMessage(1071157); //This hitching post is damaged. You can't use it any longer.
                 }
             }
-            else if (from.Stabled.Count >= GetMaxStabled(from))
+            else if (from.Stabled.Count >= AnimalTrainer.GetMaxStabled(from))
             {
                 from.SendLocalizedMessage(1042565); // You have too many pets in the stables!
             }
@@ -379,7 +336,7 @@ namespace Server.Items
             {
                 from.SendLocalizedMessage(1042564); // I'm sorry.  Your pet seems to be busy.
             }
-            else if (from.Stabled.Count >= GetMaxStabled(from))
+            else if (from.Stabled.Count >= AnimalTrainer.GetMaxStabled(from))
             {
                 from.SendLocalizedMessage(1042565); // You have too many pets in the stables!
             }
@@ -398,12 +355,14 @@ namespace Server.Items
 
                     pet.IsStabled = true;
 
-                    if (Core.SE)
-                        pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully happy
+                    pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully happy
 
                     from.Stabled.Add(pet);
 
-                    UsesRemaining -= 1;
+                    if (m_Replica)
+                    {
+                        UsesRemaining -= 1;
+                    }
 
                     from.SendLocalizedMessage(502679); // Very well, thy pet is stabled. Thou mayst recover it by saying 'claim' to me. In one real world week, I shall sell it off if it is not claimed!
                 }
@@ -464,8 +423,7 @@ namespace Server.Items
 
                         pet.IsStabled = false;
 
-                        if (Core.SE)
-                            pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully Happy
+                        pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully Happy
 
                         from.Stabled.RemoveAt(i);
                         --i;
@@ -502,19 +460,13 @@ namespace Server.Items
 
             BaseHouse house = BaseHouse.FindHouseAt(this);
 
-            if (house != null && house.IsAosRules && (house.Public ? house.IsBanned(m) : !house.HasAccess(m)))
+            if (house != null && (house.Public ? house.IsBanned(m) : !house.HasAccess(m)))
                 return false;
 
             return (house != null && house.HasSecureAccess(m, m_Level));
         }
 
-        public override bool HandlesOnSpeech
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool HandlesOnSpeech => true;
 
         public override void OnSpeech(SpeechEventArgs e)
         {
@@ -545,13 +497,13 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)4); // version
+            writer.Write(4); // version
 
             writer.Write(m_Replica);
 
             writer.Write((int)m_Level);
-            writer.Write((int)m_UsesRemaining);
-            writer.Write((int)m_Charges);
+            writer.Write(m_UsesRemaining);
+            writer.Write(m_Charges);
         }
 
         public override void Deserialize(GenericReader reader)

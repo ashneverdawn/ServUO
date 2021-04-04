@@ -1,13 +1,19 @@
-using System;
-
 namespace Server.Items
 {
     public class Lodestone : Item, ICommodity
     {
         [Constructable]
         public Lodestone()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public Lodestone(int amount)
             : base(0x5739)
         {
+            Stackable = true;
+            Amount = amount;
         }
 
         public Lodestone(Serial serial)
@@ -15,21 +21,15 @@ namespace Server.Items
         {
         }
 
-        TextDefinition ICommodity.Description { get { return LabelNumber; } }
-        bool ICommodity.IsDeedable { get { return true; } }
+        TextDefinition ICommodity.Description => LabelNumber;
+        bool ICommodity.IsDeedable => true;
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1113348;
-            }
-        }// lodestone
+        public override int LabelNumber => 1113348;// lodestone
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

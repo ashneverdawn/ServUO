@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 using Server.Mobiles;
 using Server.Multis;
@@ -150,7 +149,7 @@ namespace Server.Gumps
             }
             else
             {
-                switch ( info.ButtonID )
+                switch (info.ButtonID)
                 {
                     case 1: // Price Per Rental
                         SetPricePerRental(from);
@@ -259,7 +258,7 @@ namespace Server.Gumps
 
         private class PricePerRentalPrompt : Prompt
         {
-            public override int MessageCliloc { get { return 1062365; } }
+            public override int MessageCliloc => 1062365;
             private readonly VendorRentalContract m_Contract;
             public PricePerRentalPrompt(VendorRentalContract contract)
             {
@@ -414,6 +413,8 @@ namespace Server.Gumps
 
             from.SendLocalizedMessage(1062377); // You have accepted the offer and now own a vendor in this house.  Rental contract options and details may be viewed on this vendor via the 'Contract Options' context menu.
             m_Landlord.SendLocalizedMessage(1062376, from.Name); // ~1_NAME~ has accepted your vendor rental offer.  Rental contract details and options may be viewed on this vendor via the 'Contract Options' context menu.
+
+            EventSink.InvokePlacePlayerVendor(new PlacePlayerVendorEventArgs(from, vendor));
         }
 
         protected override void Cancel(Mobile from)
@@ -481,7 +482,7 @@ namespace Server.Gumps
 
         private class ContractRenewalPricePrompt : Prompt
         {
-            public override int MessageCliloc { get { return 1062500; } }
+            public override int MessageCliloc => 1062500;
             private readonly RentedVendor m_Vendor;
             public ContractRenewalPricePrompt(RentedVendor vendor)
             {

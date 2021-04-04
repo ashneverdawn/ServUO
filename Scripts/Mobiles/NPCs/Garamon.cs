@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -15,9 +14,8 @@ namespace Server.Mobiles
 
             Name = "Garamon";
             HairItemID = 0x2044;
+            FacialHairItemID = 0x204B;
             HairHue = 0x44E;
-            FacialHairItemID = 0x44E;
-            FacialHairHue = 1153;
             Body = 0x190;
             Hue = 33821;
             CantWalk = true;
@@ -34,17 +32,11 @@ namespace Server.Mobiles
         {
         }
 
-        public virtual bool IsInvulnerable
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public virtual bool IsInvulnerable => true;
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)1);
+            writer.Write(2);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -52,24 +44,9 @@ namespace Server.Mobiles
             base.Deserialize(reader);
             int version = reader.ReadInt();
 
-            if (version == 0)
+            if (version == 1)
             {
-                HairItemID = 0x2044;
-                HairHue = 0x44E;
-                FacialHairItemID = 0x44E;
-                FacialHairHue = 1153;
-                Body = 0x190;
-                Hue = 33821;
-                CantWalk = true;
-                Direction = Direction.South;
-
-                Item item = FindItemOnLayer(Layer.OuterTorso);
-                if (item != null)
-                    item.Hue = 946;
-
-                item = FindItemOnLayer(Layer.Shoes);
-                if (item != null)
-                    item.Hue = 1810;
+                FacialHairItemID = 0x204B;
             }
         }
 
@@ -83,7 +60,7 @@ namespace Server.Mobiles
 
         public override void OnSpeech(SpeechEventArgs e)
         {
-            if (!e.Handled && e.Mobile.InRange(this.Location, 2))
+            if (!e.Handled && e.Mobile.InRange(Location, 2))
             {
                 PlayerMobile pm = e.Mobile as PlayerMobile;
 
@@ -99,57 +76,57 @@ namespace Server.Mobiles
                     {
                         case "hello":
                             {
-                                this.Say("Greetings Adventurer! If you are seeking to enter the Abyss, I may be of assitance to you.");
+                                Say("Greetings Adventurer! If you are seeking to enter the Abyss, I may be of assitance to you.");
                                 break;
                             }
                         case "secret":
                             {
-                                this.Say("He who pays close attention to the walls may notice something unusual.");
+                                Say("He who pays close attention to the walls may notice something unusual.");
                                 break;
                             }
                         case "teleporter":
                             {
-                                this.Say("You will find many within the dungeon. They will facilitate your travels.");
+                                Say("You will find many within the dungeon. They will facilitate your travels.");
                                 break;
                             }
                         case "vines":
                             {
-                                this.Say("Aaah yes! Tricky things they are. Try to find something that could burn through them.");
+                                Say("Aaah yes! Tricky things they are. Try to find something that could burn through them.");
                                 break;
                             }
                         case "burn":
                             {
-                                this.Say("I can tell you right away it's not fire based. Surely something within the dungeon will yield what you need.");
+                                Say("I can tell you right away it's not fire based. Surely something within the dungeon will yield what you need.");
                                 break;
                             }
                         case "abyss":
                             {
-                                this.Say("It's entrance is protected by stone guardians who will only grant passage to the carrier of a Tripartite Key!");
+                                Say("It's entrance is protected by stone guardians who will only grant passage to the carrier of a Tripartite Key!");
                                 break;
                             }
                         case "stone guardian":
                             {
-                                this.Say("They will not let you enter the Abyss unless you can present a Tripartite Key");
+                                Say("They will not let you enter the Abyss unless you can present a Tripartite Key");
                                 break;
                             }
                         case "key":
                             {
-                                this.Say("It's three parts that you must find, and reunite as one!");
+                                Say("It's three parts that you must find, and reunite as one!");
                                 break;
                             }
                         case "parts":
                             {
-                                this.Say("Two can be found hidden in secret rooms within the Underworld. The third you must take from a shadow of evil.");
+                                Say("Two can be found hidden in secret rooms within the Underworld. The third you must take from a shadow of evil.");
                                 break;
                             }
                         case "shadow of evil":
                             {
-                                this.Say("A most foul traitor. Once you have the first two parts, challenge him for the third! He dwells beyond the void in the Shrine.");
+                                Say("A most foul traitor. Once you have the first two parts, challenge him for the third! He dwells beyond the void in the Shrine.");
                                 break;
                             }
                         case "shrine":
                             {
-                                this.Say("Find your way there through the dungeon. You must use a teleporter to reach it.");
+                                Say("Find your way there through the dungeon. You must use a teleporter to reach it.");
                                 break;
                             }
                     }

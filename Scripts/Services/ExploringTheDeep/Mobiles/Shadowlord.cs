@@ -1,6 +1,7 @@
-﻿using System;
 using Server.Items;
-using System.Collections;
+using Server.Spells;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,19 +11,19 @@ namespace Server.Mobiles
     {
         Astaroth,
         Faulinei,
-        Nosfentor        
+        Nosfentor
     };
-    
+
     [CorpseName("a shadowlord corpse")]
-    public class Shadowlord : BaseCreature
+    public class Shadowlord : BasePeerless
     {
-        private static readonly ArrayList m_Instances = new ArrayList();
-        public static ArrayList Instances { get { return m_Instances; } }
+        //private static readonly List<Shadowlord> m_Instances = new List<Shadowlord>();
+        //public static List<Shadowlord> Instances => m_Instances;
 
         private ShadowlordType m_Type;
-        public virtual Type[] ArtifactDrops { get { return _ArtifactTypes; } }
+        public virtual Type[] ArtifactDrops => _ArtifactTypes;
 
-        private Type[] _ArtifactTypes = new Type[]
+        private readonly Type[] _ArtifactTypes = new Type[]
         {
             typeof(Abhorrence),         typeof(CaptainJohnesBlade),             typeof(Craven),
             typeof(Equivocation),       typeof(GargishCaptainJohnesBlade),      typeof(GargishEquivocation),
@@ -34,66 +35,65 @@ namespace Server.Mobiles
         {
             get
             {
-                return this.m_Type;
+                return m_Type;
             }
             set
             {
-                this.m_Type = value;
-                this.InvalidateProperties();
+                m_Type = value;
+                InvalidateProperties();
             }
         }
+
+        public List<DarkWisp> Wisps { get; set; } = new List<DarkWisp>();
 
         [Constructable]
         public Shadowlord()
             : base(AIType.AI_NecroMage, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            m_Instances.Add(this);
+            //m_Instances.Add(this);
 
-            this.m_Type = (ShadowlordType)Utility.Random(3);
-            this.Name = this.m_Type.ToString();
+            m_Type = (ShadowlordType)Utility.Random(3);
+            Name = m_Type.ToString();
 
-            this.Body = 146;
-            this.BaseSoundID = 0x4B0;
+            Body = 146;
+            BaseSoundID = 0x4B0;
+            Hue = 902;
 
-            this.SetStr(981, 1078);
-            this.SetDex(1003, 1114);
-            this.SetInt(1098, 1245);
+            SetStr(981, 1078);
+            SetDex(1003, 1114);
+            SetInt(1098, 1245);
 
-            this.SetHits(50000, 55000);
-            this.SetStam(1003, 1114);
+            SetHits(50000, 55000);
+            SetStam(1003, 1114);
 
-            this.SetDamage(35, 41);
+            SetDamage(35, 41);
 
-            this.SetDamageType(ResistanceType.Physical, 20);
-            this.SetDamageType(ResistanceType.Fire, 20);
-            this.SetDamageType(ResistanceType.Cold, 20);
-            this.SetDamageType(ResistanceType.Poison, 20);
-            this.SetDamageType(ResistanceType.Energy, 20);
+            SetDamageType(ResistanceType.Physical, 20);
+            SetDamageType(ResistanceType.Fire, 20);
+            SetDamageType(ResistanceType.Cold, 20);
+            SetDamageType(ResistanceType.Poison, 20);
+            SetDamageType(ResistanceType.Energy, 20);
 
-            this.SetResistance(ResistanceType.Physical, 70, 80);
-            this.SetResistance(ResistanceType.Fire, 70, 80);
-            this.SetResistance(ResistanceType.Cold, 70, 80);
-            this.SetResistance(ResistanceType.Poison, 70, 80);
-            this.SetResistance(ResistanceType.Energy, 70, 80);
+            SetResistance(ResistanceType.Physical, 70, 80);
+            SetResistance(ResistanceType.Fire, 70, 80);
+            SetResistance(ResistanceType.Cold, 70, 80);
+            SetResistance(ResistanceType.Poison, 70, 80);
+            SetResistance(ResistanceType.Energy, 70, 80);
 
-            this.SetSkill(SkillName.EvalInt, 140.0);
-            this.SetSkill(SkillName.Magery, 120.0);
-            this.SetSkill(SkillName.Meditation, 140.0);
-            this.SetSkill(SkillName.MagicResist, 110.2, 120.0);
-            this.SetSkill(SkillName.Tactics, 110.1, 115.0);
-            this.SetSkill(SkillName.Wrestling, 110.1, 115.0);
-			this.SetSkill(SkillName.Necromancy, 120.0);
-            this.SetSkill(SkillName.SpiritSpeak, 120.0);
-            this.SetSkill(SkillName.Anatomy, 10.0, 20.0);
+            SetSkill(SkillName.EvalInt, 140.0);
+            SetSkill(SkillName.Magery, 120.0);
+            SetSkill(SkillName.Meditation, 140.0);
+            SetSkill(SkillName.MagicResist, 110.2, 120.0);
+            SetSkill(SkillName.Tactics, 110.1, 115.0);
+            SetSkill(SkillName.Wrestling, 110.1, 115.0);
+            SetSkill(SkillName.Necromancy, 120.0);
+            SetSkill(SkillName.SpiritSpeak, 120.0);
+            SetSkill(SkillName.Anatomy, 10.0, 20.0);
 
-            this.Fame = 24000;
-            this.Karma = -24000;
+            Fame = 24000;
+            Karma = -24000;
 
-            this.VirtualArmor = 20;
-            this.Hue = 902;
-            Timer SelfDeleteTimer = new InternalSelfDeleteTimer(this);
-            SelfDeleteTimer.Start();
-
+            SetSpecialAbility(SpecialAbility.LifeDrain);
         }
 
         public override void GetProperties(ObjectPropertyList list)
@@ -106,132 +106,67 @@ namespace Server.Mobiles
         public Shadowlord(Serial serial)
             : base(serial)
         {
-            m_Instances.Add(this);
+            //m_Instances.Add(this);
         }
 
         public override void OnAfterDelete()
         {
-            m_Instances.Remove(this);
+            //m_Instances.Remove(this);
 
             base.OnAfterDelete();
         }
 
-        public override bool AlwaysMurderer { get { return true; } }
+        public override bool AlwaysMurderer => true;
+        public override bool DropPrimer => false;
+        public override bool GiveMLSpecial => false;
 
         public override int GetAngerSound() { return 1550; }
         public override int GetHurtSound() { return 1552; }
         public override int GetDeathSound() { return 1551; }
-        
-        public class InternalSelfDeleteTimer : Timer
-        {
-            private Shadowlord Mare;
 
-            public InternalSelfDeleteTimer(Mobile p) : base(TimeSpan.FromMinutes(180))
-            {
-                Priority = TimerPriority.FiveSeconds;
-                Mare = ((Shadowlord)p);
-            }
-            protected override void OnTick()
-            {
-                if (Mare.Map != Map.Internal)
-                {
-                    Mare.Delete();
-                    this.Stop();
-                }
-            }
-        }
-
-        public static Shadowlord Spawn(Point3D platLoc, Map platMap)
-        {
-            if (m_Instances.Count > 0)
-                return null;
-
-            Shadowlord creature = new Shadowlord();
-            creature.Home = platLoc;
-            creature.RangeHome = 4;
-            creature.MoveToWorld(platLoc, platMap);
-
-            return creature;
-        }
-
-        public override Poison PoisonImmune { get { return Poison.Lethal; } }
+        public override Poison PoisonImmune => Poison.Lethal;
 
         public override void GenerateLoot()
         {
-            this.AddLoot(LootPack.SuperBoss, 4);
-            this.AddLoot(LootPack.FilthyRich);
+            AddLoot(LootPack.SuperBoss, 4);
+            AddLoot(LootPack.FilthyRich);
         }
 
         public override void CheckReflect(Mobile caster, ref bool reflect)
         {
-            int c = 0;
-            IPooledEnumerable eable = GetMobilesInRange(20);
-
-            foreach (Mobile m in eable)
-            {
-                if (m != null && m is DarkWisp)
-                    c++;
-                continue;
-            }
-            eable.Free();
-            if (c > 0)
-                reflect = true; // Reflect spells if ShadowLord having wisps around
+            reflect = Wisps.Any(w => !w.Deleted && w.InRange(Location, 20));
         }
 
-        public override bool DrainsLife { get { return true; } }
-        public override double DrainsLifeChance { get { return 0.25; } }
-
-        public override void DrainLife()
+        public override void OnDrainLife(Mobile victim)
         {
-            if (this.Map == null)
+            if (Map == null || Altar == null)
                 return;
 
-            ArrayList list = new ArrayList();
-            int count = 0;
-            IPooledEnumerable eable = GetMobilesInRange(20);
+            var count = Altar == null ? 0 : Altar.Helpers.Count;
 
-            foreach (Mobile m in eable)
+            foreach (Mobile m in SpellHelper.AcquireIndirectTargets(this, Location, Map, 20).OfType<Mobile>())
             {
-                if (m == this || !this.CanBeHarmful(m))
+                if (Altar.Helpers.Count < 6)
                 {
-                    if (m is DarkWisp) { count++; }
-                    continue;
+                    SpawnHelper(new DarkWisp(), Location);
                 }
 
-                if (m is BaseCreature && (((BaseCreature)m).Controlled || ((BaseCreature)m).Summoned || ((BaseCreature)m).Team != this.Team))
-                    list.Add(m);
-                else if (m.Player)
-                    list.Add(m);
-            }
+                if (Region.IsPartOf("Underwater World") && (Map == Map.Trammel || Map == Map.Felucca))
+                {
+                    int teleportchance = Hits / HitsMax;
 
-            eable.Free();
-
-            foreach (Mobile m in list)
-            {
-                this.DoHarmful(m);
-
-                m.FixedParticles(0x374A, 10, 15, 5013, 0x496, 0, EffectLayer.Waist);
-                m.PlaySound(0x231);
-
-                m.SendMessage("You feel the life drain out of you!");
-
-                int toDrain = count * 10;
-
-                this.Hits += toDrain;
-                (new DarkWisp()).MoveToWorld(new Point3D(this.Location), this.Map);
-                int teleportchance = Hits / HitsMax;
-
-                if (teleportchance < Utility.RandomDouble() && m.Alive)
-                    switch (Utility.Random(6))
+                    if (teleportchance < Utility.RandomDouble() && m.Alive)
                     {
-                        case 0: m.MoveToWorld(new Point3D(6431, 1664, 0), this.Map); break;
-                        case 1: m.MoveToWorld(new Point3D(6432, 1634, 0), this.Map); break;
-                        case 2: m.MoveToWorld(new Point3D(6401, 1657, 0), this.Map); break;
-                        case 3: m.MoveToWorld(new Point3D(6401, 1637, 0), this.Map); break;
-                        default: m.MoveToWorld(new Point3D(this.Location), this.Map); break;
+                        switch (Utility.Random(6))
+                        {
+                            case 0: m.MoveToWorld(new Point3D(6431, 1664, 0), Map); break;
+                            case 1: m.MoveToWorld(new Point3D(6432, 1634, 0), Map); break;
+                            case 2: m.MoveToWorld(new Point3D(6401, 1657, 0), Map); break;
+                            case 3: m.MoveToWorld(new Point3D(6401, 1637, 0), Map); break;
+                            default: m.MoveToWorld(Location, Map); break;
+                        }
                     }
-
-                m.Damage(toDrain, this);
+                }
             }
         }
 
@@ -268,9 +203,9 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
-            writer.Write((int)this.m_Type);
+            writer.Write((int)m_Type);
 
         }
 
@@ -279,18 +214,7 @@ namespace Server.Mobiles
             base.Deserialize(reader);
             int version = reader.ReadInt();
 
-            switch (version)
-            {
-                case 0:
-                    {
-                        this.m_Type = (ShadowlordType)reader.ReadInt();
-
-                        break;
-                    }
-            }
-
-            Timer SelfDeleteTimer = new InternalSelfDeleteTimer(this);
-            SelfDeleteTimer.Start();
+            m_Type = (ShadowlordType)reader.ReadInt();
         }
     }
 }

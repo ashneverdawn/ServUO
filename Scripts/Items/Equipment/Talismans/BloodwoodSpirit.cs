@@ -1,11 +1,11 @@
-using System;
-
 namespace Server.Items
 {
     public class BloodwoodSpirit : BaseTalisman
     {
-		public override bool IsArtifact { get { return true; } }
-		
+        public override bool IsArtifact => true;
+        public override int LabelNumber => 1075034; // Bloodwood Spirit
+        public override bool ForceShowName => true;
+
         [Constructable]
         public BloodwoodSpirit()
             : base(0x2F5A)
@@ -24,35 +24,16 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1075034;
-            }
-        }// Bloodwood Spirit
-        public override bool ForceShowName
-        {
-            get
-            {
-                return true;
-            }
-        }
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)1); // version
+            writer.Write(1); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
-
-            if (version == 0 && (this.Protection == null || this.Protection.IsEmpty))
-                this.Protection = GetRandomProtection(false);
         }
     }
 }

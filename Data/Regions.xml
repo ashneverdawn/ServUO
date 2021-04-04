@@ -242,9 +242,6 @@
 		    <rect x="6316" y="472" width="8" height="8" />
         <rect x="6303" y="509" width="11" height="7" />
 	    </region>
-      <region type="ParoxysmusBossEntry">
-				<rect x="6516" y="493" width="5" height="7" />
-			</region>
     </region>
     <region priority="50" name="Huntsman's Forest">
       <rect x="1595" y="550" width="120" height="120" />
@@ -995,8 +992,22 @@
       <rect x="759" y="1635" width="12" height="12" />
       <go x="762" y="1645" z="0" />
     </region>
+	<region type="DungeonRegion" priority="50" name="Solen Hives">
+      <rect x="5640" y="1776" width="295" height="263" />
+      <go x="5774" y="1896" z="20" />
+    </region>
+	<region type="SeaMarketRegion" priority="50" name="Sea Market">
+      <rect x="4529" y="2296" width="45" height="112" />
+      <go x="4550" y="2317" z="-2" />
+    </region>
   </Facet>
   <Facet name="Trammel">
+    <region type="DungeonRegion" priority="50" name="Khaldun">
+      <rect x="5381" y="1284" width="247" height="225" />
+      <go x="5571" y="1302" z="0" />
+      <music name="Dungeon9" />
+      <entrance x="5882" y="3819" />
+    </region>
     <region type="NoTravelSpellsAllowed" priority="50" name="Underwater World">
       <rect x="6251" y="1613" width="222" height="200" />
     </region>
@@ -1241,9 +1252,6 @@
 		    <rect x="6316" y="472" width="8" height="8" />
         <rect x="6303" y="509" width="11" height="7" />
 	    </region>
-      <region type="ParoxysmusBossEntry">
-				<rect x="6516" y="493" width="5" height="7" />
-			</region>
     </region>
     <region priority="50" name="Bravehorn's drinking pool">
       <rect x="1302" y="2331" width="38" height="22" />
@@ -2072,6 +2080,14 @@
       <rect x="759" y="1635" width="12" height="12" />
       <go x="762" y="1645" z="0" />
     </region>
+	<region type="DungeonRegion" priority="50" name="Solen Hives">
+      <rect x="5640" y="1776" width="295" height="263" />
+      <go x="5774" y="1896" z="20" />
+    </region>
+	<region type="SeaMarketRegion" priority="50" name="Sea Market">
+      <rect x="4529" y="2296" width="45" height="112" />
+      <go x="4550" y="2317" z="-2" />
+    </region>
   </Facet>
   <Facet name="Ilshenar">
     <region type="ExploringDeepCreaturesRegion" name="Djinn">
@@ -2323,7 +2339,7 @@
       <rect x="256" y="1560" width="80" height="32" />
       <go x="285" y="1585" z="-27" />
     </region>
-    <region type="DungeonRegion" priority="50" name="Exodus Dungeon">
+    <region type="ExodusDungeonRegion" priority="50" name="Exodus Dungeon">
       <rect x="1832" y="16" width="248" height="200" />
       <go x="1966" y="117" z="-28" />
       <entrance x="827" y="777" />
@@ -2423,10 +2439,6 @@
       <rect x="1698" y="1567" width="5" height="60" />
       <rect x="1687" y="1627" width="26" height="26" />
     </region>
-	<region priority="50" name="Gravewater Lake">
-			<rect x="1440" y="1527" width="423" height="219" />
-			<rect x="1381" y="1565" width="215" height="224" />
-	</region>
     <region type="MondainRegion" priority="50" name="Gravewater Dock">
       <rect x="1692" y="1551" width="16" height="16" />
     </region>
@@ -2530,71 +2542,11 @@
     </region>
     <region priority="50" name="Samurai start location">
       <rect x="320" y="690" width="115" height="100" />
-      <music name="Zento" />
-      <region type="QuestOfferRegion">
-        <rect x="368" y="772" width="7" height="5" />
-        <quest type="HaochisTrialsQuest" />
-      </region>
-      <region type="CancelQuestRegion">
-        <rect x="388" y="772" width="9" height="9" />
-        <quest type="HaochisTrialsQuest" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="363" y="747" width="6" height="6" />
-        <quest type="HaochisTrialsQuest" min="FirstTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestCompleteObjectiveRegion">
-        <rect x="333" y="768" width="11" height="3" />
-        <quest type="HaochisTrialsQuest" complete="FirstTrialIntroObjective" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="364" y="738" width="5" height="4" />
-        <quest type="HaochisTrialsQuest" min="SecondTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestCompleteObjectiveRegion">
-        <rect x="328" y="729" width="22" height="22" />
-        <quest type="HaochisTrialsQuest" complete="SecondTrialIntroObjective" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="363" y="727" width="6" height="6" />
-        <quest type="HaochisTrialsQuest" min="ThirdTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestCompleteObjectiveRegion">
-        <rect x="328" y="696" width="23" height="23" />
-        <quest type="HaochisTrialsQuest" complete="ThirdTrialIntroObjective" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="377" y="722" width="6" height="6" />
-        <quest type="HaochisTrialsQuest" min="FourthTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestCompleteObjectiveRegion">
-        <rect x="369" y="697" width="23" height="22" />
-        <quest type="HaochisTrialsQuest" complete="FourthTrialIntroObjective" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="391" y="729" width="4" height="5" />
-        <quest type="HaochisTrialsQuest" min="FifthTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="391" y="738" width="4" height="4" />
-        <quest type="HaochisTrialsQuest" min="SixthTrialIntroObjective" message="1063163" />
-      </region>
-      <region type="QuestNoEntryRegion">
-        <rect x="397" y="747" width="4" height="5" />
-        <quest type="HaochisTrialsQuest" min="SeventhTrialIntroObjective" message="1063163" />
-      </region>
+      <music name="Zento" />      
     </region>
     <region priority="50" name="Ninja start location">
       <rect x="360" y="795" width="80" height="40" />
-      <music name="Zento" />
-      <region type="QuestOfferRegion">
-        <rect x="407" y="807" width="24" height="14" />
-        <quest type="EminosUndertakingQuest" />
-      </region>
-      <region type="CancelQuestRegion">
-        <rect x="374" y="801" width="4" height="3" />
-        <quest type="EminosUndertakingQuest" />
-      </region>
+      <music name="Zento" />     
     </region>
     <region priority="50" name="Ninja cave">
       <rect x="360" y="960" width="100" height="215" />
@@ -2629,6 +2581,10 @@
       <rect x="283" y="361" width="68" height="102" />
       <go x="320" y="408" z="32" />
       <smartNoHousing active="true" />
+    </region>
+	<region type="TokunoDocksRegion" priority="50" name="Tokuno Docks">
+      <rect x="650" y="1350" width="100" height="50" />
+      <go x="713" y="1360" z="26" />
     </region>
   </Facet>
   <Facet name="TerMur">

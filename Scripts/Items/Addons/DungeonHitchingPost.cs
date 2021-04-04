@@ -1,24 +1,22 @@
-using System;
-using System.Collections.Generic;
 using Server.ContextMenus;
 using Server.Gumps;
 using Server.Mobiles;
-using Server.Multis;
 using Server.Network;
 using Server.Targeting;
+using System.Collections.Generic;
 
 namespace Server.Items
 {
-    [FlipableAttribute(0x14E7, 0x14E8)]
+    [Flipable(0x14E7, 0x14E8)]
     public class DungeonHitchingPost : Item
     {
-        public override int LabelNumber { get { return 1025351; } }// hitching post
+        public override int LabelNumber => 1025351; // hitching post
 
         [Constructable]
         public DungeonHitchingPost()
             : base(0x14E7)
         {
-            this.Movable = false;
+            Movable = false;
         }
 
         public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
@@ -41,13 +39,7 @@ namespace Server.Items
         {
         }
 
-        public override bool ForceShowProperties
-        {
-            get
-            {
-                return ObjectPropertyList.Enabled;
-            }
-        }
+        public override bool ForceShowProperties => true;
 
         public override void GetProperties(ObjectPropertyList list)
         {
@@ -62,8 +54,8 @@ namespace Server.Items
             public StableEntry(DungeonHitchingPost post, Mobile from)
                 : base(6126, 12)
             {
-                this.m_Post = post;
-                this.m_From = from;
+                m_Post = post;
+                m_From = from;
             }
 
             public override void OnClick()
@@ -80,44 +72,14 @@ namespace Server.Items
             public ClaimAllEntry(DungeonHitchingPost post, Mobile from)
                 : base(6127, 12)
             {
-                this.m_Post = post;
-                this.m_From = from;
+                m_Post = post;
+                m_From = from;
             }
 
             public override void OnClick()
             {
                 m_Post.Claim(m_From);
             }
-        }
-
-        public static int GetMaxStabled(Mobile from)
-        {
-            double taming = from.Skills[SkillName.AnimalTaming].Value;
-            double anlore = from.Skills[SkillName.AnimalLore].Value;
-            double vetern = from.Skills[SkillName.Veterinary].Value;
-            double sklsum = taming + anlore + vetern;
-
-            int max;
-
-            if (sklsum >= 240.0)
-                max = 5;
-            else if (sklsum >= 200.0)
-                max = 4;
-            else if (sklsum >= 160.0)
-                max = 3;
-            else
-                max = 2;
-
-            if (taming >= 100.0)
-                max += (int)((taming - 90.0) / 10);
-
-            if (anlore >= 100.0)
-                max += (int)((anlore - 90.0) / 10);
-
-            if (vetern >= 100.0)
-                max += (int)((vetern - 90.0) / 10);
-
-            return max;
         }
 
         private class StableTarget : Target
@@ -127,13 +89,13 @@ namespace Server.Items
             public StableTarget(DungeonHitchingPost post)
                 : base(12, false, TargetFlags.None)
             {
-                this.m_Post = post;
+                m_Post = post;
             }
 
             protected override void OnTarget(Mobile from, object targeted)
             {
                 if (targeted is BaseCreature)
-                    this.m_Post.EndStable(from, (BaseCreature)targeted);
+                    m_Post.EndStable(from, (BaseCreature)targeted);
                 else if (targeted == from)
                     from.SendLocalizedMessage(502672); // HA HA HA! Sorry, I am not an inn.
                 else
@@ -143,7 +105,7 @@ namespace Server.Items
 
         public void BeginStable(Mobile from)
         {
-            if (this.Deleted || !from.CheckAlive())
+            if (Deleted || !from.CheckAlive())
                 return;
 
             if ((from.Backpack == null || from.Backpack.GetAmount(typeof(Gold)) < 30) && Banker.GetBalance(from) < 30)
@@ -201,7 +163,7 @@ namespace Server.Items
             {
                 from.SendLocalizedMessage(1042564); // I'm sorry.  Your pet seems to be busy.
             }
-            else if (from.Stabled.Count >= GetMaxStabled(from))
+            else if (from.Stabled.Count >= AnimalTrainer.GetMaxStabled(from))
             {
                 from.SendLocalizedMessage(1042565); // You have too many pets in the stables!
             }
@@ -217,17 +179,11 @@ namespace Server.Items
                 pet.IsStabled = true;
                 pet.StabledBy = from;
 
-                if (Core.SE)
-                {
-                    pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully happy
-                }
+                pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully happy
 
                 from.Stabled.Add(pet);
 
-                from.SendLocalizedMessage(Core.AOS ? 1049677 : 502679);
-                // [AOS: Your pet has been stabled.] Very well, thy pet is stabled. 
-                // Thou mayst recover it by saying 'claim' to me. In one real world week, 
-                // I shall sell it off if it is not claimed!
+                from.SendLocalizedMessage(1049677); // Your pet has been stabled.
             }
             else
             {
@@ -237,7 +193,7 @@ namespace Server.Items
 
         public void Claim(Mobile from)
         {
-            if (this.Deleted || !from.CheckAlive())
+            if (Deleted || !from.CheckAlive())
                 return;
 
             bool claimed = false;
@@ -250,7 +206,11 @@ namespace Server.Items
 
                 if (pet == null || pet.Deleted)
                 {
-                    pet.IsStabled = false;
+                    if (pet != null)
+                    {
+                        pet.IsStabled = false;
+                    }
+
                     from.Stabled.Remove(pet);
                 }
                 else
@@ -271,8 +231,7 @@ namespace Server.Items
 
                         pet.IsStabled = false;
 
-                        if (Core.SE)
-                            pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully Happy
+                        pet.Loyalty = BaseCreature.MaxLoyalty; // Wonderfully Happy  
 
                         from.Stabled.Remove(pet);
                         claimed = true;
@@ -297,7 +256,7 @@ namespace Server.Items
 
         public void BeginClaimList(Mobile from)
         {
-            if (this.Deleted || !from.CheckAlive())
+            if (Deleted || !from.CheckAlive())
                 return;
 
             List<BaseCreature> list = new List<BaseCreature>();
@@ -308,7 +267,11 @@ namespace Server.Items
 
                 if (pet == null || pet.Deleted)
                 {
-                    pet.IsStabled = false;
+                    if (pet != null)
+                    {
+                        pet.IsStabled = false;
+                    }
+
                     from.Stabled.RemoveAt(i);
                     --i;
                     continue;
@@ -325,7 +288,7 @@ namespace Server.Items
 
         public void EndClaimList(Mobile from, BaseCreature pet)
         {
-            if (pet == null || pet.Deleted || from.Map != this.Map || !from.InRange(this, 14) || !from.Stabled.Contains(pet) || !from.CheckAlive())
+            if (pet == null || pet.Deleted || from.Map != Map || !from.InRange(this, 14) || !from.Stabled.Contains(pet) || !from.CheckAlive())
                 return;
 
             if ((from.Followers + pet.ControlSlots) <= from.FollowersMax)
@@ -351,29 +314,23 @@ namespace Server.Items
             }
         }
 
-        public override bool HandlesOnSpeech
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override bool HandlesOnSpeech => true;
 
         public override void OnSpeech(SpeechEventArgs e)
         {
             if (!e.Handled && e.HasKeyword(0x0008))
             {
                 e.Handled = true;
-                this.BeginStable(e.Mobile);
+                BeginStable(e.Mobile);
             }
             else if (!e.Handled && e.HasKeyword(0x0009))
             {
                 e.Handled = true;
 
                 if (!Insensitive.Equals(e.Speech, "claim"))
-                    this.BeginClaimList(e.Mobile);
+                    BeginClaimList(e.Mobile);
                 else
-                    this.Claim(e.Mobile);
+                    Claim(e.Mobile);
             }
             else
             {
@@ -390,18 +347,18 @@ namespace Server.Items
             public ClaimListGump(DungeonHitchingPost post, Mobile from, List<BaseCreature> list)
                 : base(50, 50)
             {
-                this.m_Post = post;
-                this.m_From = from;
-                this.m_List = list;
+                m_Post = post;
+                m_From = from;
+                m_List = list;
 
                 from.CloseGump(typeof(ClaimListGump));
 
-                this.AddPage(0);
+                AddPage(0);
 
-                this.AddBackground(0, 0, 325, 50 + (list.Count * 20), 9250);
-                this.AddAlphaRegion(5, 5, 315, 40 + (list.Count * 20));
+                AddBackground(0, 0, 325, 50 + (list.Count * 20), 9250);
+                AddAlphaRegion(5, 5, 315, 40 + (list.Count * 20));
 
-                this.AddHtml(15, 15, 275, 20, "<BASEFONT COLOR=#FFFFFF>Select a pet to retrieve from the stables:</BASEFONT>", false, false);
+                AddHtml(15, 15, 275, 20, "<BASEFONT COLOR=#FFFFFF>Select a pet to retrieve from the stables:</BASEFONT>", false, false);
 
                 for (int i = 0; i < list.Count; ++i)
                 {
@@ -410,8 +367,8 @@ namespace Server.Items
                     if (pet == null || pet.Deleted)
                         continue;
 
-                    this.AddButton(15, 39 + (i * 20), 10006, 10006, i + 1, GumpButtonType.Reply, 0);
-                    this.AddHtml(32, 35 + (i * 20), 275, 18, String.Format("<BASEFONT COLOR=#C0C0EE>{0}</BASEFONT>", pet.Name), false, false);
+                    AddButton(15, 39 + (i * 20), 10006, 10006, i + 1, GumpButtonType.Reply, 0);
+                    AddHtml(32, 35 + (i * 20), 275, 18, string.Format("<BASEFONT COLOR=#C0C0EE>{0}</BASEFONT>", pet.Name), false, false);
                 }
             }
 
@@ -419,9 +376,9 @@ namespace Server.Items
             {
                 int index = info.ButtonID - 1;
 
-                if (index >= 0 && index < this.m_List.Count)
+                if (index >= 0 && index < m_List.Count)
                 {
-                    this.m_Post.EndClaimList(this.m_From, this.m_List[index]);
+                    m_Post.EndClaimList(m_From, m_List[index]);
                 }
             }
         }
@@ -430,7 +387,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

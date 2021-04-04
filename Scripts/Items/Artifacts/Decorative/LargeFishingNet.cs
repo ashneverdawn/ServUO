@@ -1,14 +1,13 @@
-﻿using Server;
-using System;
 using Server.Targeting;
+using System;
 
 namespace Server.Items
 {
     [Flipable(7845, 7846)]
     public class LargeFishingNet : Item
     {
-		public override bool IsArtifact { get { return true; } }
-        public override int LabelNumber { get { return 1149955; } }
+        public override bool IsArtifact => true;
+        public override int LabelNumber => 1149955;
 
         [Constructable]
         public LargeFishingNet()
@@ -21,7 +20,7 @@ namespace Server.Items
             if (IsChildOf(from.Backpack))
             {
                 from.SendMessage("Target a corpse you'd like to net.");
-                from.BeginTarget(10, false, TargetFlags.None, new TargetCallback(Net_OnTarget));
+                from.BeginTarget(10, false, TargetFlags.None, Net_OnTarget);
             }
         }
 
@@ -35,7 +34,7 @@ namespace Server.Items
                     Timer.DelayCall(TimeSpan.FromSeconds(0.5), new TimerStateCallback(MoveCorpse), new object[] { (Corpse)targeted, from });
                 }
                 else
-                    from.SendMessage("This can only be used in deep water.");
+                    from.SendLocalizedMessage(1010485); // You can only use this in deep water!
             }
             else
                 from.SendMessage("You can only net corpses!");
@@ -66,7 +65,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

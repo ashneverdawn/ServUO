@@ -1,6 +1,5 @@
-using System;
 using Server.Items;
-using Server.Network;
+using System;
 
 namespace Server.Mobiles
 {
@@ -8,17 +7,31 @@ namespace Server.Mobiles
     public class Golem : BaseCreature, IRepairableMobile
     {
         [CommandProperty(AccessLevel.GameMaster)]
-        public virtual Type RepairResource
+        public virtual Type RepairResource => typeof(IronIngot);
+
+        public double Scalar(Mobile m)
         {
-            get
-            {
-                return typeof(IronIngot);
-            }
+            double scalar;
+
+            double skill = m.Skills[SkillName.Tinkering].Value;
+
+            if (skill >= 100.0)
+                scalar = 1.0;
+            else if (skill >= 90.0)
+                scalar = 0.9;
+            else if (skill >= 80.0)
+                scalar = 0.8;
+            else if (skill >= 70.0)
+                scalar = 0.7;
+            else
+                scalar = 0.6;
+
+            return scalar;
         }
 
         [Constructable]
         public Golem()
-            : this(false, 1.0)
+            : this(false, 1)
         {
         }
 
@@ -29,68 +42,81 @@ namespace Server.Mobiles
             Name = "a golem";
             Body = 752;
 
-            if (summoned)
-                Hue = 2101;
-
             SetStr((int)(251 * scalar), (int)(350 * scalar));
             SetDex((int)(76 * scalar), (int)(100 * scalar));
             SetInt((int)(101 * scalar), (int)(150 * scalar));
 
-            SetHits((int)(151 * scalar), (int)(210 * scalar));
-
-            SetDamage((int)(13 * scalar), (int)(24 * scalar));
-
-            SetDamageType(ResistanceType.Physical, 100);
-
-            SetResistance(ResistanceType.Physical, (int)(35 * scalar), (int)(55 * scalar));
-
-            if (summoned)
-                SetResistance(ResistanceType.Fire, (int)(50 * scalar), (int)(60 * scalar));
-            else
-                SetResistance(ResistanceType.Fire, (int)(100 * scalar));
-
-            SetResistance(ResistanceType.Cold, (int)(10 * scalar), (int)(30 * scalar));
-            SetResistance(ResistanceType.Poison, (int)(10 * scalar), (int)(25 * scalar));
-            SetResistance(ResistanceType.Energy, (int)(30 * scalar), (int)(40 * scalar));
-
-            SetSkill(SkillName.MagicResist, (150.1 * scalar), (190.0 * scalar));
-            SetSkill(SkillName.Tactics, (60.1 * scalar), (100.0 * scalar));
-            SetSkill(SkillName.Wrestling, (60.1 * scalar), (100.0 * scalar));
-
             if (summoned)
             {
+                Hue = 2101;
+
+                SetResistance(ResistanceType.Fire, 50, 65);
+                SetResistance(ResistanceType.Poison, 75, 85);
+
+                SetSkill(SkillName.MagicResist, (150.1 * scalar), (190.0 * scalar));
+                SetSkill(SkillName.Tactics, (60.1 * scalar), (100.0 * scalar));
+                SetSkill(SkillName.Wrestling, (60.1 * scalar), (100.0 * scalar));
+
                 Fame = 10;
                 Karma = 10;
             }
             else
             {
+                SetHits(151, 210);
+
+                SetResistance(ResistanceType.Fire, 100);
+                SetResistance(ResistanceType.Poison, 10, 25);
+
+                SetSkill(SkillName.MagicResist, 60.0, 100.0);
+                SetSkill(SkillName.Tactics, 60.0, 100.0);
+                SetSkill(SkillName.Wrestling, 150.0, 190.0);
+                SetSkill(SkillName.DetectHidden, 45.0, 50.0);
+
                 Fame = 3500;
                 Karma = -3500;
             }
 
-            if (!summoned)
-            {
-                SpawnPackItems();
-            }
+            SetDamage(13, 24);
+
+            SetDamageType(ResistanceType.Physical, 100);
+
+            SetResistance(ResistanceType.Physical, 40, 60);
+            SetResistance(ResistanceType.Cold, 20, 30);
+            SetResistance(ResistanceType.Energy, 30, 45);
 
             ControlSlots = 3;
+
+            SetSpecialAbility(SpecialAbility.ColossalBlow);
         }
 
-        public virtual void SpawnPackItems()
+        public override void GenerateLoot()
         {
-            PackItem(new IronIngot(Utility.RandomMinMax(13, 21)));
+            AddLoot(LootPack.LootItem<IronIngot>(Utility.RandomMinMax(13, 21), true));
+            AddLoot(LootPack.LootItem<PowerCrystal>(1.0));
+            AddLoot(LootPack.LootItem<ClockworkAssembly>(15.0));
+            AddLoot(LootPack.LootItem<ArcaneGem>(20.0, 1, false, true));
+            AddLoot(LootPack.LootItem<Gears>(25.0));
 
-            if (0.1 > Utility.RandomDouble())
-                PackItem(new PowerCrystal());
+            AddLoot(LootPack.LootItemCallback(SpawnGears, 5.0, 1, false, false));
+        }
 
-            if (0.15 > Utility.RandomDouble())
-                PackItem(new ClockworkAssembly());
-
-            if (0.2 > Utility.RandomDouble())
-                PackItem(new ArcaneGem());
-
-            if (0.25 > Utility.RandomDouble())
-                PackItem(new Gears());
+        public static Item SpawnGears(IEntity e)
+        {
+            if (!(e is BaseCreature) || !((BaseCreature)e).IsParagon)
+            {
+                if (0.75 > Utility.RandomDouble())
+                {
+                    return DawnsMusicGear.RandomCommon;
+                }
+                else
+                {
+                    return DawnsMusicGear.RandomUncommon;
+                }
+            }
+            else
+            {
+                return DawnsMusicGear.RandomRare;
+            }
         }
 
         public Golem(Serial serial)
@@ -98,96 +124,14 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool IsScaredOfScaryThings
-        {
-            get
-            {
-                return false;
-            }
-        }
-        public override bool IsScaryToPets
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool IsBondable
-        {
-            get
-            {
-                return false;
-            }
-        }
-        public override FoodType FavoriteFood
-        {
-            get
-            {
-                return FoodType.None;
-            }
-        }
-        public override bool CanBeDistracted
-        {
-            get
-            {
-                return false;
-            }
-        }
-        public override bool DeleteOnRelease
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool AutoDispel
-        {
-            get
-            {
-                return !Controlled;
-            }
-        }
-        public override bool BleedImmune
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool BardImmune
-        {
-            get
-            {
-                return !Core.AOS || Controlled;
-            }
-        }
-        public override Poison PoisonImmune
-        {
-            get
-            {
-                return Poison.Lethal;
-            }
-        }
-
-        public override bool DoesColossalBlow { get { return true; } }
-
-        public override void OnDeath(Container c)
-        {
-            base.OnDeath(c);
-
-            if (0.05 > Utility.RandomDouble())
-            {
-                if (!IsParagon)
-                {
-                    if (0.75 > Utility.RandomDouble())
-                        c.DropItem(DawnsMusicGear.RandomCommon);
-                    else
-                        c.DropItem(DawnsMusicGear.RandomUncommon);
-                }
-                else
-                    c.DropItem(DawnsMusicGear.RandomRare);
-            }
-        }
+        public override bool IsScaredOfScaryThings => false;
+        public override bool IsScaryToPets => !Controlled;
+        public override bool IsBondable => false;
+        public override FoodType FavoriteFood => FoodType.None;
+        public override bool DeleteOnRelease => true;
+        public override bool AutoDispel => !Controlled;
+        public override bool BleedImmune => true;
+        public override Poison PoisonImmune => Poison.Lethal;
 
         public override int GetAngerSound()
         {
@@ -253,7 +197,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

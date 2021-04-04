@@ -1,10 +1,7 @@
-using System;
-using Server.Items;
-
 namespace Server.Mobiles
 {
     [CorpseName("a charred corpse")]
-    public class FireGargoyle : BaseCreature
+    public class FireGargoyle : BaseCreature, IAuraCreature
     {
         [Constructable]
         public FireGargoyle()
@@ -41,7 +38,8 @@ namespace Server.Mobiles
             Fame = 3500;
             Karma = -3500;
 
-            VirtualArmor = 32;
+            SetSpecialAbility(SpecialAbility.DragonBreath);
+            SetAreaEffect(AreaEffect.AuraDamage);
         }
 
         public FireGargoyle(Serial serial)
@@ -49,41 +47,13 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool HasBreath
-        {
-            get
-            {
-                return true;
-            }
-        }// fire breath enabled
-        public override int TreasureMapLevel
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public override int Meat
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public override bool CanFly
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override int TreasureMapLevel => 1;
+        public override int Meat => 1;
+        public override bool CanFly => true;
 
-        public override bool HasAura { get { return true; } }
-        public override int AuraRange { get { return 2; } }
-
-        public override void AuraEffect(Mobile m)
+        public void AuraEffect(Mobile m)
         {
-            m.SendMessage("The radiating heat scorches your skin!");
+            m.SendLocalizedMessage(1008112); // The intense heat is damaging you!
         }
 
         public override void GenerateLoot()
@@ -91,11 +61,11 @@ namespace Server.Mobiles
             AddLoot(LootPack.Rich);
             AddLoot(LootPack.Gems);
         }
-        
+
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

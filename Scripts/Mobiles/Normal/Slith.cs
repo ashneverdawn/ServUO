@@ -33,29 +33,20 @@ namespace Server.Mobiles
             Tamable = true;
             ControlSlots = 1;
             MinTameSkill = 80.7;
+
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public Slith(Serial serial) : base(serial)
         {
         }
 
-        public override int DragonBlood { get { return 8; } }
+        public override int DragonBlood => 8;
 
-        public override bool HasBreath
-        {
-            get { return true; }
-        } // fire breath enabled
+        public override int TreasureMapLevel => 2;
+        public override int Meat => 6;
 
-        public override int Meat
-        {
-            get { return 6; }
-        }
-
-        // public override int DragonBlood { get { return 6; } }
-        public override int Hides
-        {
-            get { return 10; }
-        }
+        public override int Hides => 10;
 
         public override void GenerateLoot()
         {
@@ -94,7 +85,7 @@ namespace Server.Mobiles
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-            var version = reader.ReadInt();
+            int version = reader.ReadInt();
         }
     }
 }

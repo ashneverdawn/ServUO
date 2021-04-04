@@ -1,12 +1,12 @@
-using System;
 using Server.Items;
 using Server.Network;
+using System;
 
 namespace Server.Gumps
 {
     public class ConfirmPartyGump : Gump
     {
-        private MasterKey _Key;
+        private readonly MasterKey _Key;
 
         public ConfirmPartyGump(MasterKey key)
             : base(50, 50)
@@ -50,12 +50,14 @@ namespace Server.Gumps
 
     public class ConfirmEntranceGump : Gump
     {
-        private Timer _Accept;
-        private PeerlessAltar _Altar;
+        private readonly Timer _Accept;
+        private readonly PeerlessAltar _Altar;
 
         public ConfirmEntranceGump(PeerlessAltar altar, Mobile from)
             : base(50, 50)
         {
+            from.CloseGump(typeof(ConfirmEntranceGump));
+
             _Altar = altar;
 
             Closable = true;
@@ -86,13 +88,10 @@ namespace Server.Gumps
             {
                 case 0:
                     {
-                        _Altar.AddFighter(from, false);
-
                         break;
                     }
                 case 1:
                     {
-                        _Altar.AddFighter(from, true);
                         _Altar.Enter(from);
 
                         break;
@@ -103,7 +102,7 @@ namespace Server.Gumps
 
     public class AcceptConfirmPeerlessPartyTimer : Timer
     {
-        private Mobile _From;
+        private readonly Mobile _From;
 
         public AcceptConfirmPeerlessPartyTimer(Mobile from)
             : base(TimeSpan.FromSeconds(60.0), TimeSpan.FromSeconds(60.0), 1)
@@ -120,9 +119,9 @@ namespace Server.Gumps
 
     public class ConfirmExitGump : BaseConfirmGump
     {
-        public override int LabelNumber { get { return 1075026; } } // Are you sure you wish to teleport?
+        public override int LabelNumber => 1075026;  // Are you sure you wish to teleport?
 
-        private object _Altar;
+        private readonly object _Altar;
 
         public ConfirmExitGump(object altar) : base()
         {

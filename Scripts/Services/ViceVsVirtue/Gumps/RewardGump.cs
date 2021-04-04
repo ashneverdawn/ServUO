@@ -1,12 +1,8 @@
-using System;
-using Server;
+using Server.Engines.Points;
+using Server.Gumps;
 using Server.Items;
 using Server.Mobiles;
-using Server.Gumps;
-using Server.Guilds;
-using Server.Network;
-using Server.Engines.Points;
-using System.Collections.Generic;
+using System;
 
 namespace Server.Engines.VvV
 {
@@ -67,9 +63,9 @@ namespace Server.Engines.VvV
             {
                 item = Activator.CreateInstance(citem.Type, citem.Hue) as Item;
             }
-            else if (citem.Type == typeof(ScrollofTranscendence))
+            else if (citem.Type == typeof(ScrollOfTranscendence))
             {
-                item = ScrollofTranscendence.CreateRandom(10, 10);
+                item = ScrollOfTranscendence.CreateRandom(10, 10);
             }
             else
                 item = Activator.CreateInstance(citem.Type) as Item;

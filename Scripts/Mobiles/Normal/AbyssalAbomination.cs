@@ -1,5 +1,3 @@
-/* Based on AbysmalHorror, still no infos on Abyssal Abomination... Including correct body ID */
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -11,8 +9,8 @@ namespace Server.Mobiles
         public AbyssalAbomination()
             : base(AIType.AI_NecroMage, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            Name = "an Abyssal abomination";
-            Body = 742;
+            Name = "an Abyssal Abomination";
+            Body = 312;
             Hue = 769;
             BaseSoundID = 0x451;
 
@@ -45,8 +43,6 @@ namespace Server.Mobiles
             Fame = 26000;
             Karma = -26000;
 
-            VirtualArmor = 54;
-
             SetWeaponAbility(WeaponAbility.MortalStrike);
             SetWeaponAbility(WeaponAbility.WhirlwindAttack);
         }
@@ -56,41 +52,10 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool IgnoreYoungProtection
-        {
-            get
-            {
-                return Core.ML;
-            }
-        }
-        public override bool BardImmune
-        {
-            get
-            {
-                return !Core.SE;
-            }
-        }
-        public override bool Unprovokable
-        {
-            get
-            {
-                return Core.SE;
-            }
-        }
-        public override bool AreaPeaceImmune
-        {
-            get
-            {
-                return Core.SE;
-            }
-        }
-        public override Poison PoisonImmune
-        {
-            get
-            {
-                return Poison.Lethal;
-            }
-        }
+        public override bool IgnoreYoungProtection => true;
+        public override bool Unprovokable => true;
+        public override bool AreaPeaceImmune => true;
+        public override Poison PoisonImmune => Poison.Lethal;
 
         public override void GenerateLoot()
         {
@@ -100,16 +65,13 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
             int version = reader.ReadInt();
-
-            if (BaseSoundID == 357)
-                BaseSoundID = 0x451;
         }
     }
 }

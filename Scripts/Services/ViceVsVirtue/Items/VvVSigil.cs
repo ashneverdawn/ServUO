@@ -1,13 +1,7 @@
-using System;
-using Server;
 using Server.Items;
 using Server.Mobiles;
-using Server.Gumps;
-using System.Collections.Generic;
 using Server.Network;
-using Server.Guilds;
-using System.Linq;
-using Server.Engines.Points;
+using System;
 
 namespace Server.Engines.VvV
 {
@@ -24,8 +18,9 @@ namespace Server.Engines.VvV
         [CommandProperty(AccessLevel.GameMaster)]
         public DateTime LastStolen { get; set; }
 
-        public override int LabelNumber { get { return 1123391; } } // Sigil
-        public override bool HandlesOnMovement { get { return !Visible; } }
+        public override int LabelNumber => 1123391;  // Sigil
+        public override bool HandlesOnMovement => !Visible;
+        public bool CheckWhenHidden => true;
 
         public VvVSigil(VvVBattle battle, Point3D home)
             : base(0x99C7)
@@ -36,6 +31,16 @@ namespace Server.Engines.VvV
             Hue = 2721;
 
             LootType = LootType.Cursed;
+        }
+
+        public static bool ExistsOn(Mobile mob, bool vvvOnly = false)
+        {
+            if (mob == null || mob.Backpack == null)
+                return false;
+
+            Container pack = mob.Backpack;
+
+            return ViceVsVirtueSystem.Enabled && vvvOnly && pack.FindItemByType(typeof(VvVSigil)) != null;
         }
 
         public void OnStolen(VvVPlayerEntry entry)
@@ -83,6 +88,11 @@ namespace Server.Engines.VvV
 
         public static bool CheckMovement(PlayerMobile pm, Direction d)
         {
+            if (!ViceVsVirtueSystem.Enabled)
+            {
+                return true;
+            }
+
             int x = pm.X;
             int y = pm.Y;
 
@@ -108,7 +118,7 @@ namespace Server.Engines.VvV
 
         public virtual bool CheckPassiveDetect(Mobile m)
         {
-            if (m.InRange(this.Location, 4))
+            if (m.InRange(Location, 4))
             {
                 int skill = (int)m.Skills[SkillName.DetectHidden].Value;
 

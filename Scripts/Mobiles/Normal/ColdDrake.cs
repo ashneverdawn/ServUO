@@ -1,11 +1,7 @@
-using System;
-using Server;
-using Server.Items;
-
 namespace Server.Mobiles
 {
     [CorpseName("a drake corpse")]
-    public class ColdDrake : BaseCreature
+    public class ColdDrake : BaseCreature, IAuraCreature
     {
         [Constructable]
         public ColdDrake() : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
@@ -42,53 +38,43 @@ namespace Server.Mobiles
             Fame = 12000;
             Karma = -12000;
 
-            VirtualArmor = 60;
-
             Tamable = true;
             ControlSlots = 3;
             MinTameSkill = 96.0;
 
-            PackReg(3);
-
-            for (int i = 0; i <= 1; i++)
-            {
-                Item item;
-
-                if (Utility.RandomBool())
-                    item = Loot.RandomScroll(0, Loot.NecromancyScrollTypes.Length, SpellbookType.Necromancer);
-                else
-                    item = Loot.RandomScroll(0, Loot.RegularScrollTypes.Length, SpellbookType.Regular);
-
-                PackItem(item);
-            }
+            SetSpecialAbility(SpecialAbility.DragonBreath);
+            SetAreaEffect(AreaEffect.AuraDamage);
         }
 
         public override void GenerateLoot()
         {
             AddLoot(LootPack.FilthyRich, 3);
+            AddLoot(LootPack.MageryRegs, 3);
+
+            if (Utility.RandomBool())
+            {
+                AddLoot(LootPack.NecroScrolls, 2);
+            }
+            else
+            {
+                AddLoot(LootPack.MageryScrolls, 2);
+            }
         }
 
-        public override bool CanAngerOnTame { get { return true; } }
-        public override bool ReacquireOnMovement { get { return !Controlled; } }
-        public override int Meat { get { return 10; } }
-        public override int Hides { get { return 22; } }
-        public override HideType HideType { get { return HideType.Horned; } }
-        public override int DragonBlood { get { return 8; } }
-        public override FoodType FavoriteFood { get { return FoodType.Fish; } }
+        public override bool CanAngerOnTame => true;
+        public override bool ReacquireOnMovement => !Controlled;
+        public override int TreasureMapLevel => 3;
+        public override int Meat => 10;
+        public override int Hides => 22;
+        public override HideType HideType => HideType.Horned;
+        public override int DragonBlood => 8;
+        public override FoodType FavoriteFood => FoodType.Fish;
 
-        public override bool HasBreath { get { return true; } } // fire breath enabled
-        public override int BreathFireDamage { get { return 0; } }
-        public override int BreathColdDamage { get { return 100; } }
-        public override int BreathEffectHue { get { return 1264; } }
-
-        public override bool HasAura { get { return !Controlled; } }
-        public override int AuraRange { get { return 2; } }
-        public override int AuraBaseDamage { get { return 20; } }
-        public override int AuraFireDamage { get { return 0; } }
-        public override int AuraColdDamage { get { return 100; } }
-
-        public override void AuraEffect(Mobile m)
+        public virtual void AuraEffect(Mobile m)
         {
+            m.FixedParticles(0x374A, 10, 30, 5052, Hue, 0, EffectLayer.Waist);
+            m.PlaySound(0x5C6);
+
             m.SendLocalizedMessage(1008111, false, Name); //  : The intense cold is damaging you!
         }
 
@@ -99,7 +85,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

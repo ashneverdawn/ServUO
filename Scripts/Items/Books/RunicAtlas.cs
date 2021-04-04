@@ -1,22 +1,18 @@
-using System;
-using Server.Network;
 using Server.Gumps;
-using Server.Prompts;
 using Server.Mobiles;
-using Server.Items;
-using Server.Misc;
-using Server.Spells;
+using Server.Prompts;
+using Server.Spells.Chivalry;
 using Server.Spells.Fourth;
 using Server.Spells.Seventh;
-using Server.Spells.Chivalry;
+using System;
 
 namespace Server.Items
 {
-    [FlipableAttribute(39958, 39959)]
+    [Flipable(39958, 39959)]
     public class RunicAtlas : Runebook
     {
-        public override int MaxEntries { get { return 48; } }
-        public override int LabelNumber { get { return 1156443; } } // a runic atlas
+        public override int MaxEntries => 48;
+        public override int LabelNumber => 1156443;  // a runic atlas
 
         public int Selected { get; set; }
 
@@ -38,12 +34,30 @@ namespace Server.Items
                         return;
                     }
 
+                    from.CloseGump(typeof(RunicAtlasGump));
                     BaseGump.SendGump(new RunicAtlasGump((PlayerMobile)from, this));
                     Openers.Add(from);
                 }
                 else
                     from.SendLocalizedMessage(502436); // That is not accessible.
             }
+        }
+
+        public override bool HasGump(Mobile toCheck)
+        {
+            RunicAtlasGump bookGump = toCheck.FindGump<RunicAtlasGump>();
+
+            if (bookGump != null && bookGump.Atlas == this)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void CloseGump(Mobile m)
+        {
+            m.CloseGump(typeof(RunicAtlasGump));
         }
 
         public override bool OnDragDrop(Mobile from, Item dropped)
@@ -67,23 +81,32 @@ namespace Server.Items
                     if (g != null)
                         from.CloseGump(typeof(RunicAtlasGump));
 
-                    g = new RunicAtlasGump((PlayerMobile)from, this);
-                    g.Page = newPage;
-                    from.SendGump(g);
+                    g = new RunicAtlasGump((PlayerMobile)from, this)
+                    {
+                        Page = newPage
+                    };
+                    BaseGump.SendGump(g);
                 }
             }
 
             return d;
         }
 
-        public override int OnCraft(int quality, bool makersMark, Mobile from, Server.Engines.Craft.CraftSystem craftSystem, Type typeRes, ITool tool, Server.Engines.Craft.CraftItem craftItem, int resHue)
+        public override int OnCraft(int quality, bool makersMark, Mobile from, Engines.Craft.CraftSystem craftSystem, Type typeRes, ITool tool, Engines.Craft.CraftItem craftItem, int resHue)
         {
             if (makersMark)
                 Crafter = from;
 
             Quality = (BookQuality)(quality - 1);
 
-            MaxCharges = 100;
+            if (Quality == BookQuality.Exceptional)
+            {
+                MaxCharges = Utility.RandomList(80, 90, 100);
+            }
+            else
+            {
+                MaxCharges = 80;
+            }
 
             return quality;
         }
@@ -95,20 +118,17 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
+            writer.Write(0); // version
 
-            writer.Write((int)0); // version
             writer.Write(Selected);
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
+            reader.ReadInt();
 
-            int version = reader.ReadInt();
             Selected = reader.ReadInt();
-
-            if (MaxCharges != 100)
-                MaxCharges = 100;
         }
     }
 
@@ -121,11 +141,11 @@ namespace Server.Items
 
             bool valid = Sextant.Format(location, map, ref xLong, ref yLat, ref xMins, ref yMins, ref xEast, ref ySouth);
 
-            return valid ? String.Format("{0}° {1}'{2}, {3}° {4}'{5}", yLat, yMins, ySouth ? "S" : "N", xLong, xMins, xEast ? "E" : "W") : "Nowhere";
+            return valid ? string.Format("{0}° {1}'{2}, {3}° {4}'{5}", yLat, yMins, ySouth ? "S" : "N", xLong, xMins, xEast ? "E" : "W") : "Nowhere";
         }
 
-        public RunicAtlas Atlas { get; set; }
-        public int Selected { get { return Atlas == null ? -1 : Atlas.Selected; } }
+        public RunicAtlas Atlas { get; }
+        public int Selected => Atlas == null ? -1 : Atlas.Selected;
         public int Page { get; set; }
 
         public RunicAtlasGump(PlayerMobile pm, RunicAtlas atlas)
@@ -140,13 +160,13 @@ namespace Server.Items
         {
             if (map == Map.Trammel)
                 return 0xA;
-            else if (map == Map.Felucca)
+            if (map == Map.Felucca)
                 return 0x51;
-            else if (map == Map.Malas)
+            if (map == Map.Malas)
                 return 0x44E;
-            else if (map == Map.Tokuno)
+            if (map == Map.Tokuno)
                 return 0x482;
-            else if (map == Map.TerMur)
+            if (map == Map.TerMur)
                 return 0x66D;
 
             return 0;
@@ -157,7 +177,7 @@ namespace Server.Items
             AddImage(0, 0, 39923);
 
             AddHtmlLocalized(60, 9, 147, 22, 1011296, false, false); //Charges:
-            AddHtml(110, 9, 97, 22, String.Format("{0} / {1}", Atlas.CurCharges, Atlas.MaxCharges), false, false);
+            AddHtml(110, 9, 97, 22, string.Format("{0} / {1}", Atlas.CurCharges, Atlas.MaxCharges), false, false);
 
             AddHtmlLocalized(264, 9, 144, 18, 1011299, false, false); // rename book 
             AddButton(248, 14, 2103, 2103, 1, GumpButtonType.Reply, 0);
@@ -196,10 +216,10 @@ namespace Server.Items
             {
                 entry = Atlas.Entries[Selected];
             }
-            
-            string coords = entry != null ? ToCoordinates(entry.Location, entry.Map) : "Nowhere";
 
-            AddHtml(25, 254, 182, 18, String.Format("<center>{0}</center>", coords), false, false);
+            string coords = entry != null ? RunebookGump.GetLocation(entry) : "Nowhere";
+
+            AddHtml(25, 254, 182, 18, string.Format("<center>{0}</center>", coords), false, false);
 
             AddHtmlLocalized(62, 290, 144, 18, 1011300, false, false); // Set default                        
             AddButton(46, 295, 2103, 2103, 2, GumpButtonType.Reply, 0);
@@ -207,7 +227,7 @@ namespace Server.Items
             AddHtmlLocalized(62, 310, 144, 18, 1011298, false, false); // Drop rune
             AddButton(46, 315, 2103, 2103, 3, GumpButtonType.Reply, 0);
 
-            AddHtml(25, 348, 182, 18, String.Format("<center>{0}</center>", entry != null ? entry.Description : "Empty"), false, false);
+            AddHtml(25, 348, 182, 18, string.Format("<center>{0}</center>", entry != null ? entry.Description : "Empty"), false, false);
 
             int hy = 284;
             int by = 289;
@@ -252,6 +272,9 @@ namespace Server.Items
 
         public override void OnResponse(RelayInfo info)
         {
+            if (Atlas.Deleted || !User.InRange(Atlas.GetWorldLocation(), 3))
+                return;
+
             if (info.ButtonID >= 100 && info.ButtonID < 1000)
             {
                 SelectEntry(info.ButtonID - 100);
@@ -280,12 +303,12 @@ namespace Server.Items
                                 Atlas.Openers.Remove(User);
                             }
                             break;
-                        }                        
+                        }
                     case 3:
                         {
                             if (entry != null)
                             {
-                                DropRune(); break;
+                                DropRune();
                             }
                             else
                             {
@@ -360,12 +383,13 @@ namespace Server.Items
 
         public void RenameBook()
         {
-            if (Atlas.CheckAccess(User) || User.AccessLevel >= AccessLevel.GameMaster)
+            if (Atlas.CheckAccess(User) && Atlas.Movable || User.AccessLevel >= AccessLevel.GameMaster)
             {
                 User.Prompt = new InternalPrompt(Atlas);
             }
             else
             {
+                Atlas.Openers.Remove(User);
                 User.SendLocalizedMessage(502413); // That cannot be done while the book is locked down.
             }
         }
@@ -393,7 +417,7 @@ namespace Server.Items
 
         private void DropRune()
         {
-            if (Atlas.CheckAccess(User) || User.AccessLevel >= AccessLevel.GameMaster)
+            if (Atlas.CheckAccess(User) && Atlas.Movable || User.AccessLevel >= AccessLevel.GameMaster)
             {
                 Atlas.DropRune(User, Atlas.Entries[Selected], Selected);
                 Refresh();
@@ -405,16 +429,26 @@ namespace Server.Items
             }
         }
 
+        public void SendLocationMessage(RunebookEntry e, Mobile from)
+        {
+            if (e.Type == RecallRuneType.Ship)
+                return;
+
+            string coords = ToCoordinates(e.Location, e.Map);
+
+            if (coords != "Nowhere")
+            {
+                from.SendAsciiMessage(ToCoordinates(e.Location, e.Map));
+            }
+        }
+
         private void RecallSpell()
         {
-            RunebookEntry e = Atlas.Entries[Selected];            
+            RunebookEntry e = Atlas.Entries[Selected];
 
             if (RunebookGump.HasSpell(User, 31))
             {
-                string coords = ToCoordinates(e.Location, e.Map);
-
-                if (coords != "Nowhere")
-                    User.SendMessage(ToCoordinates(e.Location, e.Map));
+                SendLocationMessage(e, User);
 
                 Atlas.OnTravel();
                 new RecallSpell(User, null, e, null).Cast();
@@ -438,10 +472,7 @@ namespace Server.Items
             }
             else
             {
-                string coords = ToCoordinates(e.Location, e.Map);
-
-                if (coords != "Nowhere")
-                    User.SendMessage(ToCoordinates(e.Location, e.Map));
+                SendLocationMessage(e, User);
 
                 Atlas.OnTravel();
 
@@ -458,10 +489,7 @@ namespace Server.Items
 
             if (RunebookGump.HasSpell(User, 51))
             {
-                string coords = ToCoordinates(e.Location, e.Map);
-
-                if (coords != "Nowhere")
-                    User.SendMessage(ToCoordinates(e.Location, e.Map));
+                SendLocationMessage(e, User);
 
                 Atlas.OnTravel();
 
@@ -480,20 +508,17 @@ namespace Server.Items
         {
             RunebookEntry e = Atlas.Entries[Selected];
 
-            if (Core.AOS)
+            if (RunebookGump.HasSpell(User, 209))
             {
-                if (RunebookGump.HasSpell(User, 209))
-                {
-                    User.SendMessage(ToCoordinates(e.Location, e.Map));
+                SendLocationMessage(e, User);
 
-                    Atlas.OnTravel();
-                    new SacredJourneySpell(User, null, e, null).Cast();
-                    Atlas.NextUse = DateTime.UtcNow;
-                }
-                else
-                {
-                    User.SendLocalizedMessage(500015); // You do not have that spell!
-                }
+                Atlas.OnTravel();
+                new SacredJourneySpell(User, null, e, null).Cast();
+                Atlas.NextUse = DateTime.UtcNow;
+            }
+            else
+            {
+                User.SendLocalizedMessage(500015); // You do not have that spell!
             }
 
             Atlas.Openers.Remove(User);
@@ -501,8 +526,8 @@ namespace Server.Items
 
         private class InternalPrompt : Prompt
         {
-            public override int MessageCliloc { get { return 502414; } } // Please enter a title for the runebook:
-            public RunicAtlas Atlas { get; private set; }
+            public override int MessageCliloc => 502414;  // Please enter a title for the runebook:
+            public RunicAtlas Atlas { get; }
 
             public InternalPrompt(RunicAtlas atlas)
             {
@@ -517,7 +542,9 @@ namespace Server.Items
                 if (Atlas.CheckAccess(from) || from.AccessLevel >= AccessLevel.GameMaster)
                 {
                     Atlas.Description = Utility.FixHtml(text.Trim());
-                    from.SendGump(new RunicAtlasGump((PlayerMobile)from, Atlas));
+
+                    from.CloseGump(typeof(RunicAtlasGump));
+                    SendGump(new RunicAtlasGump((PlayerMobile)from, Atlas));
                     from.SendLocalizedMessage(1041531); // You have changed the title of the rune book.
                 }
                 else
@@ -531,9 +558,10 @@ namespace Server.Items
             {
                 from.SendLocalizedMessage(502415); // Request cancelled.
 
-                if (from is PlayerMobile && !Atlas.Deleted && from.InRange(Atlas.GetWorldLocation(), (Core.ML ? 3 : 1)))
+                if (from is PlayerMobile && !Atlas.Deleted && from.InRange(Atlas.GetWorldLocation(), 3))
                 {
-                    from.SendGump(new RunicAtlasGump((PlayerMobile)from, Atlas));
+                    from.CloseGump(typeof(RunicAtlasGump));
+                    SendGump(new RunicAtlasGump((PlayerMobile)from, Atlas));
                 }
             }
         }

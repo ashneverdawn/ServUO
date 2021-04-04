@@ -1,10 +1,9 @@
-using System;
-using System.Collections;
 using Server.Engines.CannedEvil;
 using Server.Items;
-using System.Collections.Generic;
 using Server.Network;
-using System.Linq;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Server.Mobiles
 {
@@ -19,43 +18,41 @@ namespace Server.Mobiles
         public PrimevalLich()
             : base(AIType.AI_NecroMage)
         {
-            this.Name = "Primeval Lich";
-            this.Body = 830;
+            Name = "Primeval Lich";
+            Body = 830;
 
-            this.SetStr(500);
-            this.SetDex(100);
-            this.SetInt(1000);
+            SetStr(500);
+            SetDex(100);
+            SetInt(1000);
 
-            this.SetHits(30000);
-            this.SetMana(5000);
+            SetHits(30000);
+            SetMana(5000);
 
-            this.SetDamage(17, 21);
+            SetDamage(17, 21);
 
-            this.SetDamageType(ResistanceType.Physical, 20);
-            this.SetDamageType(ResistanceType.Fire, 20);
-            this.SetDamageType(ResistanceType.Cold, 20);
-            this.SetDamageType(ResistanceType.Energy, 20);
-            this.SetDamageType(ResistanceType.Poison, 20);
+            SetDamageType(ResistanceType.Physical, 20);
+            SetDamageType(ResistanceType.Fire, 20);
+            SetDamageType(ResistanceType.Cold, 20);
+            SetDamageType(ResistanceType.Energy, 20);
+            SetDamageType(ResistanceType.Poison, 20);
 
-            this.SetResistance(ResistanceType.Physical, 30);
-            this.SetResistance(ResistanceType.Fire, 30);
-            this.SetResistance(ResistanceType.Cold, 30);
-            this.SetResistance(ResistanceType.Poison, 30);
-            this.SetResistance(ResistanceType.Energy, 20);
+            SetResistance(ResistanceType.Physical, 30);
+            SetResistance(ResistanceType.Fire, 30);
+            SetResistance(ResistanceType.Cold, 30);
+            SetResistance(ResistanceType.Poison, 30);
+            SetResistance(ResistanceType.Energy, 20);
 
-            this.SetSkill(SkillName.EvalInt, 90, 120.0);
-            this.SetSkill(SkillName.Magery, 90, 120.0);
-            this.SetSkill(SkillName.Meditation, 100, 120.0);
-            this.SetSkill(SkillName.Necromancy, 120.0);
-            this.SetSkill(SkillName.SpiritSpeak, 120.0);
-            this.SetSkill(SkillName.MagicResist, 120, 140.0);
-            this.SetSkill(SkillName.Tactics, 90, 120);
-            this.SetSkill(SkillName.Wrestling, 100, 120);
+            SetSkill(SkillName.EvalInt, 90, 120.0);
+            SetSkill(SkillName.Magery, 90, 120.0);
+            SetSkill(SkillName.Meditation, 100, 120.0);
+            SetSkill(SkillName.Necromancy, 120.0);
+            SetSkill(SkillName.SpiritSpeak, 120.0);
+            SetSkill(SkillName.MagicResist, 120, 140.0);
+            SetSkill(SkillName.Tactics, 90, 120);
+            SetSkill(SkillName.Wrestling, 100, 120);
 
-            this.Fame = 28000;
-            this.Karma = -28000;
-
-            this.VirtualArmor = 80;
+            Fame = 28000;
+            Karma = -28000;
 
             m_Timer = new TeleportTimer(this);
             m_Timer.Start();
@@ -71,47 +68,23 @@ namespace Server.Mobiles
         public override int GetHurtSound() { return 0x620; }
         public override int GetIdleSound() { return 0x621; }
 
-        public override bool CanRummageCorpses { get { return true; } }
-        public override bool BleedImmune { get { return true; } }
-        public override Poison PoisonImmune { get { return Poison.Lethal; } }
-        public override bool ShowFameTitle { get { return false; } }
-        public override bool ClickTitle { get { return false; } }
+        public override bool CanRummageCorpses => true;
+        public override bool BleedImmune => true;
+        public override Poison PoisonImmune => Poison.Lethal;
+        public override bool ShowFameTitle => false;
+        public override bool ClickTitle => false;
 
-        public override ChampionSkullType SkullType { get { return ChampionSkullType.None; } }
+        public override ChampionSkullType SkullType => ChampionSkullType.None;
 
-        public override Type[] UniqueList
-        {
-            get
-            {
-                return new Type[] { typeof(BansheesCall), typeof(CastOffZombieSkin), typeof(ChannelersDefender), typeof(LightsRampart) };
-            }
-        }
-        public override Type[] SharedList
-        {
-            get
-            {
-                return new Type[] { typeof(TokenOfHolyFavor), typeof(TheMostKnowledgePerson), typeof(LieutenantOfTheBritannianRoyalGuard), typeof(ProtectoroftheBattleMage) };
-            }
-        }
-        public override Type[] DecorativeList
-        {
-            get
-            {
-                return new Type[] { typeof(MummifiedCorpse) };
-            }
-        }
-        public override MonsterStatuetteType[] StatueTypes
-        {
-            get
-            {
-                return new MonsterStatuetteType[] { };
-            }
-        }        
+        public override Type[] UniqueList => new[] { typeof(BansheesCall), typeof(CastOffZombieSkin), typeof(ChannelersDefender), typeof(LightsRampart) };
+        public override Type[] SharedList => new[] { typeof(TokenOfHolyFavor), typeof(TheMostKnowledgePerson), typeof(LieutenantOfTheBritannianRoyalGuard), typeof(ProtectoroftheBattleMage) };
+        public override Type[] DecorativeList => new[] { typeof(MummifiedCorpse) };
+        public override MonsterStatuetteType[] StatueTypes => new MonsterStatuetteType[] { };
 
         public override void GenerateLoot()
         {
-            this.AddLoot(LootPack.UltraRich, 3);
-            this.AddLoot(LootPack.Meager);
+            AddLoot(LootPack.UltraRich, 3);
+            AddLoot(LootPack.Meager);
         }
 
         public override void OnDeath(Container c)
@@ -124,9 +97,9 @@ namespace Server.Mobiles
 
         public void ChangeCombatant()
         {
-            this.ForceReacquire();
-            this.BeginFlee(TimeSpan.FromSeconds(2.5));
-        }       
+            ForceReacquire();
+            ForceFleeUntil = DateTime.UtcNow + TimeSpan.FromSeconds(2.5);
+        }
 
         public override void OnThink()
         {
@@ -134,8 +107,8 @@ namespace Server.Mobiles
             {
                 Mobile target = Combatant as Mobile;
 
-                if (target != null && target.InRange(this, 8) && this.CanBeHarmful(target))
-                    this.Discord(target);
+                if (target != null && target.InRange(this, 8) && CanBeHarmful(target))
+                    Discord(target);
             }
         }
 
@@ -144,13 +117,13 @@ namespace Server.Mobiles
             base.OnGotMeleeAttack(attacker);
 
             if (0.05 >= Utility.RandomDouble())
-                this.SpawnShadowDwellers(attacker);
+                SpawnShadowDwellers(attacker);
         }
 
         public override void AlterDamageScalarFrom(Mobile caster, ref double scalar)
         {
             if (0.05 >= Utility.RandomDouble())
-                this.SpawnShadowDwellers(caster);
+                SpawnShadowDwellers(caster);
         }
 
         public override void OnGaveMeleeAttack(Mobile defender)
@@ -172,7 +145,7 @@ namespace Server.Mobiles
         #region Blast Radius
         private static readonly int BlastRange = 16;
 
-        private static readonly double[] BlastChance = new double[]
+        private static readonly double[] BlastChance = new[]
             {
                 0.0, 0.0, 0.05, 0.95, 0.95, 0.95, 0.05, 0.95, 0.95,
                 0.95, 0.05, 0.95, 0.95, 0.95, 0.05, 0.95, 0.95
@@ -182,7 +155,7 @@ namespace Server.Mobiles
         {
             // TODO: Based on OSI taken videos, not accurate, but an aproximation
 
-            Point3D loc = this.Location;
+            Point3D loc = Location;
 
             for (int x = -BlastRange; x <= BlastRange; x++)
             {
@@ -193,14 +166,12 @@ namespace Server.Mobiles
 
                     if (dist <= BlastRange && BlastChance[dist] > Utility.RandomDouble())
                     {
-                        Timer.DelayCall(TimeSpan.FromSeconds(0.1 * dist), new TimerCallback(
-                            delegate
-                            {
-                                int hue = Utility.RandomList(90, 95);
+                        Timer.DelayCall(TimeSpan.FromSeconds(0.1 * dist), delegate
+                        {
+                            int hue = Utility.RandomList(90, 95);
 
-                                Effects.SendPacket(loc, this.Map, new HuedEffect(EffectType.FixedXYZ, Serial.Zero, Serial.Zero, 0x3709, p, p, 20, 30, true, false, hue, 4));
-                            }
-                        ));
+                            Effects.SendPacket(loc, Map, new HuedEffect(EffectType.FixedXYZ, Serial.Zero, Serial.Zero, 0x3709, p, p, 20, 30, true, false, hue, 4));
+                        });
                     }
                 }
             }
@@ -210,7 +181,7 @@ namespace Server.Mobiles
             IPooledEnumerable eable = GetMobilesInRange(BlastRange);
             foreach (Mobile m in eable)
             {
-                if (this != m && this.GetDistanceToSqrt(m) <= BlastRange && CanBeHarmful(m))
+                if (this != m && GetDistanceToSqrt(m) <= BlastRange && CanBeHarmful(m))
                 {
                     if (m is ShadowDweller)
                         continue;
@@ -224,7 +195,7 @@ namespace Server.Mobiles
                     else if (damage > 200.0)
                         damage = 200.0;
 
-                    this.DoHarmful(m);
+                    DoHarmful(m);
 
                     AOS.Damage(m, this, (int)damage, 0, 0, 0, 0, 100);
                 }
@@ -245,7 +216,7 @@ namespace Server.Mobiles
                 if (m is ShadowDweller)
                     continue;
 
-                if (m.IsPlayer() && this.GetDistanceToSqrt(m) <= BlastRange && CanBeHarmful(m))
+                if (m.IsPlayer() && GetDistanceToSqrt(m) <= BlastRange && CanBeHarmful(m))
                 {
                     DoHarmful(m);
 
@@ -275,9 +246,9 @@ namespace Server.Mobiles
         #region Teleport
         private class TeleportTimer : Timer
         {
-            private Mobile m_Owner;
+            private readonly Mobile m_Owner;
 
-            private static int[] m_Offsets = new int[]
+            private static readonly int[] m_Offsets = new[]
             {
                 -1, -1,
                 -1,  0,
@@ -359,8 +330,8 @@ namespace Server.Mobiles
 
                     m.Location = to;
 
-                    Server.Spells.SpellHelper.Turn(m_Owner, toTeleport);
-                    Server.Spells.SpellHelper.Turn(toTeleport, m_Owner);
+                    Spells.SpellHelper.Turn(m_Owner, toTeleport);
+                    Spells.SpellHelper.Turn(toTeleport, m_Owner);
 
                     m.ProcessDelta();
 
@@ -376,60 +347,59 @@ namespace Server.Mobiles
         #endregion
 
         #region Unholy Touch
-        private static Dictionary<Mobile, Timer> m_UnholyTouched = new Dictionary<Mobile, Timer>();
+        private static readonly Dictionary<Mobile, Timer> m_UnholyTouched = new Dictionary<Mobile, Timer>();
 
         public void Discord(Mobile target)
         {
             if (Utility.RandomDouble() < 0.9 && !m_UnholyTouched.ContainsKey(target))
             {
-                int scalar = (int)(20 - (target.Skills[SkillName.MagicResist].Value / 10));
+                double scalar = -((20 - (target.Skills[SkillName.MagicResist].Value / 10)) / 100);
 
                 ArrayList mods = new ArrayList();
 
                 if (target.PhysicalResistance > 0)
                 {
-                    mods.Add(new ResistanceMod(ResistanceType.Physical, target.PhysicalResistance - scalar));
+                    mods.Add(new ResistanceMod(ResistanceType.Physical, (int)(target.PhysicalResistance * scalar)));
                 }
 
                 if (target.FireResistance > 0)
                 {
-                    mods.Add(new ResistanceMod(ResistanceType.Fire, target.FireResistance - scalar));
+                    mods.Add(new ResistanceMod(ResistanceType.Fire, (int)(target.FireResistance * scalar)));
                 }
 
                 if (target.ColdResistance > 0)
                 {
-                    mods.Add(new ResistanceMod(ResistanceType.Cold, target.ColdResistance - scalar));
+                    mods.Add(new ResistanceMod(ResistanceType.Cold, (int)(target.ColdResistance * scalar)));
                 }
 
                 if (target.PoisonResistance > 0)
                 {
-                    mods.Add(new ResistanceMod(ResistanceType.Poison, target.PoisonResistance - scalar));
+                    mods.Add(new ResistanceMod(ResistanceType.Poison, (int)(target.PoisonResistance * scalar)));
                 }
 
                 if (target.EnergyResistance > 0)
                 {
-                    mods.Add(new ResistanceMod(ResistanceType.Energy, target.EnergyResistance - scalar));
+                    mods.Add(new ResistanceMod(ResistanceType.Energy, (int)(target.EnergyResistance * scalar)));
                 }
 
                 for (int i = 0; i < target.Skills.Length; ++i)
                 {
                     if (target.Skills[i].Value > 0)
                     {
-                        mods.Add(new DefaultSkillMod((SkillName)i, true, target.Skills[i].Value - scalar));                        
+                        mods.Add(new DefaultSkillMod((SkillName)i, true, target.Skills[i].Value * scalar));
                     }
                 }
-                
+
                 target.PlaySound(0x458);
 
                 ApplyMods(target, mods);
 
-                m_UnholyTouched[target] = Timer.DelayCall(TimeSpan.FromSeconds(30), new TimerCallback(
-                    delegate
-                    {
-                        ClearMods(target, mods);
+                m_UnholyTouched[target] = Timer.DelayCall(TimeSpan.FromSeconds(30), delegate
+                {
+                    ClearMods(target, mods);
 
-                        m_UnholyTouched.Remove(target);
-                    }));
+                    m_UnholyTouched.Remove(target);
+                });
             }
 
             m_NextDiscordTime = DateTime.UtcNow + TimeSpan.FromSeconds(5 + Utility.RandomDouble() * 22);
@@ -468,7 +438,7 @@ namespace Server.Mobiles
 
         public void SpawnShadowDwellers(Mobile target)
         {
-            Map map = this.Map;
+            Map map = Map;
 
             if (map == null)
                 return;
@@ -477,22 +447,23 @@ namespace Server.Mobiles
 
             for (int i = 0; i < newShadowDwellers; ++i)
             {
-                ShadowDweller shadowdweller = new ShadowDweller();
-
-                shadowdweller.Team = this.Team;
-                shadowdweller.FightMode = FightMode.Closest;
+                ShadowDweller shadowdweller = new ShadowDweller
+                {
+                    Team = Team,
+                    FightMode = FightMode.Closest
+                };
 
                 bool validLocation = false;
-                Point3D loc = this.Location;
+                Point3D loc = Location;
 
                 for (int j = 0; !validLocation && j < 10; ++j)
                 {
-                    int x = this.X + Utility.Random(3) - 1;
-                    int y = this.Y + Utility.Random(3) - 1;
+                    int x = X + Utility.Random(3) - 1;
+                    int y = Y + Utility.Random(3) - 1;
                     int z = map.GetAverageZ(x, y);
 
-                    if (validLocation = map.CanFit(x, y, this.Z, 16, false, false))
-                        loc = new Point3D(x, y, this.Z);
+                    if (validLocation = map.CanFit(x, y, Z, 16, false, false))
+                        loc = new Point3D(x, y, Z);
                     else if (validLocation = map.CanFit(x, y, z, 16, false, false))
                         loc = new Point3D(x, y, z);
                 }
@@ -505,7 +476,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

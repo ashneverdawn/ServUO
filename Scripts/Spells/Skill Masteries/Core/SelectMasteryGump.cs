@@ -1,24 +1,17 @@
-using Server;
-using System;
-using System.Collections.Generic;
 using Server.Items;
 using Server.Mobiles;
 using Server.Spells.SkillMasteries;
-using System.Linq;
-using Server.Network;
 
 namespace Server.Gumps
 {
     public class MasterySelectionGump : BaseGump
     {
-        //public const int Red = 0x4800;
-        //public const int Blue = 0x000F;
         public const int Red = 0x8e2525;
         public const int Blue = 0x000066;
 
         public BookOfMasteries Book { get; private set; }
 
-        public MasterySelectionGump(PlayerMobile user, BookOfMasteries book) 
+        public MasterySelectionGump(PlayerMobile user, BookOfMasteries book)
             : base(user, 75, 25)
         {
             Book = book;
@@ -62,7 +55,7 @@ namespace Server.Gumps
                 User.Skills.CurrentMastery = SkillName.Alchemy;
                 MasteryInfo.OnMasteryChanged(User, current);
             }
-            else if (User.Skills[n].Value >= MasteryInfo.MinSkillRequirement)
+            else if (User.Skills[n].Base >= MasteryInfo.MinSkillRequirement)
             {
                 User.SendLocalizedMessage(1155886, User.Skills[n].Info.Name); // Your active skill mastery is now set to ~1_MasterySkill~!
                 User.Skills.CurrentMastery = n;
@@ -72,7 +65,7 @@ namespace Server.Gumps
                 BookOfMasteries.AddToCooldown(User);
             }
             else
-                User.SendLocalizedMessage(1156236, String.Format("{0}\t{1}", MasteryInfo.MinSkillRequirement.ToString(), User.Skills[n].Info.Name)); // You need at least ~1_SKILL_REQUIREMENT~ ~2_SKILL_NAME~ skill to use that mastery.
+                User.SendLocalizedMessage(1156236, string.Format("{0}\t{1}", MasteryInfo.MinSkillRequirement.ToString(), User.Skills[n].Info.Name)); // You need at least ~1_SKILL_REQUIREMENT~ ~2_SKILL_NAME~ skill to use that mastery.
         }
     }
 }

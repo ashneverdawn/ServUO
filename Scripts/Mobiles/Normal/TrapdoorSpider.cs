@@ -5,8 +5,7 @@ namespace Server.Mobiles
     [CorpseName("a trapdoor spider corpse")]
     public class TrapdoorSpider : BaseCreature
     {
-
-        public override bool CanStealth { get { return true; } } //Stays Hidden until Combatant in range.
+        public override bool CanStealth => true;
 
         [Constructable]
         public TrapdoorSpider()
@@ -14,7 +13,7 @@ namespace Server.Mobiles
         {
             Name = "a trapdoor spider";
             Body = 737;
-            Hidden = true; //Spawns Hidden
+            Hidden = true;
 
             SetStr(100, 104);
             SetDex(162, 165);
@@ -47,7 +46,6 @@ namespace Server.Mobiles
         {
         }
 
-        //Can Flush them out of Hiding
         public override void OnDamage(int amount, Mobile from, bool willKill)
         {
             RevealingAction();
@@ -60,13 +58,7 @@ namespace Server.Mobiles
             base.OnDamagedBySpell(from);
         }
 
-        public override int TreasureMapLevel
-        {
-            get
-            {
-                return 2;
-            }
-        }
+        public override int TreasureMapLevel => 2;
 
         public override void GenerateLoot()
         {
@@ -96,21 +88,21 @@ namespace Server.Mobiles
         public override void OnThink()
         {
 
-            if (!this.Alive || this.Deleted)
+            if (!Alive || Deleted)
             {
                 return;
             }
 
-            if (!this.Hidden)
+            if (!Hidden)
             {
                 double chance = 0.05;
 
-                if (this.Hits < 20)
+                if (Hits < 20)
                 {
                     chance = 0.1;
                 }
 
-                if (this.Poisoned)
+                if (Poisoned)
                 {
                     chance = 0.01;
                 }
@@ -125,15 +117,15 @@ namespace Server.Mobiles
 
         private void HideSelf()
         {
-            if (Core.TickCount >= this.NextSkillTime)
+            if (Core.TickCount >= NextSkillTime)
             {
                 Effects.SendLocationParticles(
-                    EffectItem.Create(this.Location, this.Map, EffectItem.DefaultDuration), 0x3728, 10, 10, 2023);
+                    EffectItem.Create(Location, Map, EffectItem.DefaultDuration), 0x3728, 10, 10, 2023);
 
-                this.PlaySound(0x22F);
-                this.Hidden = true;
+                PlaySound(0x22F);
+                Hidden = true;
 
-                this.UseSkill(SkillName.Stealth);
+                UseSkill(SkillName.Stealth);
             }
         }
 
@@ -146,7 +138,7 @@ namespace Server.Mobiles
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-            var version = reader.ReadInt();
+            int version = reader.ReadInt();
         }
     }
 }

@@ -1,5 +1,3 @@
-using System;
-using Server;
 using Server.Gumps;
 using Server.Mobiles;
 using Server.Network;
@@ -8,10 +6,10 @@ namespace Server.Items
 {
     public class RecipeScrollBuyGump : Gump
     {
-        private Mobile m_From;
-        private RecipeBook m_Book;
-        private RecipeScrollDefinition m_Recipe;
-        private int m_Price;
+        private readonly Mobile m_From;
+        private readonly RecipeBook m_Book;
+        private readonly RecipeScrollDefinition m_Recipe;
+        private readonly int m_Price;
 
         public RecipeScrollBuyGump(Mobile from, RecipeBook book, RecipeScrollDefinition recipe, int price)
             : base(100, 200)
@@ -42,9 +40,7 @@ namespace Server.Items
         {
             if (info.ButtonID == 2)
             {
-                PlayerVendor pv = m_Book.RootParent as PlayerVendor;
-
-                if (pv != null)
+                if (m_Book.RootParent is PlayerVendor pv)
                 {
                     int price = 0;
 
@@ -57,11 +53,13 @@ namespace Server.Items
 
                     if (price != m_Price)
                     {
-                        pv.SayTo(m_From, "The price has been been changed. If you like, you may offer to purchase the item again.");
+                        pv.SayTo(m_From, 1150158); // The price of the selected item has been changed from the value you confirmed. You must select and confirm the purchase again at the new price in order to buy it.
+                        m_Book.Using = false;
                     }
-                    else if (price == 0)
+                    else if (m_Recipe.Amount == 0 || price == 0)
                     {
-                        pv.SayTo(m_From, 1062382); // The deed selected is not available.
+                        pv.SayTo(m_From, 1158821); // The recipe selected is not available.
+                        m_Book.Using = false;
                     }
                     else
                     {
@@ -71,12 +69,12 @@ namespace Server.Items
 
                         Container pack = m_From.Backpack;
 
-                        if ((pack != null && pack.ConsumeTotal(typeof(Gold), price)) || Banker.Withdraw(m_From, price))
+                        if (pack != null && pack.ConsumeTotal(typeof(Gold), price) || Banker.Withdraw(m_From, price))
                         {
                             m_Book.Recipes.ForEach(x =>
                             {
                                 if (x.RecipeID == m_Recipe.RecipeID)
-                                    x.Amount = x.Amount - 1;
+                                    x.Amount -= 1;
                             });
 
                             m_Book.InvalidateProperties();
@@ -94,19 +92,20 @@ namespace Server.Items
                         {
                             pv.SayTo(m_From, 503205); // You cannot afford this item.
                             item.Delete();
+                            m_Book.Using = false;
                         }
                     }
                 }
                 else
                 {
-                    if (pv == null)
-                        m_From.SendLocalizedMessage(1062382); // The deed selected is not available.
-                    else
-                        pv.SayTo(m_From, 1062382); // The deed selected is not available.
+                    m_Book.Using = false;
+
+                    m_From.SendLocalizedMessage(1158821); // The recipe selected is not available.
                 }
             }
             else
             {
+                m_Book.Using = false;
                 m_From.SendLocalizedMessage(503207); // Cancelled purchase.
             }
         }

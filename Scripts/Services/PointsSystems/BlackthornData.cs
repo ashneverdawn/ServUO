@@ -1,21 +1,19 @@
-using System;
-using Server;
-using System.Collections.Generic;
 using Server.Items;
 using Server.Mobiles;
-using Server.Engines.ResortAndCasino;
+using System;
+using System.Collections.Generic;
 
 namespace Server.Engines.Points
 {
     public class BlackthornData : PointsSystem
     {
-        public override PointsType Loyalty { get { return PointsType.Blackthorn; } }
-        public override TextDefinition Name { get { return m_Name; } }
-        public override bool AutoAdd { get { return true; } }
-        public override double MaxPoints { get { return double.MaxValue; } }
-        public override bool ShowOnLoyaltyGump { get { return false; } }
+        public override PointsType Loyalty => PointsType.Blackthorn;
+        public override TextDefinition Name => m_Name;
+        public override bool AutoAdd => true;
+        public override double MaxPoints => double.MaxValue;
+        public override bool ShowOnLoyaltyGump => false;
 
-        private TextDefinition m_Name = null;
+        private readonly TextDefinition m_Name = null;
 
         public BlackthornData()
         {
@@ -27,19 +25,21 @@ namespace Server.Engines.Points
             from.SendLocalizedMessage(1154518, ((int)points).ToString()); // You have turned in ~1_COUNT~ artifacts bearing the crest of Minax.            
         }
 
-        public override void ProcessKill(BaseCreature victim, Mobile damager, int index)
+        public override void ProcessKill(Mobile victim, Mobile damager)
         {
-            if (victim.Controlled || victim.Summoned || !damager.Alive || damager.Deleted)
+            BaseCreature bc = victim as BaseCreature;
+
+            if (bc == null || bc.Controlled || bc.Summoned || !damager.Alive || damager.Deleted)
                 return;
-        
-            Region r = victim.Region;
+
+            Region r = bc.Region;
 
             if (damager is PlayerMobile && r.IsPartOf("BlackthornDungeon"))
             {
                 if (!DungeonPoints.ContainsKey(damager))
                     DungeonPoints[damager] = 0;
 
-                int fame = victim.Fame / 2;
+                int fame = bc.Fame / 2;
                 int luck = Math.Max(0, ((PlayerMobile)damager).RealLuck);
 
                 DungeonPoints[damager] += (int)(fame * (1 + Math.Sqrt(luck) / 100));
@@ -52,11 +52,11 @@ namespace Server.Engines.Points
 
                 if (chance > Utility.RandomDouble())
                 {
-                    Item i = Loot.RandomArmorOrShieldOrWeaponOrJewelry(LootPackEntry.IsInTokuno(victim), LootPackEntry.IsMondain(victim), LootPackEntry.IsStygian(victim));
+                    Item i = Loot.RandomArmorOrShieldOrWeaponOrJewelry(LootPackEntry.IsInTokuno(bc), LootPackEntry.IsMondain(bc), LootPackEntry.IsStygian(bc));
 
                     if (i != null)
                     {
-                        RunicReforging.GenerateRandomItem(i, damager, Math.Max(100, RunicReforging.GetDifficultyFor(victim)), RunicReforging.GetLuckForKiller(victim), ReforgedPrefix.None, ReforgedSuffix.Minax);
+                        RunicReforging.GenerateRandomItem(i, damager, Math.Max(100, RunicReforging.GetDifficultyFor(bc)), RunicReforging.GetLuckForKiller(bc), ReforgedPrefix.None, ReforgedSuffix.Minax);
 
                         damager.PlaySound(0x5B4);
                         damager.SendLocalizedMessage(1062317); // For your valor in combating the fallen beast, a special artifact has been bestowed on you.

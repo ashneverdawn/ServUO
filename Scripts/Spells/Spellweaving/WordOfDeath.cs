@@ -1,6 +1,5 @@
-using System;
 using Server.Targeting;
-using Server.Mobiles;
+using System;
 
 namespace Server.Spells.Spellweaving
 {
@@ -12,41 +11,23 @@ namespace Server.Spells.Spellweaving
         {
         }
 
-        public override TimeSpan CastDelayBase
-        {
-            get
-            {
-                return TimeSpan.FromSeconds(3.5);
-            }
-        }
-        public override double RequiredSkill
-        {
-            get
-            {
-                return 83.0;
-            }
-        }
-        public override int RequiredMana
-        {
-            get
-            {
-                return 50;
-            }
-        }
+        public override TimeSpan CastDelayBase => TimeSpan.FromSeconds(3.5);
+        public override double RequiredSkill => 83.0;
+        public override int RequiredMana => 50;
         public override void OnCast()
         {
-            this.Caster.Target = new InternalTarget(this);
+            Caster.Target = new InternalTarget(this);
         }
 
         public void Target(Mobile m)
         {
-            if (!this.Caster.CanSee(m))
+            if (!Caster.CanSee(m))
             {
-                this.Caster.SendLocalizedMessage(500237); // Target can not be seen.
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
             }
-            else if (this.CheckHSequence(m))
+            else if (CheckHSequence(m))
             {
-                SpellHelper.CheckReflect(0, Caster, ref m);
+                SpellHelper.CheckReflect(this, Caster, ref m);
 
                 Point3D loc = m.Location;
                 loc.Z += 50;
@@ -56,18 +37,19 @@ namespace Server.Spells.Spellweaving
 
                 Effects.SendMovingParticles(new Entity(Serial.Zero, loc, m.Map), new Entity(Serial.Zero, m.Location, m.Map), 0xF5F, 1, 0, true, false, 0x21, 0x3F, 0x251D, 0, 0, EffectLayer.Head, 0);
 
-                double percentage = 0.05 * this.FocusLevel;
+                double percentage = 0.05 * FocusLevel;
+                bool pvmThreshold = !m.Player && ((m.Hits / (double)m.HitsMax) < percentage);
 
                 int damage;
 
-                if (!m.Player && (((double)m.Hits / (double)m.HitsMax) < percentage))
+                if (pvmThreshold)
                 {
                     damage = 300;
                 }
                 else
                 {
-                    int minDamage = (int)this.Caster.Skills.Spellweaving.Value / 5;
-                    int maxDamage = (int)this.Caster.Skills.Spellweaving.Value / 3;
+                    int minDamage = (int)Caster.Skills.Spellweaving.Value / 5;
+                    int maxDamage = (int)Caster.Skills.Spellweaving.Value / 3;
                     damage = Utility.RandomMinMax(minDamage, maxDamage);
                 }
 
@@ -76,13 +58,10 @@ namespace Server.Spells.Spellweaving
                 damage *= damageBonus + 100;
                 damage /= 100;
 
-                int[] types = new int[4];
-                types[Utility.Random(types.Length)] = 100;
-
-                SpellHelper.Damage(this, m, damage, 0, types[0], types[1], types[2], types[3]);	//Chaos damage.  Random elemental damage
+                SpellHelper.Damage(this, m, damage, 0, 0, 0, 0, 0, !pvmThreshold ? 100 : 0, pvmThreshold ? 100 : 0);
             }
 
-            this.FinishSequence();
+            FinishSequence();
         }
 
         public class InternalTarget : Target
@@ -91,20 +70,20 @@ namespace Server.Spells.Spellweaving
             public InternalTarget(WordOfDeathSpell owner)
                 : base(10, false, TargetFlags.Harmful)
             {
-                this.m_Owner = owner;
+                m_Owner = owner;
             }
 
             protected override void OnTarget(Mobile m, object o)
             {
                 if (o is Mobile)
                 {
-                    this.m_Owner.Target((Mobile)o);
+                    m_Owner.Target((Mobile)o);
                 }
             }
 
             protected override void OnTargetFinish(Mobile m)
             {
-                this.m_Owner.FinishSequence();
+                m_Owner.FinishSequence();
             }
         }
     }

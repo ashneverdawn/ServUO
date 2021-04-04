@@ -1,61 +1,50 @@
-using System;
-
 namespace Server.Mobiles
 {
-    public enum DrakeType
-    {
-        Physical,
-        Fire,
-        Cold,
-        Poison,
-        Energy
-    }
-
     [CorpseName("a platinum drake corpse")]
-    public class PlatinumDrake : BaseCreature
+    public class PlatinumDrake : BaseCreature, IElementalCreature
     {
-        private DrakeType m_Type;
+        private ElementType m_Type;
 
-        public DrakeType DrakeType { get { return m_Type; } }
+        public ElementType ElementType => m_Type;
 
         [Constructable]
         public PlatinumDrake()
-            : this((DrakeType)Utility.Random(5))
+            : this((ElementType)Utility.Random(5))
         {
         }
 
         [Constructable]
-        public PlatinumDrake(DrakeType type)
+        public PlatinumDrake(ElementType type)
             : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
             m_Type = type;
 
             switch (type)
             {
-                case DrakeType.Physical:
+                case ElementType.Physical:
                     Body = 0x589;
                     Hue = 0;
                     SetDamageType(ResistanceType.Physical, 100);
                     break;
-                case DrakeType.Fire:
+                case ElementType.Fire:
                     Body = 0x58A;
                     Hue = 33929;
                     SetDamageType(ResistanceType.Physical, 0);
                     SetDamageType(ResistanceType.Fire, 100);
                     break;
-                case DrakeType.Cold:
+                case ElementType.Cold:
                     Body = 0x58A;
                     Hue = 34134;
                     SetDamageType(ResistanceType.Physical, 0);
                     SetDamageType(ResistanceType.Cold, 100);
                     break;
-                case DrakeType.Poison:
+                case ElementType.Poison:
                     Body = 0x58A;
                     Hue = 34136;
                     SetDamageType(ResistanceType.Physical, 0);
                     SetDamageType(ResistanceType.Poison, 100);
                     break;
-                case DrakeType.Energy:
+                case ElementType.Energy:
                     Body = 0x58A;
                     Hue = 34141;
                     SetDamageType(ResistanceType.Physical, 0);
@@ -90,13 +79,9 @@ namespace Server.Mobiles
             Fame = 5500;
             Karma = -5500;
 
-            VirtualArmor = 46;
-
             Tamable = true;
             ControlSlots = 2;
             MinTameSkill = 85.0;
-
-            PackReg(3);
         }
 
         public PlatinumDrake(Serial serial)
@@ -110,7 +95,7 @@ namespace Server.Mobiles
         {
             get
             {
-                if (m_Type == DrakeType.Poison)
+                if (m_Type == ElementType.Poison)
                 {
                     if (_PoisonDrakeDefinition == null)
                     {
@@ -124,33 +109,28 @@ namespace Server.Mobiles
             }
         }
 
-        public override bool ReacquireOnMovement { get { return !Controlled; } }
-        public override bool HasBreath { get { return true; } }
-        public override int BreathPhysicalDamage { get { return m_Type == DrakeType.Physical ? 100 : 0; } }
-        public override int BreathFireDamage { get { return m_Type == DrakeType.Fire ? 100 : 0; } }
-        public override int BreathColdDamage { get { return m_Type == DrakeType.Cold ? 100 : 0; } }
-        public override int BreathPoisonDamage { get { return m_Type == DrakeType.Poison ? 100 : 0; } }
-        public override int BreathEffectHue { get { return m_Type == DrakeType.Cold ? 0x480 : 0; } }
-        public override int TreasureMapLevel { get { return 2; } }
-        public override int Meat { get { return 10; } }
-        public override int DragonBlood { get { return 8; } }
-        public override int Hides { get { return 22; } }
-        public override HideType HideType { get { return HideType.Horned; } }
-        public override int Scales { get { return 2; } }
-        public override ScaleType ScaleType { get { return ScaleType.Black; } }
-        public override FoodType FavoriteFood { get { return FoodType.Meat | FoodType.Fish; } }
-        public override bool CanFly { get { return true; } }
+        public override bool ReacquireOnMovement => !Controlled;
+        public override int TreasureMapLevel => 2;
+        public override int Meat => 10;
+        public override int DragonBlood => 8;
+        public override int Hides => 22;
+        public override HideType HideType => HideType.Horned;
+        public override int Scales => 2;
+        public override ScaleType ScaleType => ScaleType.Black;
+        public override FoodType FavoriteFood => FoodType.Meat | FoodType.Fish;
+        public override bool CanFly => true;
 
         public override void GenerateLoot()
         {
             AddLoot(LootPack.Rich);
             AddLoot(LootPack.MedScrolls, 2);
+            AddLoot(LootPack.MageryRegs, 3);
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
 
             writer.Write((int)m_Type);
         }
@@ -160,7 +140,7 @@ namespace Server.Mobiles
             base.Deserialize(reader);
             int version = reader.ReadInt();
 
-            m_Type = (DrakeType)reader.ReadInt();
+            m_Type = (ElementType)reader.ReadInt();
         }
     }
 }

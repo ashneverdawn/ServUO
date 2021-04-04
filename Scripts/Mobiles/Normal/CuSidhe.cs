@@ -1,12 +1,12 @@
-using System;
 using Server.Items;
+using System;
 
 namespace Server.Mobiles
 {
     [CorpseName("a cu sidhe corpse")]
     public class CuSidhe : BaseMount
     {
-        public override double HealChance { get { return 1.0; } }
+        public override double HealChance => 1.0;
 
         [Constructable]
         public CuSidhe()
@@ -16,15 +16,15 @@ namespace Server.Mobiles
 
         [Constructable]
         public CuSidhe(string name)
-            : base(name, 277, 0x3E91, AIType.AI_Animal, FightMode.Aggressor, 10, 1, 0.2, 0.4)
+            : base(name, 277, 0x3E91, AIType.AI_Melee, FightMode.Aggressor, 10, 1, 0.2, 0.4)
         {
             double chance = Utility.RandomDouble() * 23301;
 
             if (chance <= 1)
                 Hue = 0x489;
-            else if (chance < 50)
+            else if (chance <= 301)
                 Hue = Utility.RandomList(0x657, 0x515, 0x4B1, 0x481, 0x482, 0x455);
-            else if (chance < 500)
+            else if (chance <= 3301)
                 Hue = Utility.RandomList(0x97A, 0x978, 0x901, 0x8AC, 0x5A7, 0x527);
 
             SetStr(1200, 1225);
@@ -58,15 +58,6 @@ namespace Server.Mobiles
             ControlSlots = 4;
             MinTameSkill = 101.1;
 
-            if (Utility.RandomDouble() < 0.2)
-                PackItem(new TreasureMap(5, Map.Trammel));
-
-            //if ( Utility.RandomDouble() < 0.1 )
-            //PackItem( new ParrotItem() );
-
-            PackGold(500, 800);
-            // TODO 0-2 spellweaving scroll
-
             SetWeaponAbility(WeaponAbility.BleedAttack);
         }
 
@@ -75,65 +66,34 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool CanHealOwner
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override FoodType FavoriteFood
-        {
-            get
-            {
-                return FoodType.FruitsAndVegies;
-            }
-        }
-        public override bool CanAngerOnTame
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool StatLossAfterTame
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override int Hides
-        {
-            get
-            {
-                return 10;
-            }
-        }
-        public override int Meat
-        {
-            get
-            {
-                return 3;
-            }
-        }
+        public override int TreasureMapLevel => 5;
+
+        public override FoodType FavoriteFood => FoodType.FruitsAndVegies;
+        public override bool CanAngerOnTame => true;
+        public override bool StatLossAfterTame => true;
+        public override int Hides => 10;
+        public override int Meat => 3;
+
         public override void GenerateLoot()
         {
-            AddLoot(LootPack.AosFilthyRich, 5);
+            AddLoot(LootPack.FilthyRich, 5);
         }
 
         public override void OnAfterTame(Mobile tamer)
         {
-            if (PetTrainingHelper.Enabled)
+            if (Owners.Count == 0)
             {
-                RawStr = (int)Math.Max(1, RawStr * 0.5);
-                RawDex = (int)Math.Max(1, RawDex * 0.5);
+                if (RawStr > 0)
+                    RawStr = (int)Math.Max(1, RawStr * 0.5);
 
-                HitsMaxSeed = RawStr;
-                Hits = RawStr;
+                if (RawDex > 0)
+                    RawDex = (int)Math.Max(1, RawDex * 0.5);
 
-                StamMaxSeed = RawDex;
-                Stam = RawDex;
+                if (HitsMaxSeed > 0)
+                    HitsMaxSeed = (int)Math.Max(1, HitsMaxSeed * 0.5);
+
+                Hits = Math.Min(HitsMaxSeed, Hits);
+                Stam = Math.Min(RawDex, Stam);
             }
             else
             {
@@ -188,7 +148,7 @@ namespace Server.Mobiles
         {
             base.Serialize(writer);
 
-            writer.Write((int)3); // version
+            writer.Write(3); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -199,7 +159,7 @@ namespace Server.Mobiles
 
             if (version < 3 && Controlled && RawStr >= 1200 && ControlSlots == ControlSlotsMin)
             {
-                Server.SkillHandlers.AnimalTaming.ScaleStats(this, 0.5);
+                SkillHandlers.AnimalTaming.ScaleStats(this, 0.5);
             }
 
             if (version < 1 && Name == "a Cu Sidhe")

@@ -1,18 +1,16 @@
-using Server;
-using System;
+using Server.Gumps;
 using Server.Items;
 using Server.Mobiles;
-using Server.Engines.Quests;
 using Server.Network;
-using Server.Gumps;
 using Server.Services.TownCryer;
+using System;
 
 namespace Server.Engines.Quests
 {
     public class RoyalBritannianGuardOrders : BaseJournal
     {
-        public override TextDefinition Title { get { return 1158159; } } // Royal Britannian Guard Orders
-        public override TextDefinition Body { get { return 1158160; } }
+        public override TextDefinition Title => 1158159;  // Royal Britannian Guard Orders
+        public override TextDefinition Body => 1158160;
         /*ROYAL BRITANNIAN GUARD<br>MINISTRY OF PRISONS DETACHMENT<br><br>ORIGINAL ORDERS<br>ROYAL BRITANNIAN GUARD<br>WRONG PRISON
          * DIVISION<br><br>From: COMMAND, RBG Yew<br>To: Lieutenant Bennet Yardley, RBG Yew<br><br>Subject: Wrong Prison Treasure 
          * Expedition<br><br>1. RBG Intelligence has indicated the presence of highly prized cache of weapons stashed within the 
@@ -22,7 +20,7 @@ namespace Server.Engines.Quests
          * former prison officials indicate weapons under heavy lock and key, suggest specialist assignment of lock picking skills 
          * and tools.<br><br>*The remainder of the document is illegible**/
 
-        public override int LabelNumber { get { return 1158171; } } // orders
+        public override int LabelNumber => 1158171;  // orders
 
         [Constructable]
         public RoyalBritannianGuardOrders()
@@ -38,7 +36,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -55,24 +53,21 @@ namespace Server.Engines.Quests
 
         public static void Initialize()
         {
-            if (Core.TOL)
+            if (TramInstance == null)
             {
-                if (TramInstance == null)
-                {
-                    TramInstance = new CorpseOfBennetYardley();
-                    TramInstance.MoveToWorld(new Point3D(5688, 653, 0), Map.Trammel);
-                }
+                TramInstance = new CorpseOfBennetYardley();
+                TramInstance.MoveToWorld(new Point3D(5688, 653, 0), Map.Trammel);
+            }
 
-                if (FelInstance == null)
-                {
-                    FelInstance = new CorpseOfBennetYardley();
-                    FelInstance.MoveToWorld(new Point3D(5688, 653, 0), Map.Felucca);
-                }
+            if (FelInstance == null)
+            {
+                FelInstance = new CorpseOfBennetYardley();
+                FelInstance.MoveToWorld(new Point3D(5688, 653, 0), Map.Felucca);
             }
         }
 
-        public override bool ForceShowProperties { get { return true; } }
-        public override int LabelNumber { get { return 1158168; } }
+        public override bool ForceShowProperties => true;
+        public override int LabelNumber => 1158168;
 
         public CorpseOfBennetYardley()
             : base(Utility.Random(0xECA, 9))
@@ -85,7 +80,7 @@ namespace Server.Engines.Quests
             if (pm.AccessLevel > AccessLevel.Player)
                 return true;
 
-            var quest = QuestHelper.GetQuest<RightingWrongQuest4>(pm);
+            RightingWrongQuest4 quest = QuestHelper.GetQuest<RightingWrongQuest4>(pm);
 
             return quest != null && !quest.Completed;
         }
@@ -94,7 +89,7 @@ namespace Server.Engines.Quests
         {
             if (from is PlayerMobile && from.InRange(Location, 2))
             {
-                var quest = QuestHelper.GetQuest<RightingWrongQuest4>((PlayerMobile)from);
+                RightingWrongQuest4 quest = QuestHelper.GetQuest<RightingWrongQuest4>((PlayerMobile)from);
 
                 if (from is PlayerMobile && quest != null && !quest.Completed)
                 {
@@ -115,7 +110,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -131,9 +126,6 @@ namespace Server.Engines.Quests
             {
                 FelInstance = this;
             }
-
-            if (!Core.TOL)
-                Delete();
         }
     }
 
@@ -186,7 +178,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -231,7 +223,7 @@ namespace Server.Engines.Quests
             m.PlaySound(0x41A);
             m.PrivateOverheadMessage(MessageType.Regular, 1154, 1157722, "Cartography", m.NetState); // *Your proficiency in ~1_SKILL~ reveals more about the item*
 
-            if (m is PlayerMobile)
+            if (m is PlayerMobile && Level == 0)
             {
                 m.CloseGump(typeof(InternalGump));
                 BaseGump.SendGump(new InternalGump((PlayerMobile)m, this));
@@ -242,11 +234,11 @@ namespace Server.Engines.Quests
         {
             if (from is PlayerMobile)
             {
-                var quest = QuestHelper.GetQuest<TheTreasureChaseQuest>((PlayerMobile)from);
+                TheTreasureChaseQuest quest = QuestHelper.GetQuest<TheTreasureChaseQuest>((PlayerMobile)from);
 
                 if (quest != null)
                 {
-                    if (Level < 3)
+                    if (Level == 0)
                     {
                         TownCryerSystem.CompleteQuest((PlayerMobile)from, 1158239, 1158251, 0x655);
                         /*Your eyes widen as you pry open the old chest and reveal the treasure within! Even this small cache
@@ -254,17 +246,12 @@ namespace Server.Engines.Quests
                          * in ancient runes and marks the location of another treasure hoard. You carefully furl the map and
                          * set off on your next adventure!*/
 
-                        switch (Level)
-                        {
-                            default:
-                            case 1: from.SendLocalizedMessage(1158245, "", 0x23); // You have found the first zealot treasure! As you dig up the chest a leather bound case appears to contain an additional map. You place it in your backpack for later examination. 
-                                break;
-                            case 2: from.SendLocalizedMessage(1158246, "", 0x23); // You have found the second zealot treasure! As you dig up the chest a leather bound case appears to contain an additional map. You place it in your backpack for later examination. 
-                                break;
-                        }
+                        from.SendLocalizedMessage(1158245, "", 0x23); // You have found the first zealot treasure! As you dig up the chest a leather bound case appears to contain an additional map. You place it in your backpack for later examination. 
+                        chest.DropItem(new BuriedRichesTreasureMap(1));
                     }
                     else
                     {
+                        from.SendLocalizedMessage(1158246, "", 0x23); // You have found the second zealot treasure! As you dig up the chest a leather bound case appears to contain an additional map. You place it in your backpack for later examination. 
                         quest.CompleteQuest();
                     }
                 }
@@ -296,7 +283,7 @@ namespace Server.Engines.Quests
             else
             {
                 from.SendLocalizedMessage(503033); // Where do you wish to dig?
-                from.Target = new TreasureMap.DigTarget(this);
+                from.Target = new DigTarget(this);
             }
         }
 
@@ -309,7 +296,7 @@ namespace Server.Engines.Quests
         {
             base.GetProperties(list);
 
-            if (Level == 1)
+            if (Level == 0)
             {
                 list.Add(1158229); // A mysterious treasure map personally given to you by the Legendary Cartographer in Vesper
             }
@@ -333,7 +320,7 @@ namespace Server.Engines.Quests
             {
                 AddBackground(0, 0, 454, 400, 9380);
                 AddHtmlLocalized(177, 53, 235, 20, CenterLoc, "#1158240", C32216(0xA52A2A), false, false); // A Mysterious Treasure Map
-                AddHtmlLocalized(177, 80, 235, 40, CenterLoc, Map.Level == 1 ? "#1158241" : "#1158250", C32216(0xA52A2A), false, false); // Given to you by the Master Cartographer
+                AddHtmlLocalized(177, 80, 235, 40, CenterLoc, Map.Level == 0 ? "#1158241" : "#1158250", C32216(0xA52A2A), false, false); // Given to you by the Master Cartographer
 
                 /*The Cartographer has given you a mysterious treasure map and offered you some tips on how to go about 
                  * recovering the treasure. As the Cartographer leaned in and handed you the furled parchment, she told
@@ -344,7 +331,7 @@ namespace Server.Engines.Quests
                  * hoard and you can't wait to find it!*/
                 AddHtmlLocalized(177, 122, 235, 228, 1158242, true, true);
 
-                AddItem(85, 120, 0x14EB, 0); 
+                AddItem(85, 120, 0x14EB, 0);
             }
         }
 
@@ -356,7 +343,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
 
             writer.Write(Chest);
         }
@@ -372,7 +359,7 @@ namespace Server.Engines.Quests
 
     public class TreasureSeekersLockpick : Lockpick
     {
-        public override int LabelNumber { get { return 1158258; } }
+        public override int LabelNumber => 1158258;
 
         public TreasureSeekersLockpick()
         {
@@ -381,13 +368,13 @@ namespace Server.Engines.Quests
 
         protected override void BeginLockpick(Mobile from, ILockpickable item)
         {
-            if (from is PlayerMobile && 
+            if (from is PlayerMobile &&
                 item.Locked &&
                 QuestHelper.HasQuest<TheTreasureChaseQuest>((PlayerMobile)from) &&
-                item is TreasureMapChest && 
+                item is TreasureMapChest &&
                 ((TreasureMapChest)item).TreasureMap is BuriedRichesTreasureMap)
             {
-                var chest = (TreasureMapChest)item;
+                TreasureMapChest chest = (TreasureMapChest)item;
 
                 from.PlaySound(0x241);
 
@@ -419,7 +406,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -431,7 +418,7 @@ namespace Server.Engines.Quests
 
     public class MysteriousPotion : Item
     {
-        public override int LabelNumber { get { return 1158286; } } // A Mysterious Potion
+        public override int LabelNumber => 1158286;  // A Mysterious Potion
 
         public MysteriousPotion()
             : base(0xF06)
@@ -442,7 +429,7 @@ namespace Server.Engines.Quests
         {
             if (m is PlayerMobile)
             {
-                var pm = m as PlayerMobile;
+                PlayerMobile pm = m as PlayerMobile;
 
                 if (QuestHelper.HasQuest<AForcedSacraficeQuest2>(pm))
                 {
@@ -480,7 +467,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -497,25 +484,22 @@ namespace Server.Engines.Quests
 
         public static void Initialize()
         {
-            if (Core.TOL)
+            if (TramInstance == null)
             {
-                if (TramInstance == null)
-                {
-                    TramInstance = new PaladinCorpse();
-                    TramInstance.MoveToWorld(new Point3D(5396, 118, 0), Map.Trammel);
-                }
+                TramInstance = new PaladinCorpse();
+                TramInstance.MoveToWorld(new Point3D(5396, 118, 0), Map.Trammel);
+            }
 
-                if (FelInstance == null)
-                {
-                    FelInstance = new PaladinCorpse();
-                    FelInstance.MoveToWorld(new Point3D(5396, 118, 0), Map.Felucca);
-                }
+            if (FelInstance == null)
+            {
+                FelInstance = new PaladinCorpse();
+                FelInstance.MoveToWorld(new Point3D(5396, 118, 0), Map.Felucca);
             }
         }
 
-        public override int LabelNumber { get { return 1158135; } } // the remains of a would-be paladin
-        public override bool HandlesOnMovement { get { return true; } }
-        public override bool IsDecoContainer { get { return false; } }
+        public override int LabelNumber => 1158135;  // the remains of a would-be paladin
+        public override bool HandlesOnMovement => true;
+        public override bool IsDecoContainer => false;
 
         public PaladinCorpse()
             : base(0x9F1E)
@@ -527,7 +511,7 @@ namespace Server.Engines.Quests
         {
             if (InRange(m.Location, 2) && !InRange(oldLocation, 2))
             {
-                PrivateOverheadMessage(Server.Network.MessageType.Regular, 1154, 1158137, m.NetState); // *You notice the skeleton clutching a small journal...*
+                PrivateOverheadMessage(MessageType.Regular, 1154, 1158137, m.NetState); // *You notice the skeleton clutching a small journal...*
             }
         }
 
@@ -539,7 +523,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -555,18 +539,15 @@ namespace Server.Engines.Quests
             {
                 FelInstance = this;
             }
-
-            if (!Core.TOL)
-                Delete();
         }
     }
 
     public class WouldBePaladinChronicles : BaseJournal
     {
-        public override int LabelNumber { get { return 1094837; } } // a journal
+        public override int LabelNumber => 1094837;  // a journal
 
-        public override TextDefinition Title { get { return null; } }
-        public override TextDefinition Body { get { return 1158138; } }
+        public override TextDefinition Title => null;
+        public override TextDefinition Body => 1158138;
         /**the text is mostly a journal chronicling the adventures of a man who wished to join the Paladins of Trinsic.  
          * Of particular note is the final entry...*<br><br>This is the most shameful entry I will write...for I have fallen
          * short of my goal. My only hope is my failures will serve to assist those who come after me with the courage to 
@@ -597,7 +578,7 @@ namespace Server.Engines.Quests
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

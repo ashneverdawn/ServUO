@@ -1,9 +1,9 @@
-using System;
 using Server.Engines.Craft;
+using System;
 
 namespace Server.Items
 {
-    public class Globe : Item, IResource
+    public class Globe : Item, IResource, IQuality
     {
         private CraftResource _Resource;
         private Mobile _Crafter;
@@ -18,7 +18,7 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public ItemQuality Quality { get { return _Quality; } set { _Quality = value; InvalidateProperties(); } }
 
-        public bool PlayerConstructed { get { return true; } }
+        public bool PlayerConstructed => true;
 
         [Constructable]
         public Globe()
@@ -27,10 +27,8 @@ namespace Server.Items
             Weight = 3.0;
         }
 
-        public override void GetProperties(ObjectPropertyList list)
+        public override void AddCraftedProperties(ObjectPropertyList list)
         {
-            base.GetProperties(list);
-
             if (_Crafter != null)
             {
                 list.Add(1050043, _Crafter.TitleName); // crafted by ~1_NAME~
@@ -46,7 +44,7 @@ namespace Server.Items
         {
             if (_Resource != CraftResource.None)
             {
-                list.Add(1053099, "#{0}\t{1}", CraftResources.GetLocalizationNumber(_Resource), String.Format("#{0}", LabelNumber.ToString())); // ~1_oretype~ ~2_armortype~
+                list.Add(1053099, "#{0}\t{1}", CraftResources.GetLocalizationNumber(_Resource), string.Format("#{0}", LabelNumber.ToString())); // ~1_oretype~ ~2_armortype~
             }
             else
             {

@@ -1,9 +1,9 @@
-using System;
-
 namespace Server.Items
 {
     public abstract class BaseEarrings : BaseJewel
     {
+        public override int BaseGemTypeNumber => 1044203; // star sapphire earrings
+
         public BaseEarrings(int itemID)
             : base(itemID, Layer.Earrings)
         {
@@ -14,24 +14,15 @@ namespace Server.Items
         {
         }
 
-        public override int BaseGemTypeNumber
-        {
-            get
-            {
-                return 1044203;
-            }
-        }// star sapphire earrings
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
@@ -42,7 +33,7 @@ namespace Server.Items
         public GoldEarrings()
             : base(0x1087)
         {
-            this.Weight = 0.1;
+            Weight = 0.1;
         }
 
         public GoldEarrings(Serial serial)
@@ -53,14 +44,12 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
@@ -71,7 +60,7 @@ namespace Server.Items
         public SilverEarrings()
             : base(0x1F07)
         {
-            this.Weight = 0.1;
+            Weight = 0.1;
         }
 
         public SilverEarrings(Serial serial)
@@ -82,14 +71,12 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Server.Items
 {
     public class MeagerMuseumBag : BaseRewardBag
@@ -8,36 +6,16 @@ namespace Server.Items
         public MeagerMuseumBag()
         {
             DropItem(new Gold(3000));
+            DropItem(new TerMurQuestRewardBook());
 
-            switch (Utility.Random(9))
+            for (int i = 0; i < Utility.RandomMinMax(5, 7); i++)
             {
-                case 0:
-                    DropItem(new Amber(5));
-                    break;
-                case 1:
-                    DropItem(new Amethyst(5));
-                    break;
-                case 2:
-                    DropItem(new Citrine(5));
-                    break;
-                case 3:
-                    DropItem(new Ruby(5));
-                    break;
-                case 4:
-                    DropItem(new Emerald(5));
-                    break;
-                case 5:
-                    DropItem(new Diamond(5));
-                    break;
-                case 6:
-                    DropItem(new Sapphire(5));
-                    break;
-                case 7:
-                    DropItem(new StarSapphire(5));
-                    break;
-                case 8:
-                    DropItem(new Tourmaline(5));
-                    break;
+                DropItemStacked(Loot.RandomGem());
+            }
+
+            for (int i = 0; i < Utility.RandomMinMax(1, 3); i++)
+            {
+                DropItemStacked(Loot.RandomMLResource());
             }
         }
 
@@ -46,18 +24,12 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1112993;
-            }
-        }
+        public override int LabelNumber => 1112993;
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version 
+            writer.Write(0); // version 
         }
 
         public override void Deserialize(GenericReader reader)

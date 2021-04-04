@@ -1,4 +1,3 @@
-using System;
 using System.Xml;
 
 namespace Server.Regions
@@ -10,7 +9,7 @@ namespace Server.Regions
         {
         }
 
-        public override bool AllowAutoClaim( Mobile from )
+        public override bool AllowAutoClaim(Mobile from)
         {
             return false;
         }
@@ -18,7 +17,7 @@ namespace Server.Regions
         public override bool AllowBeneficial(Mobile from, Mobile target)
         {
             if (from.IsPlayer())
-                from.SendMessage("You may not do that in jail.");
+                from.SendLocalizedMessage(1115999); // You may not do that in this area.
 
             return (from.IsStaff());
         }
@@ -26,7 +25,7 @@ namespace Server.Regions
         public override bool AllowHarmful(Mobile from, IDamageable target)
         {
             if (from.Player)
-                from.SendMessage("You may not do that in jail.");
+                from.SendLocalizedMessage(1115999); // You may not do that in this area.
 
             return (from.IsStaff());
         }
@@ -55,7 +54,7 @@ namespace Server.Regions
         public override bool OnSkillUse(Mobile from, int Skill)
         {
             if (from.IsPlayer())
-                from.SendMessage("You may not use skills in jail.");
+                from.SendLocalizedMessage(1116000); // You may not use that skill in this area.
 
             return (from.IsStaff());
         }

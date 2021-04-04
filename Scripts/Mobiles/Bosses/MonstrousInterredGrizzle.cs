@@ -1,15 +1,14 @@
-using System;
-using System.Collections;
 using Server.Items;
-using Server.Network;
 using Server.Spells;
+using System;
+using System.Linq;
 
 namespace Server.Mobiles
 {
     [CorpseName("a monstrous interred grizzle corpse")]
     public class MonstrousInterredGrizzle : BasePeerless
     {
-        private static readonly int[] m_Tiles = new int[]
+        private static readonly int[] m_Tiles =
         {
             -2, 0,
             2, 0,
@@ -29,7 +28,7 @@ namespace Server.Mobiles
             : base(AIType.AI_Spellweaving, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
             Name = "a monstrous interred grizzle";
-            Body = 0x103;			
+            Body = 0x103;
             BaseSoundID = 589;
 
             SetStr(1198, 1207);
@@ -62,15 +61,6 @@ namespace Server.Mobiles
             Fame = 24000;
             Karma = -24000;
 
-            VirtualArmor = 80;
-            PackResources(8);
-            PackTalismans(5);
-
-            for (int i = 0; i < Utility.RandomMinMax(1, 6); i++)
-            {
-                PackItem(Loot.RandomScroll(0, Loot.ArcanistScrollTypes.Length, SpellbookType.Arcanist));
-            }
-
             SetSpecialAbility(SpecialAbility.HowlOfCacophony);
         }
 
@@ -79,83 +69,23 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool GivesMLMinorArtifact
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override int TreasureMapLevel
-        {
-            get
-            {
-                return 5;
-            }
-        }
+        public override bool GivesMLMinorArtifact => true;
+        public override int TreasureMapLevel => 5;
 
         public override void GenerateLoot()
         {
-            AddLoot(LootPack.AosSuperBoss, 8);
-        }
+            AddLoot(LootPack.SuperBoss, 8);
+            AddLoot(LootPack.ArcanistScrolls, Utility.RandomMinMax(1, 6));
+            AddLoot(LootPack.PeerlessResource, 8);
+            AddLoot(LootPack.Talisman, 5);
+            AddLoot(LootPack.LootItem<GrizzledBones>());
 
-        public override void OnDeath(Container c)
-        {
-            base.OnDeath(c);		
-			
-            c.DropItem(new GrizzledBones());
-			
-            switch ( Utility.Random(4) )
-            {
-                case 0:
-                    c.DropItem(new TombstoneOfTheDamned());
-                    break;
-                case 1:
-                    c.DropItem(new GlobOfMonstreousInterredGrizzle());
-                    break;
-                case 2:
-                    c.DropItem(new MonsterousInterredGrizzleMaggots());
-                    break;
-                case 3:
-                    c.DropItem(new GrizzledSkullCollection());
-                    break;
-            }
+            AddLoot(LootPack.RandomLootItem(new[] { typeof(TombstoneOfTheDamned), typeof(GlobOfMonstreousInterredGrizzle), typeof(MonsterousInterredGrizzleMaggots), typeof(GrizzledSkullCollection) }));
 
-            if (Utility.RandomDouble() < 0.6)				
-                c.DropItem(new ParrotItem());
-				
-            if (Utility.RandomDouble() < 0.05)				
-                c.DropItem(new GrizzledMareStatuette());
+            AddLoot(LootPack.LootItem<ParrotItem>(60.0));
+            AddLoot(LootPack.LootItem<GrizzledMareStatuette>(5.0));
 
-            if (Utility.RandomDouble() < 0.05)
-            {
-                switch ( Utility.Random(5) )
-                {
-                    case 0:
-                        c.DropItem(new GrizzleGauntlets());
-                        break;
-                    case 1:
-                        c.DropItem(new GrizzleGreaves());
-                        break;
-                    case 2:
-                        c.DropItem(new GrizzleHelm());
-                        break;
-                    case 3:
-                        c.DropItem(new GrizzleTunic());
-                        break;
-                    case 4:
-                        c.DropItem(new GrizzleVambraces());
-                        break;
-                }
-            }
-        }
-
-        public override void OnDamage(int amount, Mobile from, bool willKill)
-        {				
-            if (Utility.RandomDouble() < 0.3)
-                DropOoze();
-			
-            base.OnDamage(amount, from, willKill);
+            AddLoot(LootPack.RandomLootItem(new[] { typeof(GrizzleGauntlets), typeof(GrizzleGreaves), typeof(GrizzleHelm), typeof(GrizzleTunic), typeof(GrizzleVambraces) }, 5.0, 1));
         }
 
         public override int GetDeathSound()
@@ -186,150 +116,106 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-			
-            writer.Write((int)0); // version
+
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-			
+
             int version = reader.ReadInt();
         }
 
-        public virtual void DropOoze()
+        public override void OnDamage(int amount, Mobile from, bool willKill)
         {
-            int amount = Utility.RandomMinMax(1, 3);
-            bool corrosive = Utility.RandomBool();
-			
-            for (int i = 0; i < amount; i ++)
-            {
-                Item ooze = new InfernalOoze(corrosive);				
-                Point3D p = new Point3D(Location);
-				
-                for (int j = 0; j < 5; j ++)
-                {
-                    p = GetSpawnPosition(2);
-                    bool found = false;
-				
-                    foreach (Item item in Map.GetItemsInRange(p, 0))
-                        if (item is InfernalOoze)
-                        {
-                            found = true;
-                            break;
-                        }
-						
-                    if (!found)
-                        break;			
-                }
-				
-                ooze.MoveToWorld(p, Map);
-            }
-			
-            if (Combatant is PlayerMobile)
-            {
-                if (corrosive)
-                    ((PlayerMobile)Combatant).SendLocalizedMessage(1072071); // A corrosive gas seeps out of your enemy's skin!
-                else
-                    ((PlayerMobile)Combatant).SendLocalizedMessage(1072072); // A poisonous gas seeps out of your enemy's skin!
-            }
+            if (Utility.RandomDouble() < 0.06)
+                SpillAcid(null, Utility.RandomMinMax(1, 3));
+
+            base.OnDamage(amount, from, willKill);
+        }
+
+        public override Item NewHarmfulItem()
+        {
+            return new InfernalOoze(this, Utility.RandomBool());
         }
     }
 
     public class InfernalOoze : Item
-    { 
+    {
         private bool m_Corrosive;
-        private Hashtable m_Table;
+        private readonly int m_Damage;
+        private readonly Mobile m_Owner;
+        private Timer m_Timer;
 
-        private int m_Damage;
+        private readonly DateTime m_StartTime;
 
-        [Constructable]
-        public InfernalOoze()
-            : this(false)
+        public InfernalOoze(Mobile owner)
+            : this(owner, false)
         {
         }
 
-        [Constructable]
-        public InfernalOoze(bool corrosive, int damage = 40)
+        public InfernalOoze(Mobile owner, bool corrosive, int damage = 40)
             : base(0x122A)
         {
             Movable = false;
+            m_Owner = owner;
             Hue = 0x95;
 
             m_Damage = damage;
-			
-            m_Corrosive = corrosive;			
-            Timer.DelayCall(TimeSpan.FromSeconds(30), new TimerCallback(Morph));
-        }
 
-        public InfernalOoze(Serial serial)
-            : base(serial)
-        {
+            m_Corrosive = corrosive;
+            m_StartTime = DateTime.UtcNow;
+
+            m_Timer = Timer.DelayCall(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), OnTick);
         }
 
         [CommandProperty(AccessLevel.GameMaster)]
         public bool Corrosive
         {
-            get
+            get { return m_Corrosive; }
+            set { m_Corrosive = value; }
+        }
+
+        private void OnTick()
+        {
+            if (ItemID == 0x122A && m_StartTime + TimeSpan.FromSeconds(30) < DateTime.UtcNow)
             {
-                return m_Corrosive;
+                ItemID++;
             }
-            set
+            else if (m_StartTime + TimeSpan.FromSeconds(35) < DateTime.UtcNow)
             {
-                m_Corrosive = value;
+                Delete();
+                return;
+            }
+
+            if (m_Owner == null)
+                return;
+
+            if (!Deleted && Map != Map.Internal && Map != null)
+            {
+                foreach (Mobile m in SpellHelper.AcquireIndirectTargets(m_Owner, Location, Map, 0).OfType<Mobile>())
+                {
+                    OnMoveOver(m);
+                }
             }
         }
+
         public override bool OnMoveOver(Mobile m)
         {
-            if (m_Table == null)
-                m_Table = new Hashtable();
-			
-            if ((m is BaseCreature && ((BaseCreature)m).Controlled) || m.Player)
-                m_Table[m] = Timer.DelayCall(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1), new TimerStateCallback(Damage_Callback), m);
-			
+            if (Map == null)
+                return base.OnMoveOver(m);
+
+            if ((m is BaseCreature && ((BaseCreature)m).GetMaster() is PlayerMobile) || m.Player)
+            {
+                Damage(m);
+            }
+
             return base.OnMoveOver(m);
         }
 
-        public override bool OnMoveOff(Mobile m)
-        { 
-            if (m_Table == null)
-                m_Table = new Hashtable();
-				
-            if (m_Table[m] is Timer)
-            {
-                Timer timer = (Timer)m_Table[m];
-				
-                timer.Stop();
-				
-                m_Table[m] = null;
-            }
-			
-            return base.OnMoveOff(m);
-        }
-
-        public override void Serialize(GenericWriter writer)
-        {
-            base.Serialize(writer);
-			
-            writer.Write((int)0); // version
-			
-            writer.Write((bool)m_Corrosive);
-        }
-
-        public override void Deserialize(GenericReader reader)
-        {
-            base.Deserialize(reader);
-			
-            int version = reader.ReadInt();
-			
-            m_Corrosive = reader.ReadBool();
-        }
-
         public virtual void Damage(Mobile m)
-        { 
-            if (!m.Alive)
-                StopTimer(m);
-
+        {
             if (m_Corrosive)
             {
                 for (int i = 0; i < m.Items.Count; i++)
@@ -353,48 +239,45 @@ namespace Server.Mobiles
                 {
                     PlayerMobile pm = m as PlayerMobile;
                     dmg = (int)BalmOfProtection.HandleDamage(pm, dmg);
-                    AOS.Damage(m, dmg, 0, 0, 0, 100, 0);
+                    AOS.Damage(m, m_Owner, dmg, 0, 0, 0, 100, 0);
                 }
                 else
-                    AOS.Damage(m, dmg, 0, 0, 0, 100, 0);
+                {
+                    AOS.Damage(m, m_Owner, dmg, 0, 0, 0, 100, 0);
+                }
             }
         }
 
-        public virtual void Morph()
+        public override void Delete()
         {
-            ItemID += 1;
-			
-            Timer.DelayCall(TimeSpan.FromSeconds(5), new TimerCallback(Decay));
-        }
+            base.Delete();
 
-        public virtual void StopTimer(Mobile m)
-        {
-            if (m_Table[m] is Timer)
+            if (m_Timer != null)
             {
-                Timer timer = (Timer)m_Table[m];				
-                timer.Stop();			
-                m_Table[m] = null;	
+                m_Timer.Stop();
+                m_Timer = null;
             }
         }
 
-        public virtual void Decay()
-        { 
-            if (m_Table == null)
-                m_Table = new Hashtable();
-				
-            foreach (DictionaryEntry entry in m_Table)
-                if (entry.Value is Timer)
-                    ((Timer)entry.Value).Stop();
-			
-            m_Table.Clear();
-			
-            Delete();
+        public InfernalOoze(Serial serial)
+            : base(serial)
+        {
         }
 
-        private void Damage_Callback(object state)
+        public override void Serialize(GenericWriter writer)
         {
-            if (state is Mobile)
-                Damage((Mobile)state);
+            base.Serialize(writer);
+
+            writer.Write(0); // version
+        }
+
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
+
+            int version = reader.ReadInt();
+
+            Delete();
         }
     }
 }

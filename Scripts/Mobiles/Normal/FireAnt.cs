@@ -1,6 +1,4 @@
-using System;
 using Server.Items;
-using Server.Services;
 
 namespace Server.Mobiles
 {
@@ -47,6 +45,8 @@ namespace Server.Mobiles
             AddLoot(LootPack.Average, 2);
         }
 
+        public override int TreasureMapLevel => 3;
+
         public override int GetIdleSound()
         {
             return 846;
@@ -86,7 +86,7 @@ namespace Server.Mobiles
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-            var version = reader.ReadInt();
+            int version = reader.ReadInt();
         }
     }
 }

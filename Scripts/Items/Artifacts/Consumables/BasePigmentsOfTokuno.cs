@@ -1,18 +1,10 @@
 using System;
-using Server.Misc;
-using Server.Mobiles;
 
 namespace Server.Items
 {
     public abstract class BasePigmentsOfTokuno : Item, IUsesRemaining
-    {      
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1070933;
-            }
-        }// Pigments of Tokuno
+    {
+        public override int LabelNumber => 1070933;// Pigments of Tokuno
 
         private int m_UsesRemaining;
         private TextDefinition m_Label;
@@ -34,13 +26,7 @@ namespace Server.Items
         /* DO NOT USE! Only used in serialization of pigments that originally derived from Item */
         private bool m_InheritsItem;
 
-        protected bool InheritsItem
-        {
-            get
-            {
-                return m_InheritsItem;
-            }
-        }
+        protected bool InheritsItem => m_InheritsItem;
         #endregion
 
         public BasePigmentsOfTokuno()
@@ -68,7 +54,10 @@ namespace Server.Items
 
             if (m_Label != null && m_Label > 0)
                 TextDefinition.AddTo(list, m_Label);
+        }
 
+        public override void AddUsesRemainingProperties(ObjectPropertyList list)
+        {
             list.Add(1060584, m_UsesRemaining.ToString()); // uses remaining: ~1_val~
         }
 
@@ -77,7 +66,7 @@ namespace Server.Items
             if (IsAccessibleTo(from) && from.InRange(GetWorldLocation(), 3))
             {
                 from.SendLocalizedMessage(1070929); // Select the artifact or enhanced magic item to dye.
-                from.BeginTarget(3, false, Server.Targeting.TargetFlags.None, new TargetStateCallback(InternalCallback), this);
+                from.BeginTarget(3, false, Targeting.TargetFlags.None, new TargetStateCallback(InternalCallback), this);
             }
             else
                 from.SendLocalizedMessage(502436); // That is not accessible.
@@ -135,6 +124,9 @@ namespace Server.Items
             if (!CraftResources.IsStandard(resource))
                 return true;
 
+            if (i is MongbatDartboard || i is FelineBlessedStatue)
+                return true;
+
             if (i.IsArtifact)
                 return true;
 
@@ -148,7 +140,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)1);
+            writer.Write(1);
 
             writer.WriteEncodedInt(m_UsesRemaining);
         }
@@ -159,7 +151,7 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 1:
                     {

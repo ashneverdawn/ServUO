@@ -1,16 +1,16 @@
-using System;
-
 namespace Server.Items
 {
     public class Coal : Item
     {
+        public override int LabelNumber => 1041426;  // coal
+
         [Constructable]
         public Coal()
             : base(0x19b9)
         {
-            this.Stackable = false;
-            this.LootType = LootType.Blessed;
-            this.Hue = 0x965;
+            Stackable = false;
+            LootType = LootType.Blessed;
+            Hue = 0x965;
         }
 
         public Coal(Serial serial)
@@ -18,17 +18,10 @@ namespace Server.Items
         {
         }
 
-        public override string DefaultName
-        {
-            get
-            {
-                return "Coal";
-            }
-        }
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -40,15 +33,18 @@ namespace Server.Items
 
     public class BadCard : Item
     {
+        private static readonly int[] m_CardHues = new int[] { 0x45, 0x27, 0x3D0 };
+
+        public override int LabelNumber => 1041428; // Maybe next year youll get a better...
+
         [Constructable]
         public BadCard()
             : base(0x14ef)
         {
-            int[] m_CardHues = new int[] { 0x45, 0x27, 0x3d0 };
-            this.Hue = m_CardHues[Utility.Random(m_CardHues.Length)];
-            this.Stackable = false;
-            this.LootType = LootType.Blessed;
-            this.Movable = true;
+            Hue = m_CardHues[Utility.Random(m_CardHues.Length)];
+            Stackable = false;
+            LootType = LootType.Blessed;
+            Movable = true;
         }
 
         public BadCard(Serial serial)
@@ -56,17 +52,10 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1041428;
-            }
-        }// Maybe next year youll get a better...
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -82,8 +71,8 @@ namespace Server.Items
         public Spam()
             : base(0x1044)
         {
-            this.Stackable = false;
-            this.LootType = LootType.Blessed;
+            Stackable = false;
+            LootType = LootType.Blessed;
         }
 
         public Spam(Serial serial)
@@ -94,7 +83,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

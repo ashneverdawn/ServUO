@@ -1,10 +1,10 @@
-using System;
-using Server.Targeting;
 using Server.Engines.Craft;
+using Server.Targeting;
+using System;
 
 namespace Server.Items
 {
-    public class Scales : Item, IResource
+    public class Scales : Item, IResource, IQuality
     {
         private CraftResource _Resource;
         private Mobile _Crafter;
@@ -19,7 +19,7 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public ItemQuality Quality { get { return _Quality; } set { _Quality = value; InvalidateProperties(); } }
 
-        public bool PlayerConstructed { get { return true; } }
+        public bool PlayerConstructed => true;
 
         [Constructable]
         public Scales()
@@ -33,10 +33,8 @@ namespace Server.Items
         {
         }
 
-        public override void GetProperties(ObjectPropertyList list)
+        public override void AddCraftedProperties(ObjectPropertyList list)
         {
-            base.GetProperties(list);
-
             if (_Crafter != null)
             {
                 list.Add(1050043, _Crafter.TitleName); // crafted by ~1_NAME~
@@ -52,7 +50,7 @@ namespace Server.Items
         {
             if (_Resource > CraftResource.Iron)
             {
-                list.Add(1053099, "#{0}\t{1}", CraftResources.GetLocalizationNumber(_Resource), String.Format("#{0}", LabelNumber.ToString())); // ~1_oretype~ ~2_armortype~
+                list.Add(1053099, "#{0}\t{1}", CraftResources.GetLocalizationNumber(_Resource), string.Format("#{0}", LabelNumber.ToString())); // ~1_oretype~ ~2_armortype~
             }
             else
             {
@@ -82,7 +80,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)1); // version
+            writer.Write(1); // version
 
             writer.Write((int)_Resource);
             writer.Write(_Crafter);
@@ -151,7 +149,7 @@ namespace Server.Items
                         if (weight <= 0.0)
                             message += "It is lighter than a feather.";
                         else
-                            message += String.Format("It weighs {0} stones.", weight);
+                            message += string.Format("It weighs {0} stones.", weight);
                     }
                     else
                     {

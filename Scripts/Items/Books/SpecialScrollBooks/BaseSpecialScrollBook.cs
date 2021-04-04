@@ -1,10 +1,9 @@
-using System;
-
+using Server.ContextMenus;
 using Server.Gumps;
 using Server.Mobiles;
-using Server.ContextMenus;
-using System.Collections.Generic;
 using Server.Multis;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Server.Items
@@ -31,8 +30,8 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public SecureLevel Level { get; set; }
 
-        public override bool DisplaysContent { get { return false; } }
-        public override double DefaultWeight { get { return 1.0; } }
+        public override bool DisplaysContent => false;
+        public override double DefaultWeight => 1.0;
 
         public abstract Type ScrollType { get; }
 
@@ -56,7 +55,7 @@ namespace Server.Items
         {
             BaseHouse house = BaseHouse.FindHouseAt(this);
 
-            if (m is PlayerMobile && m.InRange(GetWorldLocation(), 2) && (house == null || house.HasSecureAccess(m, Level)))
+            if (m is PlayerMobile && m.InRange(GetWorldLocation(), 2) /*&& (house == null || house.HasSecureAccess(m, this))*/)
             {
                 BaseGump.SendGump(new SpecialScrollBookGump((PlayerMobile)m, this));
             }
@@ -70,7 +69,7 @@ namespace Server.Items
         {
             base.GetProperties(list);
 
-            list.Add(1151797, String.Format("{0}\t{1}", Items.Count, Capacity)); // Scrolls in book: ~1_val~/~2_val~
+            list.Add(1151797, string.Format("{0}\t{1}", Items.Count, Capacity)); // Scrolls in book: ~1_val~/~2_val~
         }
 
         public override void GetContextMenuEntries(Mobile from, List<ContextMenuEntry> list)
@@ -78,6 +77,13 @@ namespace Server.Items
             base.GetContextMenuEntries(from, list);
 
             SetSecureLevelEntry.AddTo(from, this, list);
+        }
+
+        public override bool OnDragDropInto(Mobile from, Item item, Point3D p)
+        {
+            from.SendMessage("HACKER! GET YOUR STEAM OUT OF HERE!!!");
+
+            return false;
         }
 
         public override bool OnDragDrop(Mobile m, Item dropped)
@@ -94,7 +100,7 @@ namespace Server.Items
                 {
                     m.SendLocalizedMessage(1151765); // You must lock this book down in a house to add scrolls to it.
                 }
-                else if (!house.HasSecureAccess(m, Level))
+                else if (!house.CheckAccessibility(this, m))
                 {
                     m.SendLocalizedMessage(1155693); // This item is impermissible and can not be added to the book.
                 }
@@ -117,7 +123,7 @@ namespace Server.Items
 
         public virtual void Construct(Mobile m, SkillName sk, double value)
         {
-            var scroll = Items.OfType<SpecialScroll>().FirstOrDefault(s => s.Skill == sk && s.Value == value);
+            SpecialScroll scroll = Items.OfType<SpecialScroll>().FirstOrDefault(s => s.Skill == sk && s.Value == value);
 
             if (scroll != null)
             {
@@ -179,13 +185,13 @@ namespace Server.Items
             Timer.DelayCall(
                 () =>
                 {
-                    foreach (var item in Items.Where(i => i.Movable))
+                    foreach (Item item in Items.Where(i => i.Movable))
                         item.Movable = false;
                 });
         }
 
-        public virtual Dictionary<SkillCat, List<SkillName>> SkillInfo { get { return null; } }
-        public virtual Dictionary<int, double> ValueInfo { get { return null; } }
+        public virtual Dictionary<SkillCat, List<SkillName>> SkillInfo => null;
+        public virtual Dictionary<int, double> ValueInfo => null;
 
         public static int GetCategoryLocalization(SkillCat category)
         {

@@ -1,17 +1,16 @@
-using System;
-
 namespace Server.Items
 {
     public class BouraSkin : Item
     {
+        public override int LabelNumber => 1112900; // Boura Skin
+
         [Constructable]
         public BouraSkin()
             : base(0x11F4)
         {
-            this.Name = "Boura Skin";
-            this.LootType = LootType.Blessed;
-            this.Weight = 1.0;
-            this.Hue = 0x292;
+            LootType = LootType.Blessed;
+            Weight = 1.0;
+            Hue = 0x292;
         }
 
         public BouraSkin(Serial serial)
@@ -19,24 +18,15 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1113024;
-            }
-        }
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-			
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-			
             int version = reader.ReadInt();
         }
     }

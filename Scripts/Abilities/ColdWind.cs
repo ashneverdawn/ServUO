@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Server.Network;
 
 namespace Server.Items
 {
@@ -10,27 +11,13 @@ namespace Server.Items
     {
         private static readonly Dictionary<Mobile, ExpireTimer> m_Table = new Dictionary<Mobile, ExpireTimer>();
 
-        public ColdWind()
-        {
-        }
+        public override int BaseMana => 20;
 
-        public override int BaseMana
-        {
-            get
-            {
-                return 20;
-            }
-        }
-        public override double DamageScalar
-        {
-            get
-            {
-                return 1.5;
-            }
-        }
+        public override double DamageScalar => 1.5;
+
         public override void OnHit(Mobile attacker, Mobile defender, int damage)
         {
-            if (!this.Validate(attacker) || !this.CheckMana(attacker, true))
+            if (!Validate(attacker) || !CheckMana(attacker, true))
                 return;
 
             if (attacker.Map == null || attacker.Map == Map.Internal)
@@ -77,9 +64,14 @@ namespace Server.Items
             public void DrainLife()
             {
                 if (m_Mobile.Alive)
-                    m_Mobile.Damage(2, m_From);
+                {
+                    AOS.Damage(m_Mobile, m_From, 14, 0, 0, 100, 0, 0);
+                    Effects.SendPacket(m_Mobile.Location, m_Mobile.Map, new ParticleEffect(EffectType.FixedFrom, m_Mobile.Serial, Serial.Zero, 0x374A, m_Mobile.Location, m_Mobile.Location, 1, 15, false, false, 97, 0, 4, 9502, 1, m_Mobile.Serial, 163, 0));
+                }
                 else
+                {
                     DoExpire();
+                }
             }
 
             protected override void OnTick()

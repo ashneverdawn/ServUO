@@ -1,5 +1,6 @@
-using System;
 using Server.Targeting;
+using System;
+using System.Linq;
 
 namespace Server.Items
 {
@@ -13,11 +14,11 @@ namespace Server.Items
         void LockPick(Mobile from);
     }
 
-    [FlipableAttribute(0x14fc, 0x14fb)]
+    [Flipable(0x14fc, 0x14fb)]
     public class Lockpick : Item
     {
-        public virtual bool IsSkeletonKey { get { return false; } }
-        public virtual int SkillBonus { get { return 0; } }
+        public virtual bool IsSkeletonKey => false;
+        public virtual int SkillBonus => 0;
 
         [Constructable]
         public Lockpick()
@@ -42,7 +43,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)1); // version
+            writer.Write(1); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -69,9 +70,15 @@ namespace Server.Items
         {
             if (item.Locked)
             {
-                from.PlaySound(0x241);
-
-                Timer.DelayCall(TimeSpan.FromMilliseconds(200.0), EndLockpick, new object[] { item, from });
+                if (item is TreasureMapChest && TreasureMapInfo.NewSystem && !((TreasureMapChest)item).Guardians.All(g => g.Deleted))
+                {
+                    from.SendLocalizedMessage(1115991); // You must destroy all the guardians before you can unlock the chest.
+                }
+                else
+                {
+                    from.PlaySound(0x241);
+                    Timer.DelayCall(TimeSpan.FromMilliseconds(200.0), EndLockpick, new object[] { item, from });
+                }
             }
             else
             {
@@ -146,17 +153,27 @@ namespace Server.Items
                 BrokeLockPickTest(from);
                 item.SendLocalizedMessageTo(from, 502075); // You are unable to pick the lock.
 
-                if (item is TreasureMapChest && ((Container)item).Items.Count > 0 && 0.25 > Utility.RandomDouble())
+                if (item is TreasureMapChest)
                 {
-                    Container cont = (Container)item;
+                    TreasureMapChest chest = (TreasureMapChest)item;
 
-                    Item toBreak = cont.Items[Utility.Random(cont.Items.Count)];
-
-                    if (!(toBreak is Container))
+                    if (TreasureMapInfo.NewSystem)
                     {
-                        toBreak.Delete();
-                        Effects.PlaySound(item.Location, item.Map, 0x1DE);
-                        from.SendMessage(0x20, "The sound of gas escaping is heard from the chest.");
+                        if (!chest.FailedLockpick)
+                        {
+                            chest.FailedLockpick = true;
+                        }
+                    }
+                    else if (chest.Items.Count > 0 && 0.25 > Utility.RandomDouble())
+                    {
+                        Item toBreak = chest.Items[Utility.Random(chest.Items.Count)];
+
+                        if (!(toBreak is Container))
+                        {
+                            toBreak.Delete();
+                            Effects.PlaySound(item.Location, item.Map, 0x1DE);
+                            from.SendMessage(0x20, "The sound of gas escaping is heard from the chest.");
+                        }
                     }
                 }
             }
@@ -164,7 +181,7 @@ namespace Server.Items
 
         private class InternalTarget : Target
         {
-            private Lockpick m_Item;
+            private readonly Lockpick m_Item;
 
             public InternalTarget(Lockpick item)
                 : base(1, false, TargetFlags.None)

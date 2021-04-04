@@ -1,7 +1,7 @@
-using System;
 using Server.Commands;
 using Server.Misc;
 using Server.Network;
+using System;
 
 namespace Server.Gumps
 {
@@ -33,32 +33,32 @@ namespace Server.Gumps
         public ToTAdminGump()
             : base(30, 50)
         {
-            this.Closable = true;
-            this.Disposable = true;
-            this.Dragable = true;
-            this.Resizable = false;
-			
-            this.m_ToTEras = Enum.GetValues(typeof(TreasuresOfTokunoEra)).Length - 1;
-			
-            this.AddPage(0);
-            this.AddBackground(0, 0, 320, 75 + (this.m_ToTEras * 25), 9200);
-            this.AddImageTiled(25, 18, 270, 10, 9267);
-            this.AddLabel(75, 5, 54, "Treasures of Tokuno Admin");
-            this.AddLabel(10, 25, 54, "ToT Era");
-            this.AddLabel(90, 25, 54, "Drop Era");
-            this.AddLabel(195, 25, 54, "Reward Era");
-            this.AddLabel(287, 25, 54, "Info");
-			
-            this.AddBackground(320, 0, 200, 150, 9200);		
-            this.AddImageTiled(325, 5, 190, 140, 2624);
-            this.AddAlphaRegion(325, 5, 190, 140);
-			
-            this.SetupToTEras();
+            Closable = true;
+            Disposable = true;
+            Dragable = true;
+            Resizable = false;
+
+            m_ToTEras = Enum.GetValues(typeof(TreasuresOfTokunoEra)).Length - 1;
+
+            AddPage(0);
+            AddBackground(0, 0, 320, 75 + (m_ToTEras * 25), 9200);
+            AddImageTiled(25, 18, 270, 10, 9267);
+            AddLabel(75, 5, 54, "Treasures of Tokuno Admin");
+            AddLabel(10, 25, 54, "ToT Era");
+            AddLabel(90, 25, 54, "Drop Era");
+            AddLabel(195, 25, 54, "Reward Era");
+            AddLabel(287, 25, 54, "Info");
+
+            AddBackground(320, 0, 200, 150, 9200);
+            AddImageTiled(325, 5, 190, 140, 2624);
+            AddAlphaRegion(325, 5, 190, 140);
+
+            SetupToTEras();
         }
 
         public static void Initialize()
         {
-            CommandSystem.Register("ToTAdmin", AccessLevel.Administrator, new CommandEventHandler(ToTAdmin_OnCommand));
+            CommandSystem.Register("ToTAdmin", AccessLevel.Administrator, ToTAdmin_OnCommand);
         }
 
         [Usage("ToTAdmin")]
@@ -66,7 +66,7 @@ namespace Server.Gumps
         public static void ToTAdmin_OnCommand(CommandEventArgs e)
         {
             ToTAdminGump tg;
-			
+
             tg = new ToTAdminGump();
             e.Mobile.CloseGump(typeof(ToTAdminGump));
             e.Mobile.SendGump(tg);
@@ -75,31 +75,31 @@ namespace Server.Gumps
         public void SetupToTEras()
         {
             bool isActivated = TreasuresOfTokuno.DropEra != TreasuresOfTokunoEra.None;
-            this.AddButton(75, 50, isActivated ? 2361 : 2360, isActivated ? 2361 : 2360, 1, GumpButtonType.Reply, 0);
-            this.AddLabel(90, 45, isActivated ? 167 : 137, isActivated ? "Activated" : "Deactivated");
-			
-            for (int i = 0; i < this.m_ToTEras; i++)
+            AddButton(75, 50, isActivated ? 2361 : 2360, isActivated ? 2361 : 2360, 1, GumpButtonType.Reply, 0);
+            AddLabel(90, 45, isActivated ? 167 : 137, isActivated ? "Activated" : "Deactivated");
+
+            for (int i = 0; i < m_ToTEras; i++)
             {
                 int yoffset = (i * 25);
-				
+
                 bool isThisDropEra = ((int)TreasuresOfTokuno.DropEra - 1) == i;
                 bool isThisRewardEra = ((int)TreasuresOfTokuno.RewardEra - 1) == i;
                 int dropButtonID = isThisDropEra ? 2361 : 2360;
                 int rewardButtonID = isThisRewardEra ? 2361 : 2360;
-				
-                this.AddLabel(10, 70 + yoffset, 2100, "ToT " + (i + 1));
-                this.AddButton(75, 75 + yoffset, dropButtonID, dropButtonID, 2 + (i * 2), GumpButtonType.Reply, 0);
-                this.AddLabel(90, 70 + yoffset, isThisDropEra ? 167 : 137, isThisDropEra ? "Active" : "Inactive");
-                this.AddButton(180, 75 + yoffset, rewardButtonID, rewardButtonID, 2 + (i * 2) + 1, GumpButtonType.Reply, 0);
-                this.AddLabel(195, 70 + yoffset, isThisRewardEra ? 167 : 137, isThisRewardEra ? "Active" : "Inactive");
-				
-                this.AddButton(285, 70 + yoffset, 4005, 4006, i, GumpButtonType.Page, 2 + i);
+
+                AddLabel(10, 70 + yoffset, 2100, "ToT " + (i + 1));
+                AddButton(75, 75 + yoffset, dropButtonID, dropButtonID, 2 + (i * 2), GumpButtonType.Reply, 0);
+                AddLabel(90, 70 + yoffset, isThisDropEra ? 167 : 137, isThisDropEra ? "Active" : "Inactive");
+                AddButton(180, 75 + yoffset, rewardButtonID, rewardButtonID, 2 + (i * 2) + 1, GumpButtonType.Reply, 0);
+                AddLabel(195, 70 + yoffset, isThisRewardEra ? 167 : 137, isThisRewardEra ? "Active" : "Inactive");
+
+                AddButton(285, 70 + yoffset, 4005, 4006, i, GumpButtonType.Page, 2 + i);
             }
-			
+
             for (int i = 0; i < m_ToTInfo.Length; i++)
             {
-                this.AddPage(1 + i);
-                this.AddHtml(330, 10, 180, 130, m_ToTInfo[i], false, true);
+                AddPage(1 + i);
+                AddHtml(330, 10, 180, 130, m_ToTInfo[i], false, true);
             }
         }
 
@@ -112,6 +112,8 @@ namespace Server.Gumps
             {
                 TreasuresOfTokuno.DropEra = TreasuresOfTokunoEra.None;
                 from.SendMessage("Treasures of Tokuno Drops have been deactivated");
+
+                Engines.SeasonalEvents.SeasonalEventSystem.OnToTDeactivated(from);
             }
             else if (button >= 2)
             {

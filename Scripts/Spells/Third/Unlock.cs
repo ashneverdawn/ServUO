@@ -1,4 +1,3 @@
-﻿using System;
 using Server.Items;
 using Server.Network;
 using Server.Targeting;
@@ -23,25 +22,19 @@ namespace Server.Spells.Third
         {
         }
 
-        public override SpellCircle Circle
-        {
-            get
-            {
-                return SpellCircle.Third;
-            }
-        }
+        public override SpellCircle Circle => SpellCircle.Third;
         public override void OnCast()
         {
-            this.Caster.Target = new InternalTarget(this);
+            Caster.Target = new InternalTarget(this);
         }
 
         private class InternalTarget : Target
         {
             private readonly UnlockSpell m_Owner;
             public InternalTarget(UnlockSpell owner)
-                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+                : base(10, false, TargetFlags.None)
             {
-                this.m_Owner = owner;
+                m_Owner = owner;
             }
 
             protected override void OnTarget(Mobile from, object o)
@@ -51,7 +44,7 @@ namespace Server.Spells.Third
                 if (loc == null)
                     return;
 
-                if (this.m_Owner.CheckSequence())
+                if (m_Owner.CheckSequence())
                 {
                     SpellHelper.Turn(from, o);
 
@@ -75,11 +68,32 @@ namespace Server.Spells.Third
                             from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 503101); // That did not need to be unlocked.
                         else if (cont.LockLevel == 0)
                             from.SendLocalizedMessage(501666); // You can't unlock that!
+                        else if (cont is TreasureMapChest && ((TreasureMapChest)cont).Level > 2)
+                            from.LocalOverheadMessage(MessageType.Regular, 0x3B2, 503099); // My spell does not seem to have an effect on that lock.
                         else
                         {
-                            int level = (int)(from.Skills[SkillName.Magery].Value * 0.8) - 4;
+                            int level;
+                            int reqSkill;
 
-                            if (level >= cont.RequiredSkill && !(cont is TreasureMapChest && ((TreasureMapChest)cont).Level > 2))
+                            if (cont is TreasureMapChest && TreasureMapInfo.NewSystem)
+                            {
+                                level = (int)from.Skills[SkillName.Magery].Value;
+
+                                switch (((TreasureMapChest)cont).Level)
+                                {
+                                    default:
+                                    case 0: reqSkill = 50; break;
+                                    case 1: reqSkill = 80; break;
+                                    case 2: reqSkill = 100; break;
+                                }
+                            }
+                            else
+                            {
+                                level = (int)(from.Skills[SkillName.Magery].Value * 0.8) - 4;
+                                reqSkill = cont.RequiredSkill;
+                            }
+
+                            if (level >= reqSkill)
                             {
                                 cont.Locked = false;
 
@@ -92,12 +106,12 @@ namespace Server.Spells.Third
                     }
                 }
 
-                this.m_Owner.FinishSequence();
+                m_Owner.FinishSequence();
             }
 
             protected override void OnTargetFinish(Mobile from)
             {
-                this.m_Owner.FinishSequence();
+                m_Owner.FinishSequence();
             }
         }
     }

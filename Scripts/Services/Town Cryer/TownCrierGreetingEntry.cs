@@ -1,10 +1,9 @@
 using System;
-using Server;
 
 namespace Server.Services.TownCryer
 {
     [PropertyObject]
-    public class TownCryerGreetingEntry
+    public class TownCryerGreetingEntry : IComparable<TownCryerGreetingEntry>
     {
         [CommandProperty(AccessLevel.Administrator)]
         public TextDefinition Title { get; set; }
@@ -37,13 +36,18 @@ namespace Server.Services.TownCryer
         public bool CanEdit { get; private set; }
 
         [CommandProperty(AccessLevel.Administrator)]
-        public bool Expired { get { return Expires != DateTime.MinValue && Expires < DateTime.Now; } }
+        public bool Expired => Expires != DateTime.MinValue && Expires < DateTime.Now;
 
         [CommandProperty(AccessLevel.Administrator)]
-        public bool Saves { get { return !PreLoaded && Expires != DateTime.MinValue; } }
+        public bool Saves => !PreLoaded && Expires != DateTime.MinValue;
 
         public TownCryerGreetingEntry(TextDefinition body)
             : this(null, body, null, null, -1)
+        {
+        }
+
+        public TownCryerGreetingEntry(TextDefinition title, TextDefinition body)
+            : this(title, body, null, null, -1)
         {
         }
 
@@ -77,10 +81,37 @@ namespace Server.Services.TownCryer
 
             if (expires > 0)
             {
-                Expires = DateTime.Now + TimeSpan.FromHours(expires);
+                Expires = DateTime.Now + TimeSpan.FromDays(expires);
             }
 
             CanEdit = canEdit;
+        }
+
+        public int CompareTo(TownCryerGreetingEntry two)
+        {
+            if ((CanEdit || PreLoaded) && !two.CanEdit && !two.PreLoaded)
+            {
+                return -1;
+            }
+
+            if ((two.CanEdit || two.PreLoaded) && !CanEdit && !PreLoaded)
+            {
+                return 1;
+            }
+
+            if ((CanEdit || PreLoaded) && (two.CanEdit || two.PreLoaded))
+            {
+                if (Created > two.Created)
+                {
+                    return -1;
+                }
+                else if (two.Created > Created)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
         }
 
         public TownCryerGreetingEntry(GenericReader reader)

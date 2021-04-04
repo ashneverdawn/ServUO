@@ -1,15 +1,43 @@
-using System;
 using Server.Network;
 
 namespace Server.Items
 {
+    public class MarinersBrassSextant : Sextant
+    {
+        public override int LabelNumber => 1075499;  // Mariner's Brass Sextant
+
+        [Constructable]
+        public MarinersBrassSextant()
+            : base()
+        {
+            LootType = LootType.Blessed;
+            Hue = 483;
+        }
+
+        public MarinersBrassSextant(Serial serial)
+            : base(serial)
+        {
+        }
+
+        public override void Serialize(GenericWriter writer)
+        {
+            base.Serialize(writer);
+            writer.Write(0); // version
+        }
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
+            reader.ReadInt();
+        }
+    }
+
     public class Sextant : Item
     {
         [Constructable]
         public Sextant()
             : base(0x1058)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public Sextant(Serial serial)
@@ -141,7 +169,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -153,16 +181,31 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
+            string coords = GetCoords(from);
+
+            if (!string.IsNullOrEmpty(coords))
+            {
+                from.LocalOverheadMessage(MessageType.Regular, from.SpeechHue, false, GetCoords(from));
+            }
+        }
+
+        public static string GetCoords(IEntity e)
+        {
+            return GetCoords(e.Location, e.Map);
+        }
+
+        public static string GetCoords(Point3D location, Map map)
+        {
             int xLong = 0, yLat = 0;
             int xMins = 0, yMins = 0;
             bool xEast = false, ySouth = false;
 
-            if (Sextant.Format(from.Location, from.Map, ref xLong, ref yLat, ref xMins, ref yMins, ref xEast, ref ySouth))
+            if (Format(location, map, ref xLong, ref yLat, ref xMins, ref yMins, ref xEast, ref ySouth))
             {
-                string location = String.Format("{0}° {1}'{2}, {3}° {4}'{5}", yLat, yMins, ySouth ? "S" : "N", xLong, xMins, xEast ? "E" : "W");
-
-                from.LocalOverheadMessage(MessageType.Regular, from.SpeechHue, false, location);
+                return string.Format("{0}Â° {1}'{2}, {3}Â° {4}'{5}", yLat, yMins, ySouth ? "S" : "N", xLong, xMins, xEast ? "E" : "W");
             }
+
+            return string.Empty;
         }
     }
 }

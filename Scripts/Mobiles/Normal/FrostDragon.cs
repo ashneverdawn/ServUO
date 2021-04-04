@@ -1,11 +1,9 @@
-using System;
-using Server;
 using Server.Items;
 
 namespace Server.Mobiles
 {
     [CorpseName("a dragon corpse")]
-    public class FrostDragon : BaseCreature
+    public class FrostDragon : BaseCreature, IAuraCreature
     {
         [Constructable]
         public FrostDragon() : base(AIType.AI_Mage, FightMode.Closest, 10, 1, 0.2, 0.4)
@@ -43,13 +41,13 @@ namespace Server.Mobiles
             Fame = 25000;
             Karma = -25000;
 
-            VirtualArmor = 60;
-
             Tamable = true;
             ControlSlots = 5;
             MinTameSkill = 105.0;
 
             SetWeaponAbility(WeaponAbility.BleedAttack);
+            SetSpecialAbility(SpecialAbility.DragonBreath);
+            SetAreaEffect(AreaEffect.AuraDamage);
         }
 
         public override void GenerateLoot()
@@ -65,32 +63,23 @@ namespace Server.Mobiles
             base.OnAfterTame(tamer);
         }
 
-        public override bool CanAngerOnTame { get { return true; } }
-        public override bool StatLossAfterTame { get { return true; } }
-        public override bool ReacquireOnMovement { get { return !Controlled; } }
-        public override bool AutoDispel { get { return !Controlled; } }
-        public override int TreasureMapLevel { get { return 4; } }
-        public override int Meat { get { return 19; } }
-        public override int Hides { get { return 33; } }
-        public override HideType HideType { get { return HideType.Barbed; } }
-        public override int DragonBlood { get { return 8; } }
-        public override FoodType FavoriteFood { get { return FoodType.Meat; } }
+        public override bool CanAngerOnTame => true;
+        public override bool StatLossAfterTame => true;
+        public override bool ReacquireOnMovement => !Controlled;
+        public override bool AutoDispel => !Controlled;
+        public override int TreasureMapLevel => 4;
+        public override int Meat => 19;
+        public override int Hides => 33;
+        public override HideType HideType => HideType.Barbed;
+        public override int DragonBlood => 8;
+        public override FoodType FavoriteFood => FoodType.Meat;
 
-        public override bool HasBreath { get { return true; } } // fire breath enabled
-        public override int BreathFireDamage { get { return 0; } }
-        public override int BreathColdDamage { get { return 100; } }
-        public override int BreathEffectHue { get { return 1264; } }
-
-        public override int AuraBaseDamage { get { return 10; } }
-        public override bool HasAura { get { return true; } }
-        public override int AuraRange { get { return 10; } }
-        public override int AuraFireDamage { get { return 0; } }
-        public override int AuraColdDamage { get { return 100; } }
-
-        public override void AuraEffect(Mobile m)
+        public void AuraEffect(Mobile m)
         {
             m.FixedParticles(0x374A, 10, 30, 5052, Hue, 0, EffectLayer.Waist);
             m.PlaySound(0x5C6);
+
+            m.SendLocalizedMessage(1008111); //  : The intense cold is damaging you!
         }
 
         public FrostDragon(Serial serial) : base(serial)
@@ -100,18 +89,13 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)1);
+            writer.Write(1);
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
             int version = reader.ReadInt();
-
-            if (version == 0)
-            {
-                SetWeaponAbility(WeaponAbility.BleedAttack);
-            }
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -39,11 +38,7 @@ namespace Server.Mobiles
             Fame = 4500;
             Karma = -4500;
 
-            VirtualArmor = 40;
-
-            PackItem(new SulfurousAsh(3));
-            PackItem(new Bone());
-            // TODO: body parts, armour
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public LavaSerpent(Serial serial)
@@ -51,70 +46,34 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool DeathAdderCharmable
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool HasBreath
-        {
-            get
-            {
-                return true;
-            }
-        }// fire breath enabled
-        public override int Meat
-        {
-            get
-            {
-                return 4;
-            }
-        }
-        public override int Hides
-        {
-            get
-            {
-                return 15;
-            }
-        }
-        public override HideType HideType
-        {
-            get
-            {
-                return HideType.Spined;
-            }
-        }
-
-        public override bool HasAura { get { return true; } }
-        public override int AuraRange { get { return 2; } }
-
-        public override void AuraEffect(Mobile m)
-        {
-            m.SendMessage("The radiating heat scorches your skin!");
-        }
+        public override bool DeathAdderCharmable => true;
+        public override int Meat => 4;
+        public override int Hides => 15;
+        public override HideType HideType => HideType.Spined;
 
         public override void GenerateLoot()
         {
             AddLoot(LootPack.Average);
+            AddLoot(LootPack.LootItem<SulfurousAsh>(100.0, 1, false, true));
+            AddLoot(LootPack.LootItem<Bone>(100.0, 1, false, true));
+            AddLoot(LootPack.BodyParts);
+        }
+
+        public void AuraEffect(Mobile m)
+        {
+            m.SendMessage("The radiating heat scorches your skin!");
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
-
-            if (BaseSoundID == -1)
-                BaseSoundID = 219;
         }
     }
 }

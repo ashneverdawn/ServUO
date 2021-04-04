@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-
 namespace Server.Mobiles
 {
     [CorpseName("a succubus corpse")]
@@ -41,7 +38,7 @@ namespace Server.Mobiles
             Fame = 24000;
             Karma = -24000;
 
-            VirtualArmor = 80;
+            SetSpecialAbility(SpecialAbility.LifeDrain);
         }
 
         public Succubus(Serial serial)
@@ -49,32 +46,18 @@ namespace Server.Mobiles
         {
         }
 
-        public override int Meat
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public override int TreasureMapLevel
-        {
-            get
-            {
-                return 5;
-            }
-        }
+        public override int Meat => 1;
+        public override int TreasureMapLevel => 5;
         public override void GenerateLoot()
         {
             AddLoot(LootPack.FilthyRich, 2);
             AddLoot(LootPack.MedScrolls, 2);
         }
 
-        public override bool DrainsLife { get { return true; } }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

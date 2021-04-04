@@ -1,9 +1,12 @@
-using System;
-
 namespace Server.Items
 {
     public class SilverSerpentVenom : Item, ICommodity
     {
+        TextDefinition ICommodity.Description => LabelNumber;
+        bool ICommodity.IsDeedable => true;
+
+        public override int LabelNumber => 1112173; // silver serpent venom
+
         [Constructable]
         public SilverSerpentVenom()
             : this(1)
@@ -12,10 +15,12 @@ namespace Server.Items
 
         [Constructable]
         public SilverSerpentVenom(int amount)
-            : base(0x5722)
+            : base(0xE24)
         {
-            this.Stackable = true;
-            this.Amount = amount;
+            Hue = 1155;
+
+            Stackable = true;
+            Amount = amount;
         }
 
         public SilverSerpentVenom(Serial serial)
@@ -23,31 +28,26 @@ namespace Server.Items
         {
         }
 
-        TextDefinition ICommodity.Description { get { return LabelNumber; } }
-        bool ICommodity.IsDeedable { get { return true; } }
-
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1112173;
-            }
-        }// silver serpent venom
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(1); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
 
-            if (ItemID != 0x5722)
-                ItemID = 0x5722;
+            switch (version)
+            {
+                case 1:
+                    break;
+                case 0:
+                    ItemID = 0xE24;
+                    Hue = 1155;
+                    break;
+            }
         }
     }
 }

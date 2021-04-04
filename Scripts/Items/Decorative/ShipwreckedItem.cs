@@ -1,5 +1,3 @@
-using System;
-
 namespace Server.Items
 {
     public interface IShipwreckedItem
@@ -7,7 +5,7 @@ namespace Server.Items
         bool IsShipwreckedItem { get; set; }
     }
 
-    public class ShipwreckedItem : Item, IDyable, IShipwreckedItem
+    public class ShipwreckedItem : Item, IDyable, IShipwreckedItem, IFlipable
     {
         private bool m_IsBarnacleItem;
 
@@ -16,17 +14,12 @@ namespace Server.Items
         {
             m_IsBarnacleItem = barnacle;
 
-            int weight = this.ItemData.Weight;
+            int weight = ItemData.Weight;
 
             if (weight >= 255 || weight <= 0)
                 weight = 1;
 
-            this.Weight = weight;
-        }
-
-        public override void OnSingleClick(Mobile from)
-        {
-            this.LabelTo(from, 1050039, String.Format("#{0}\t#1041645", this.LabelNumber));
+            Weight = weight;
         }
 
         public override void AddNameProperties(ObjectPropertyList list)
@@ -34,9 +27,9 @@ namespace Server.Items
             if (m_IsBarnacleItem)
             {
                 if (LabelNumber > 0)
-                    list.Add(1151075, String.Format("#{0}", LabelNumber)); //barnacle covered ~1_token~
+                    list.Add(1151075, string.Format("#{0}", LabelNumber)); //barnacle covered ~1_token~
                 else
-                    list.Add(1151075, this.ItemData.Name); //barnacle covered ~1_token~
+                    list.Add(1151075, ItemData.Name); //barnacle covered ~1_token~
 
                 list.Add(1041645); // recovered from a shipwreck
             }
@@ -44,6 +37,25 @@ namespace Server.Items
             {
                 base.AddNameProperties(list);
                 list.Add(1041645); // recovered from a shipwreck
+            }
+        }
+
+        public virtual void OnFlip(Mobile m)
+        {
+            switch (ItemID)
+            {
+                case 0x0E9F: ItemID = 0x0EC8; break;
+                case 0x0EC8: ItemID = 0x0E9F; break;
+                case 0x0EC9: ItemID = 0x0EE7; break;
+                case 0x0EE7: ItemID = 0x0EC9; break;
+                case 0x0EA1: ItemID++; break;
+                case 0x0EA2: ItemID--; break;
+                case 0x0EA3: ItemID++; break;
+                case 0x0EA4: ItemID--; break;
+                case 0x0EA5: ItemID = 0x0EA7; break;
+                case 0x0EA6: ItemID = 0x0EA8; break;
+                case 0x0EA7: ItemID = 0x0EA5; break;
+                case 0x0EA8: ItemID = 0x0EA6; break;
             }
         }
 
@@ -56,7 +68,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)1); // version
+            writer.Write(1); // version
             writer.Write(m_IsBarnacleItem);
         }
 
@@ -78,12 +90,12 @@ namespace Server.Items
 
         public bool Dye(Mobile from, DyeTub sender)
         {
-            if (this.Deleted)
+            if (Deleted)
                 return false;
 
-            if (this.ItemID >= 0x13A4 && this.ItemID <= 0x13AE)
+            if (ItemID >= 0x13A4 && ItemID <= 0x13AE)
             {
-                this.Hue = sender.DyedHue;
+                Hue = sender.DyedHue;
                 return true;
             }
 

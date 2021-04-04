@@ -1,36 +1,8 @@
 @SET CURPATH=%~dp0
-@SET CSCPATH=%windir%\Microsoft.NET\Framework\v4.0.30319\
-
-@SET SDKPATH=%CURPATH%Ultima\
-@SET SRVPATH=%CURPATH%Server\
 
 @SET EXENAME=ServUO
 
 @TITLE: %EXENAME% - https://www.servuo.com
-
-::##########
-
-@ECHO:
-@ECHO: Compile Ultima SDK
-@ECHO:
-
-@PAUSE
-
-@DEL "%CURPATH%Ultima.dll"
-
-@ECHO ON
-
-%CSCPATH%csc.exe /target:library /out:"%CURPATH%Ultima.dll" /recurse:"%SDKPATH%*.cs" /d:ServUO /d:NEWTIMERS /d:DEBUG /nowarn:0618 /debug /nologo /unsafe
-
-@ECHO OFF
-
-@ECHO:
-@ECHO: Done!
-@ECHO:
-
-@PAUSE
-
-@CLS
 
 ::##########
 
@@ -40,13 +12,7 @@
 
 @PAUSE
 
-@DEL "%CURPATH%%EXENAME%.exe"
-
-@ECHO ON
-
-%CSCPATH%csc.exe /win32icon:"%SRVPATH%servuo.ico" /r:"%CURPATH%Ultima.dll" /target:exe /out:"%CURPATH%%EXENAME%.exe" /recurse:"%SRVPATH%*.cs" /d:ServUO /d:NEWTIMERS /d:NETFX_40 /d:DEBUG /nowarn:0618 /debug /nologo /unsafe
-
-@ECHO OFF
+dotnet build -c Debug
 
 @ECHO:
 @ECHO: Done!
@@ -57,37 +23,8 @@
 @CLS
 
 ::##########
-:Ask
-echo Would you like to use debug mode?(Y/N)
-set INPUT=
-set /P INPUT=Type input: %=%
-If /I "%INPUT%"=="y" goto yes 
-If /I "%INPUT%"=="n" goto no
-echo Incorrect input & goto Ask
-
-:yes
-@ECHO:
-@ECHO: Ready To Run! %EXENAME% will be started in DEBUG Mode (-debug)
-@ECHO:
-
-@PAUSE
-
-@CLS
 
 @ECHO OFF
 
-%CURPATH%%EXENAME%.exe -debug
-
-:no
-@ECHO:
-@ECHO: Ready To Run!
-@ECHO:
-
-@PAUSE
-
-@CLS
-
-@ECHO OFF
-
-%CURPATH%%EXENAME%.exe
+"%CURPATH%%EXENAME%.exe"
 

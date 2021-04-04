@@ -1,13 +1,12 @@
-using System;
-using Server.Factions;
+using Server.Items;
 using Server.Mobiles;
 using Server.Multis;
+using Server.Network;
 using Server.Targeting;
-using Server.Engines.VvV;
-using Server.Items;
-using System.Collections.Generic;
-using System.Linq;
 using Server.Spells;
+
+using System;
+using System.Linq;
 
 namespace Server.Items
 {
@@ -16,6 +15,8 @@ namespace Server.Items
         bool CheckReveal(Mobile m);
         bool CheckPassiveDetect(Mobile m);
         void OnRevealed(Mobile m);
+
+        bool CheckWhenHidden { get; }
     }
 }
 
@@ -25,7 +26,7 @@ namespace Server.SkillHandlers
     {
         public static void Initialize()
         {
-            SkillInfo.Table[(int)SkillName.DetectHidden].Callback = new SkillUseCallback(OnUse);
+            SkillInfo.Table[(int)SkillName.DetectHidden].Callback = OnUse;
         }
 
         public static TimeSpan OnUse(Mobile src)
@@ -58,7 +59,7 @@ namespace Server.SkillHandlers
                     p = src.Location;
 
                 double srcSkill = src.Skills[SkillName.DetectHidden].Value;
-                int range = (int)(srcSkill / 10.0);
+                int range = Math.Max(2, (int)(srcSkill / 10.0));
 
                 if (!src.CheckSkill(SkillName.DetectHidden, 0.0, 100.0))
                     range /= 2;
@@ -80,17 +81,18 @@ namespace Server.SkillHandlers
                         {
                             double ss = srcSkill + Utility.Random(21) - 10;
                             double ts = trg.Skills[SkillName.Hiding].Value + Utility.Random(21) - 10;
-                            double shadow = Server.Spells.SkillMasteries.ShadowSpell.GetDifficultyFactor(trg);
+                            double shadow = Spells.SkillMasteries.ShadowSpell.GetDifficultyFactor(trg);
                             bool houseCheck = inHouse && house.IsInside(trg);
 
                             if (src.AccessLevel >= trg.AccessLevel && (ss >= ts || houseCheck) && Utility.RandomDouble() > shadow)
                             {
-                               if ((trg is ShadowKnight && (trg.X != p.X || trg.Y != p.Y)) ||
-                                    (!houseCheck && !CanDetect(src, trg)))
+                                if ((trg is ShadowKnight && (trg.X != p.X || trg.Y != p.Y)) ||
+                                     (!houseCheck && !CanDetect(src, trg, true)))
                                     continue;
 
                                 trg.RevealingAction();
                                 trg.SendLocalizedMessage(500814); // You have been revealed!
+                                trg.PrivateOverheadMessage(MessageType.Regular, 0x3B2, 500814, trg.NetState);
                                 foundAnyone = true;
                             }
                         }
@@ -102,16 +104,23 @@ namespace Server.SkillHandlers
 
                     foreach (Item item in itemsInRange)
                     {
-                        if (item.Visible)
-                            continue;
-
-                        IRevealableItem dItem = item as IRevealableItem;
-
-                        if (dItem != null && dItem.CheckReveal(src))
+                        if (item is LibraryBookcase && Engines.Khaldun.GoingGumshoeQuest3.CheckBookcase(src, item))
                         {
-                            dItem.OnRevealed(src);
-
                             foundAnyone = true;
+                        }
+                        else
+                        {
+                            IRevealableItem dItem = item as IRevealableItem;
+
+                            if (dItem == null || (item.Visible && dItem.CheckWhenHidden))
+                                continue;
+
+                            if (dItem.CheckReveal(src))
+                            {
+                                dItem.OnRevealed(src);
+
+                                foundAnyone = true;
+                            }
                         }
                     }
 
@@ -142,7 +151,7 @@ namespace Server.SkillHandlers
 
             foreach (Mobile m in eable)
             {
-                if (m == null || m == src || m is ShadowKnight || !CanDetect(src, m))
+                if (m == null || m == src || m is ShadowKnight || !CanDetect(src, m, false))
                     continue;
 
                 double ts = (m.Skills[SkillName.Hiding].Value + m.Skills[SkillName.Stealth].Value) / 2;
@@ -172,24 +181,45 @@ namespace Server.SkillHandlers
             eable.Free();
         }
 
-        private static bool CanDetect(Mobile src, Mobile target)
+        public static bool CanDetect(Mobile src, Mobile target, bool direct)
         {
-            if (src.Map == null || target.Map == null || !src.CanBeHarmful(target, false))
+            if (src.Map == null || target.Map == null || !src.CanBeHarmful(target, false, false, true))
+            {
                 return false;
+            }
 
             // No invulnerable NPC's
             if (src.Blessed || (src is BaseCreature && ((BaseCreature)src).IsInvulnerable))
+            {
                 return false;
+            }
 
             if (target.Blessed || (target is BaseCreature && ((BaseCreature)target).IsInvulnerable))
+            {
                 return false;
+            }
+
+            SpellHelper.CheckResponsible(ref src);
+            SpellHelper.CheckResponsible(ref target);
+
+            if (src.Map.Rules == MapRules.FeluccaRules && direct)
+            {
+                return !SpellHelper.IsGuildAllyOrParty(src, target);
+            }
+
+            // pet owner, guild/alliance, party
+            if (!SpellHelper.ValidIndirectTarget(target, src))
+            {
+                return false;
+            }
 
             // Checked aggressed/aggressors
             if (src.Aggressed.Any(x => x.Defender == target) || src.Aggressors.Any(x => x.Attacker == target))
+            {
                 return true;
+            }
 
-            // Follow the same rules as indirect spells such as wither
-            return /*src.Map.Rules == MapRules.FeluccaRules ||*/Server.Spells.SpellHelper.ValidIndirectTarget(target, src);
+            return src.Map.Rules == MapRules.FeluccaRules;
         }
     }
 }

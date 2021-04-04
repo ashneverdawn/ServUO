@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Server.Gumps;
 using Server.Multis;
 using Server.Network;
 using Server.Targeting;
+using System.Collections.Generic;
 
 namespace Server.Items
 {
@@ -23,7 +22,7 @@ namespace Server.Items
 
     public class HarpsichordRoll : Item
     {
-        public override int LabelNumber { get { return 1098233; } } // An Harpsichord Roll
+        public override int LabelNumber => 1098233;  // An Harpsichord Roll
 
         private MusicName m_Music;
 
@@ -79,7 +78,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
             writer.Write((int)m_Music);
         }
@@ -129,12 +128,12 @@ namespace Server.Items
 
     public class HarpsichordAddon : BaseAddon
     {
-        public override bool ForceShowProperties { get { return false; } }
-        public override bool RetainDeedHue { get { return true; } }
+        public override bool ForceShowProperties => false;
+        public override bool RetainDeedHue => true;
 
         public List<MusicName> List;
 
-        public override BaseAddonDeed Deed { get { return new HarpsichordAddonDeed((HarpsichordColor)Hue, List); } }
+        public override BaseAddonDeed Deed => new HarpsichordAddonDeed((HarpsichordColor)Hue, List);
 
         [Constructable]
         public HarpsichordAddon(HarpsichordColor hue, DirectionType type, List<MusicName> list)
@@ -183,7 +182,7 @@ namespace Server.Items
 
             BaseHouse house = BaseHouse.FindHouseAt(from);
 
-            if (house != null && (house.IsOwner(from) || (house.LockDowns.ContainsKey(this) && house.LockDowns[this] == from)))
+            if (house != null && (house.IsFriend(from) || (house.LockDowns.ContainsKey(this) && house.LockDowns[this] == from)))
             {
                 from.CloseGump(typeof(HarpsichordSongGump));
                 from.SendGump(new HarpsichordSongGump(List));
@@ -280,102 +279,114 @@ namespace Server.Items
                 }
             }
         }
+    }
 
-        public class HarpsichordAddonDeed : BaseAddonDeed, IRewardOption
+    public class HarpsichordAddonDeed : BaseAddonDeed, IRewardOption
+    {
+        public override int LabelNumber => 1152937;  // Harpsichord Deed
+
+        private DirectionType _Direction;
+        private List<MusicName> _List;
+
+        public override BaseAddon Addon => new HarpsichordAddon((HarpsichordColor)Hue, _Direction, _List);
+
+        [Constructable]
+        public HarpsichordAddonDeed()
+            : this((HarpsichordColor)Utility.RandomList(1168, 1177, 1195, 1910, 1922, 1933, 2498, 2584, 2541, 2609))
         {
-            public override int LabelNumber { get { return 1152937; } } // Harpsichord Deed
+        }
 
-            private DirectionType _Direction;
-            private List<MusicName> _List;
+        [Constructable]
+        public HarpsichordAddonDeed(HarpsichordColor hue)
+            : this(hue, null)
+        {
+        }
 
-            public override BaseAddon Addon { get { return new HarpsichordAddon((HarpsichordColor)Hue, _Direction, _List); } }
+        [Constructable]
+        public HarpsichordAddonDeed(HarpsichordColor hue, List<MusicName> list)
+        {
+            _List = list;
+            Hue = (int)hue;
+            LootType = LootType.Blessed;
+        }
 
-            [Constructable]
-            public HarpsichordAddonDeed(HarpsichordColor hue)
-                : this(hue, null)
+        public override void GetProperties(ObjectPropertyList list)
+        {
+            base.GetProperties(list);
+
+            int count = 0;
+
+            if (_List != null)
             {
+                count = _List.Count;
             }
 
-            [Constructable]
-            public HarpsichordAddonDeed(HarpsichordColor hue, List<MusicName> list)
+            list.Add(1153057, count.ToString());
+        }
+
+        public void GetOptions(RewardOptionList list)
+        {
+            list.Add((int)DirectionType.South, 1153055); // Harpsichord South
+            list.Add((int)DirectionType.East, 1153056); // Harpsichord East
+        }
+
+        public void OnOptionSelected(Mobile from, int choice)
+        {
+            _Direction = (DirectionType)choice;
+
+            if (!Deleted)
+                base.OnDoubleClick(from);
+        }
+
+        public override void OnDoubleClick(Mobile from)
+        {
+            if (IsChildOf(from.Backpack))
             {
-                _List = list;
-                Hue = (int)hue;
-                LootType = LootType.Blessed;
+                from.CloseGump(typeof(AddonOptionGump));
+                from.SendGump(new AddonOptionGump(this, LabelNumber));
             }
-
-            public override void GetProperties(ObjectPropertyList list)
+            else
             {
-                base.GetProperties(list);
-
-                int count = 0;
-
-                if (_List != null)
-                {
-                    count = _List.Count;
-                }
-
-                list.Add(1153057, count.ToString());
+                from.SendLocalizedMessage(1062334); // This item must be in your backpack to be used.
             }
+        }
 
-            public void GetOptions(RewardOptionList list)
+        public HarpsichordAddonDeed(Serial serial)
+            : base(serial)
+        {
+        }
+
+        public override void Serialize(GenericWriter writer)
+        {
+            base.Serialize(writer);
+            writer.Write(0); // Version
+
+            writer.Write(_List != null ? _List.Count : 0);
+
+            if (_List != null)
             {
-                list.Add((int)DirectionType.South, 1153055); // Harpsichord South
-                list.Add((int)DirectionType.East, 1153056); // Harpsichord East
-            }
-
-            public void OnOptionSelected(Mobile from, int choice)
-            {
-                _Direction = (DirectionType)choice;
-
-                if (!Deleted)
-                    base.OnDoubleClick(from);
-            }
-
-            public override void OnDoubleClick(Mobile from)
-            {
-                if (IsChildOf(from.Backpack))
-                {
-                    from.CloseGump(typeof(AddonOptionGump));
-                    from.SendGump(new AddonOptionGump(this, LabelNumber));
-                }
-                else
-                {
-                    from.SendLocalizedMessage(1062334); // This item must be in your backpack to be used.
-                }
-            }
-
-            public HarpsichordAddonDeed(Serial serial)
-                : base(serial)
-            {
-            }
-
-            public override void Serialize(GenericWriter writer)
-            {
-                base.Serialize(writer);
-                writer.Write(0); // Version
-
-                writer.Write(_List.Count);
-
                 _List.ForEach(x =>
                 {
                     writer.Write((int)x);
                 });
             }
+        }
 
-            public override void Deserialize(GenericReader reader)
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
+            int version = reader.ReadInt();
+
+            int count = reader.ReadInt();
+
+            if (count > 0)
             {
-                base.Deserialize(reader);
-                int version = reader.ReadInt();
-
-                int count = reader.ReadInt();
-
                 _List = new List<MusicName>();
+            }
 
-                for (int i = count; i > 0; i--)
-                {
-                    _List.Add((MusicName)reader.ReadInt());
-                }
+            for (int i = count; i > 0; i--)
+            {
+                _List.Add((MusicName)reader.ReadInt());
             }
         }
     }

@@ -1,17 +1,14 @@
-using System;
-
 namespace Server.Mobiles
 {
     [CorpseName("a phoenix corpse")]
-    public class Phoenix : BaseCreature
+    public class Phoenix : BaseCreature, IAuraCreature
     {
         [Constructable]
         public Phoenix()
             : base(AIType.AI_Mage, FightMode.Aggressor, 10, 1, 0.2, 0.4)
         {
             Name = "a phoenix";
-            Body = 5;
-            Hue = 0x674;
+            Body = 0x340;
             BaseSoundID = 0x8F;
 
             SetStr(504, 700);
@@ -20,7 +17,7 @@ namespace Server.Mobiles
 
             SetHits(340, 383);
 
-            SetDamage(25);
+            SetDamage(20, 25);
 
             SetDamageType(ResistanceType.Physical, 50);
             SetDamageType(ResistanceType.Fire, 50);
@@ -41,11 +38,11 @@ namespace Server.Mobiles
             Fame = 15000;
             Karma = 0;
 
-            VirtualArmor = 60;
-
             Tamable = true;
             ControlSlots = 4;
             MinTameSkill = 102.0;
+
+            SetAreaEffect(AreaEffect.AuraDamage);
         }
 
         public Phoenix(Serial serial)
@@ -53,17 +50,27 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool CanAngerOnTame { get { return true; } }
-        public override int Meat { get { return 1; } }
-        public override MeatType MeatType { get { return MeatType.Bird; } }
-        public override int Feathers { get { return 36; } }
-        public override bool CanFly { get { return true; } }
-        public override bool HasAura { get { return !Controlled; } }
-        public override int AuraRange { get { return 2; } }
+        public override bool CanAngerOnTame => true;
+        public override int Meat => 1;
+        public override MeatType MeatType => MeatType.Bird;
+        public override int Feathers => 36;
+        public override bool CanFly => true;
 
-        public override void AuraEffect(Mobile m)
+        public void AuraEffect(Mobile m)
         {
-            m.SendMessage("The radiating heat scorches your skin!");
+            m.SendLocalizedMessage(1008112); // The intense heat is damaging you!
+        }
+
+        public override void OnAfterTame(Mobile tamer)
+        {
+            base.OnAfterTame(tamer);
+
+            AbilityProfile profile = PetTrainingHelper.GetAbilityProfile(this);
+
+            if (profile != null)
+            {
+                profile.RemoveAbility(AreaEffect.AuraDamage);
+            }
         }
 
         public override void GenerateLoot()
@@ -75,7 +82,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

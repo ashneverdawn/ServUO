@@ -1,15 +1,13 @@
-using System;
-
 namespace Server.Items
 {
     public class SerpentFangKey : PeerlessKey
     {
         [Constructable]
         public SerpentFangKey()
-            : base(0x1012)
+            : base(0x2002)
         {
-            Weight = 1.0;
-            Hue = 0x9A; // TODO check
+            Weight = 2.0;
+            Hue = 53;
             LootType = LootType.Blessed;
         }
 
@@ -18,24 +16,18 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1074341;
-            }
-        }// serpent fang key
+        public override int LabelNumber => 1074341;// serpent fang key
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-			
-            writer.Write((int)0); // version
+
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-			
+
             int version = reader.ReadInt();
         }
     }

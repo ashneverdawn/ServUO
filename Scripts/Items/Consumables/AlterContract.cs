@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections;
-using Server.Mobiles;
-using Server.Items;
 using Server.Engines.Craft;
 
 namespace Server.Items
 {
     public class AlterContract : Item
     {
-        private RepairDeed.RepairSkillType m_Type;
+        private RepairSkillType m_Type;
         private string m_CrafterName;
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public RepairDeed.RepairSkillType Type
+        public RepairSkillType Type
         {
             get { return m_Type; }
 
@@ -36,7 +32,7 @@ namespace Server.Items
         }
 
         [Constructable]
-        public AlterContract(RepairDeed.RepairSkillType type, Mobile crafter)
+        public AlterContract(RepairSkillType type, Mobile crafter)
             : base(0x14F0)
         {
             m_CrafterName = crafter.Name;
@@ -53,13 +49,13 @@ namespace Server.Items
 
         public string GetTitle()
         {
-            if (m_Type == RepairDeed.RepairSkillType.Smithing)
+            if (m_Type == RepairSkillType.Smithing)
                 return "Blacksmithing";
-            else if (m_Type == RepairDeed.RepairSkillType.Carpentry)
+            else if (m_Type == RepairSkillType.Carpentry)
                 return "Carpentry";
-            else if (m_Type == RepairDeed.RepairSkillType.Tailoring)
+            else if (m_Type == RepairSkillType.Tailoring)
                 return "Tailoring";
-            else if (m_Type == RepairDeed.RepairSkillType.Tinkering)
+            else if (m_Type == RepairSkillType.Tinkering)
                 return "Tinkering";
             else
                 return null;
@@ -67,23 +63,16 @@ namespace Server.Items
 
         public CraftSystem GetCraftSystem()
         {
-            if (m_Type == RepairDeed.RepairSkillType.Smithing)
+            if (m_Type == RepairSkillType.Smithing)
                 return DefBlacksmithy.CraftSystem;
-            else if (m_Type == RepairDeed.RepairSkillType.Carpentry)
+            else if (m_Type == RepairSkillType.Carpentry)
                 return DefCarpentry.CraftSystem;
-            else if (m_Type == RepairDeed.RepairSkillType.Tailoring)
+            else if (m_Type == RepairSkillType.Tailoring)
                 return DefTailoring.CraftSystem;
-            else if (m_Type == RepairDeed.RepairSkillType.Tinkering)
+            else if (m_Type == RepairSkillType.Tinkering)
                 return DefTinkering.CraftSystem;
             else
                 return null;
-        }
-
-        public override void OnSingleClick(Mobile from)
-        {
-            base.OnSingleClick(from);
-
-            this.LabelTo(from, 1094795, GetTitle()); // An alter service contract (~1_SKILL_NAME~)
         }
 
         public override void GetProperties(ObjectPropertyList list)
@@ -118,10 +107,10 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version 
+            writer.Write(0); // version 
 
             writer.Write((int)m_Type);
-            writer.Write((string)m_CrafterName);
+            writer.Write(m_CrafterName);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -130,8 +119,8 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            m_Type = (RepairDeed.RepairSkillType)reader.ReadInt();
-            m_CrafterName = (string)reader.ReadString();
+            m_Type = (RepairSkillType)reader.ReadInt();
+            m_CrafterName = reader.ReadString();
         }
     }
 }

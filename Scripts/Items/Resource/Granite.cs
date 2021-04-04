@@ -1,5 +1,3 @@
-using System;
-
 namespace Server.Items
 {
     public abstract class BaseGranite : Item, ICommodity
@@ -8,10 +6,10 @@ namespace Server.Items
         public BaseGranite(CraftResource resource)
             : base(0x1779)
         {
-            this.Hue = CraftResources.GetHue(resource);
-            this.Stackable = Core.ML;
+            Hue = CraftResources.GetHue(resource);
+            Stackable = true;
 
-            this.m_Resource = resource;
+            m_Resource = resource;
         }
 
         public BaseGranite(Serial serial)
@@ -19,43 +17,31 @@ namespace Server.Items
         {
         }
 
-        TextDefinition ICommodity.Description { get { return LabelNumber; } }
-        bool ICommodity.IsDeedable { get { return true; } }
+        TextDefinition ICommodity.Description => LabelNumber;
+        bool ICommodity.IsDeedable => true;
 
         [CommandProperty(AccessLevel.GameMaster)]
         public CraftResource Resource
         {
             get
             {
-                return this.m_Resource;
+                return m_Resource;
             }
             set
             {
-                this.m_Resource = value;
-                this.InvalidateProperties();
+                m_Resource = value;
+                InvalidateProperties();
             }
         }
-        public override double DefaultWeight
-        {
-            get
-            {
-                return Core.ML ? 1.0 : 10.0;
-            }// Pub 57
-        }
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1044607;
-            }
-        }// high quality granite
+        public override double DefaultWeight => 1.0;
+        public override int LabelNumber => 1044607;// high quality granite
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)1); // version
+            writer.Write(1); // version
 
-            writer.Write((int)this.m_Resource);
+            writer.Write((int)m_Resource);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -64,32 +50,29 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 1:
                 case 0:
                     {
-                        this.m_Resource = (CraftResource)reader.ReadInt();
+                        m_Resource = (CraftResource)reader.ReadInt();
                         break;
                     }
             }
-			
-            if (version < 1)
-                this.Stackable = Core.ML;
         }
 
         public override void GetProperties(ObjectPropertyList list)
         {
             base.GetProperties(list);
 
-            if (!CraftResources.IsStandard(this.m_Resource))
+            if (!CraftResources.IsStandard(m_Resource))
             {
-                int num = CraftResources.GetLocalizationNumber(this.m_Resource);
+                int num = CraftResources.GetLocalizationNumber(m_Resource);
 
                 if (num > 0)
                     list.Add(num);
                 else
-                    list.Add(CraftResources.GetName(this.m_Resource));
+                    list.Add(CraftResources.GetName(m_Resource));
             }
         }
     }
@@ -98,8 +81,18 @@ namespace Server.Items
     {
         [Constructable]
         public Granite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public Granite(int amount)
             : base(CraftResource.Iron)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public Granite(Serial serial)
@@ -111,7 +104,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -126,8 +119,18 @@ namespace Server.Items
     {
         [Constructable]
         public DullCopperGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public DullCopperGranite(int amount)
             : base(CraftResource.DullCopper)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public DullCopperGranite(Serial serial)
@@ -139,7 +142,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -154,8 +157,18 @@ namespace Server.Items
     {
         [Constructable]
         public ShadowIronGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public ShadowIronGranite(int amount)
             : base(CraftResource.ShadowIron)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public ShadowIronGranite(Serial serial)
@@ -167,7 +180,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -182,8 +195,18 @@ namespace Server.Items
     {
         [Constructable]
         public CopperGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public CopperGranite(int amount)
             : base(CraftResource.Copper)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public CopperGranite(Serial serial)
@@ -195,7 +218,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -210,8 +233,18 @@ namespace Server.Items
     {
         [Constructable]
         public BronzeGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public BronzeGranite(int amount)
             : base(CraftResource.Bronze)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public BronzeGranite(Serial serial)
@@ -223,7 +256,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -238,8 +271,18 @@ namespace Server.Items
     {
         [Constructable]
         public GoldGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public GoldGranite(int amount)
             : base(CraftResource.Gold)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public GoldGranite(Serial serial)
@@ -251,7 +294,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -266,8 +309,18 @@ namespace Server.Items
     {
         [Constructable]
         public AgapiteGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public AgapiteGranite(int amount)
             : base(CraftResource.Agapite)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public AgapiteGranite(Serial serial)
@@ -279,7 +332,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -294,8 +347,18 @@ namespace Server.Items
     {
         [Constructable]
         public VeriteGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public VeriteGranite(int amount)
             : base(CraftResource.Verite)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public VeriteGranite(Serial serial)
@@ -307,7 +370,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -322,8 +385,18 @@ namespace Server.Items
     {
         [Constructable]
         public ValoriteGranite()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public ValoriteGranite(int amount)
             : base(CraftResource.Valorite)
         {
+            if (Stackable)
+                Amount = amount;
+            else
+                Amount = 1;
         }
 
         public ValoriteGranite(Serial serial)
@@ -335,7 +408,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

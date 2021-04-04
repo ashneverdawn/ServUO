@@ -47,7 +47,7 @@ namespace Server.ContextMenus
 		/// <summary>
 		///     Gets a value indicating if non local use of this entry is permitted.
 		/// </summary>
-		public virtual bool NonLocalUse { get { return false; } }
+		public virtual bool NonLocalUse => false;
 
 		/// <summary>
 		///     Instantiates a new ContextMenuEntry with a given <see cref="Number">localization number</see> (
@@ -102,6 +102,12 @@ namespace Server.ContextMenus
 		///     Overridable. Virtual event invoked when the entry is clicked.
 		/// </summary>
 		public virtual void OnClick()
+		{ }
+
+		/// <summary>
+		///     Overridable. Virtual event invoked when the entry is clicked and the entry is disabled.
+		/// </summary>
+		public virtual void OnClickDisabled()
 		{ }
 
 		public void Dispose()

@@ -1,10 +1,8 @@
-using System;
-
 namespace Server.Items
 {
     public class FleshRipper : AssassinSpike
-	{
-		public override bool IsArtifact { get { return true; } }
+    {
+        public override bool IsArtifact => true;
         [Constructable]
         public FleshRipper()
         {
@@ -14,7 +12,7 @@ namespace Server.Items
             Attributes.AttackChance = 15;
             Attributes.WeaponSpeed = 40;
             WeaponAttributes.UseBestSkill = 1;
-            // TODO: Mage Slayer
+            Slayer3 = TalismanSlayerName.Mage;
         }
 
         public FleshRipper(Serial serial)
@@ -22,27 +20,9 @@ namespace Server.Items
         {
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1075045;
-            }
-        }// Flesh Ripper
-        public override int InitMinHits
-        {
-            get
-            {
-                return 255;
-            }
-        }
-        public override int InitMaxHits
-        {
-            get
-            {
-                return 255;
-            }
-        }
+        public override int LabelNumber => 1075045;// Flesh Ripper
+        public override int InitMinHits => 255;
+        public override int InitMaxHits => 255;
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);

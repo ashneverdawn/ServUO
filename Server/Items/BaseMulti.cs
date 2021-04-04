@@ -1,5 +1,4 @@
 #region References
-using Server.Network;
 using System;
 #endregion
 
@@ -21,12 +20,12 @@ namespace Server.Items
 		[CommandProperty(AccessLevel.GameMaster)]
 		public override int ItemID
 		{
-			get { return base.ItemID; }
+			get => base.ItemID;
 			set
 			{
 				if (base.ItemID != value)
 				{
-					Map facet = (Parent == null ? Map : null);
+					var facet = Parent == null ? Map : null;
 
 					if (facet != null)
 					{
@@ -48,7 +47,7 @@ namespace Server.Items
 		{
 			if (Parent == null)
 			{
-				Map facet = Map;
+				var facet = Map;
 
 				if (facet != null)
 				{
@@ -58,11 +57,11 @@ namespace Server.Items
 			}
 		}
 
-        public override int LabelNumber
+		public override int LabelNumber
 		{
 			get
 			{
-				MultiComponentList mcl = Components;
+				var mcl = Components;
 
 				if (mcl.List.Length > 0)
 				{
@@ -82,17 +81,26 @@ namespace Server.Items
 			}
 		}
 
-		public virtual bool AllowsRelativeDrop { get { return false; } }
-	
+		public virtual bool AllowsRelativeDrop => false;
+
 		public override int GetUpdateRange(Mobile m)
 		{
-			// Multis should update at maximum range given their center tile must be in the update range.
-			// This will prevent castles, keeps and the minax fortress from suddenly appearaing out of nowhere.
-			// (Any return value higher than the global max will cause the multi to not load at all)
-			return Core.GlobalMaxUpdateRange;
+			var min = m.NetState != null ? m.NetState.UpdateRange : Core.GlobalUpdateRange;
+			var max = Core.GlobalRadarRange - 1;
+
+			var w = Components.Width;
+			var h = Components.Height - 1;
+			var v = min + ((w > h ? w : h) / 2);
+
+			if (v > max)
+				v = max;
+			else if (v < min)
+				v = min;
+
+			return v;
 		}
 
-		public virtual MultiComponentList Components { get { return MultiData.GetComponents(ItemID); } }
+		public virtual MultiComponentList Components => MultiData.GetComponents(ItemID);
 
 		public virtual bool Contains(Point2D p)
 		{
@@ -111,7 +119,7 @@ namespace Server.Items
 
 		public virtual bool Contains(int x, int y)
 		{
-			MultiComponentList mcl = Components;
+			var mcl = Components;
 
 			x -= X + mcl.Min.m_X;
 			y -= Y + mcl.Min.m_Y;
@@ -146,23 +154,13 @@ namespace Server.Items
 		public override void Serialize(GenericWriter writer)
 		{
 			base.Serialize(writer);
-
 			writer.Write(1); // version
 		}
 
 		public override void Deserialize(GenericReader reader)
 		{
 			base.Deserialize(reader);
-
-			int version = reader.ReadInt();
-
-			if (version == 0)
-			{
-				if (ItemID >= 0x4000)
-				{
-					ItemID -= 0x4000;
-				}
-			}
+			var version = reader.ReadInt();
 		}
 	}
 }

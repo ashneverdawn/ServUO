@@ -1,12 +1,10 @@
-using System;
-
 namespace Server.Items
 {
     public class CandlewoodTorch : BaseShield
     {
-        public override int LabelNumber { get { return 1094957; } } //Candlewood Torch
-        public override bool IsArtifact { get { return true; } }
-        public bool Burning { get { return ItemID == 0xA12; } }
+        public override int LabelNumber => 1094957;  //Candlewood Torch
+        public override bool IsArtifact => true;
+        public bool Burning => ItemID == 0xA12;
 
         [Constructable]
         public CandlewoodTorch()
@@ -39,6 +37,25 @@ namespace Server.Items
                 {
                     ItemID = 0xF6B;
                 }
+            }
+
+            Mobile parent = Parent as Mobile;
+
+            if (parent == from && Burning)
+            {
+                Mobiles.MeerMage.StopEffect(parent, true);
+                SwarmContext.CheckRemove(parent);
+            }
+        }
+
+        public override void OnAdded(object parent)
+        {
+            base.OnAdded(parent);
+
+            if (parent is Mobile && Burning)
+            {
+                Mobiles.MeerMage.StopEffect((Mobile)parent, true);
+                SwarmContext.CheckRemove((Mobile)parent);
             }
         }
 

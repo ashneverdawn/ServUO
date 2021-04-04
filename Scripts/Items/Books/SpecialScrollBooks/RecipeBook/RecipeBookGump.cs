@@ -1,32 +1,30 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Server.Engines.Craft;
 using Server.Gumps;
 using Server.Mobiles;
 using Server.Network;
 using Server.Prompts;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Server.Items
 {
     public class RecipeBookGump : Gump
     {
-        private Mobile m_From;
-        private RecipeBook m_Book;
-        private List<RecipeScrollDefinition> m_List;
+        private readonly RecipeBook m_Book;
+        private readonly List<RecipeScrollDefinition> m_List;
 
-        private int m_Page;
+        private readonly int m_Page;
 
         private const int LabelColor = 0xFFFFFF;
-        
+
         public bool CheckFilter(RecipeScrollDefinition recipe)
         {
             RecipeScrollFilter f = m_Book.Filter;
-            
+
             if (f.IsDefault)
                 return true;
-            
-            if (f.Skill == 1 && recipe.Skill != RecipeSkillName.Blacksmith )
+
+            if (f.Skill == 1 && recipe.Skill != RecipeSkillName.Blacksmith)
             {
                 return false;
             }
@@ -76,7 +74,7 @@ namespace Server.Items
                 return false;
             }
 
-            
+
             if (f.Amount == 1 && recipe.Amount == 0)
             {
                 return false;
@@ -104,7 +102,7 @@ namespace Server.Items
 
             for (int i = index; i >= 0 && i < list.Count; ++i)
             {
-                var recipe = list[i];
+                RecipeScrollDefinition recipe = list[i];
 
                 if (CheckFilter(recipe))
                 {
@@ -123,18 +121,18 @@ namespace Server.Items
 
             return count;
         }
-        
+
         public RecipeBookGump(Mobile from, RecipeBook book)
             : this(from, book, 0, null)
         {
-        }        
+        }
 
         private class SetPricePrompt : Prompt
         {
-            private RecipeBook m_Book;
-            private RecipeScrollDefinition m_Recipe;
-            private int m_Page;
-            private List<RecipeScrollDefinition> m_List;
+            private readonly RecipeBook m_Book;
+            private readonly RecipeScrollDefinition m_Recipe;
+            private readonly int m_Page;
+            private readonly List<RecipeScrollDefinition> m_List;
 
             public SetPricePrompt(RecipeBook book, RecipeScrollDefinition recipe, int page, List<RecipeScrollDefinition> list)
             {
@@ -151,6 +149,7 @@ namespace Server.Items
                 if (price < 0 || price > 250000000)
                 {
                     from.SendLocalizedMessage(1062390);
+                    m_Book.Using = false;
                 }
                 else
                 {
@@ -173,7 +172,7 @@ namespace Server.Items
                 case Expansion.SA:
                     return "Stygian";
                 case Expansion.TOL:
-                    return "ToL";                 
+                    return "ToL";
             }
         }
 
@@ -211,14 +210,13 @@ namespace Server.Items
             from.CloseGump(typeof(RecipeBookGump));
             from.CloseGump(typeof(RecipeScrollFilterGump));
 
-            m_From = from;
             m_Book = book;
             m_Page = page;
 
             if (list == null)
             {
                 list = new List<RecipeScrollDefinition>();
-                
+
                 m_Book.Recipes.ForEach(x =>
                 {
                     if (CheckFilter(x))
@@ -237,9 +235,10 @@ namespace Server.Items
 
             PlayerVendor pv = book.RootParent as PlayerVendor;
 
+            bool canLocked = book.IsLockedDown;
             bool canDrop = book.IsChildOf(from.Backpack);
             bool canBuy = (pv != null);
-            bool canPrice = (canDrop || canBuy);
+            bool canPrice = (canDrop || canBuy || canLocked);
 
             if (canBuy)
             {
@@ -279,13 +278,13 @@ namespace Server.Items
 
             for (int i = index; i < (index + count) && i >= 0 && i < list.Count; ++i)
             {
-                var recipe = list[i];
+                RecipeScrollDefinition recipe = list[i];
 
                 if (!CheckFilter(recipe))
                     continue;
 
                 AddImageTiled(24, 94 + (tableIndex * 32), canPrice ? 573 : 489, 2, 2624);
-                
+
                 ++tableIndex;
             }
 
@@ -301,7 +300,7 @@ namespace Server.Items
             AddHtmlLocalized(246, 64, 200, 32, 1158814, LabelColor, false, false); // Expansion
             AddHtmlLocalized(336, 64, 200, 32, 1158816, LabelColor, false, false); // Crafting
             AddHtmlLocalized(429, 64, 100, 32, 1062217, LabelColor, false, false); // Amount
-            
+
             AddHtmlLocalized(70, 32, 200, 32, 1062476, LabelColor, false, false); // Set Filter
             AddButton(35, 32, 4005, 4007, 1, GumpButtonType.Reply, 0);
 
@@ -346,17 +345,17 @@ namespace Server.Items
 
             for (int i = index; i < (index + count) && i >= 0 && i < list.Count; ++i)
             {
-                var recipe = list[i];
+                RecipeScrollDefinition recipe = list[i];
 
-                if (!CheckFilter(recipe))
-                    continue;                
+                if (!CheckFilter(recipe) || !Recipe.Recipes.ContainsKey(recipe.RecipeID))
+                    continue;
 
                 int y = 96 + (tableIndex++ * 32);
 
-                if (canDrop && recipe.Amount > 0)
-                    AddButton(35, y + 2, 5602, 5606, 4 + (i * 2), GumpButtonType.Reply, 0);                    
+                if (recipe.Amount > 0 && (canDrop || canLocked))
+                    AddButton(35, y + 2, 5602, 5606, 4 + (i * 2), GumpButtonType.Reply, 0);
 
-                AddLabel(61, y, 0x480, String.Format("{0}", recipe.ID));
+                AddLabel(61, y, 0x480, string.Format("{0}", recipe.ID));
                 AddHtmlLocalized(103, y, 130, 32, Recipe.Recipes[recipe.RecipeID].TextDefinition.Number, "#103221", 0xFFFFFF, false, false); // ~1_val~
                 AddLabel(235, y, 0x480, GetExpansion(recipe.Expansion));
                 AddHtmlLocalized(316, y, 100, 20, GetSkillName(recipe.Skill), "#104409", 0xFFFFFF, false, false); // ~1_val~
@@ -372,33 +371,35 @@ namespace Server.Items
 
         public override void OnResponse(NetState sender, RelayInfo info)
         {
+            Mobile from = sender.Mobile;
+
             int index = info.ButtonID;
 
             switch (index)
             {
-                case 0: { break; }
-                case 1: 
+                case 0: { m_Book.Using = false; break; }
+                case 1:
                     {
-                        m_From.SendGump(new RecipeScrollFilterGump(m_From, m_Book));
+                        from.SendGump(new RecipeScrollFilterGump(from, m_Book));
                         break;
                     }
-                case 2: 
+                case 2:
                     {
                         if (m_Page > 0)
-                            m_From.SendGump(new RecipeBookGump(m_From, m_Book, m_Page - 1, m_List));
+                            from.SendGump(new RecipeBookGump(from, m_Book, m_Page - 1, m_List));
 
                         return;
                     }
-                case 3: 
+                case 3:
                     {
                         if (GetIndexForPage(m_Page + 1) < m_List.Count)
-                            m_From.SendGump(new RecipeBookGump(m_From, m_Book, m_Page + 1, m_List));
+                            from.SendGump(new RecipeBookGump(from, m_Book, m_Page + 1, m_List));
 
                         break;
                     }
                 default:
                     {
-                        bool canDrop = m_Book.IsChildOf(m_From.Backpack);
+                        bool canDrop = m_Book.IsChildOf(from.Backpack);
                         bool canPrice = canDrop || (m_Book.RootParent is PlayerVendor);
 
                         index -= 4;
@@ -409,21 +410,29 @@ namespace Server.Items
                         if (index < 0 || index >= m_List.Count)
                             break;
 
-                        var recipe = m_List[index];                       
+                        RecipeScrollDefinition recipe = m_List[index];
 
                         if (type == 0)
                         {
-                            if (m_Book.IsChildOf(m_From.Backpack))
+                            if (!m_Book.CheckAccessible(from, m_Book))
+                            {
+                                m_Book.SendLocalizedMessageTo(from, 1061637); // You are not allowed to access this.
+                                m_Book.Using = false;
+                                break;
+                            }
+
+                            if (m_Book.IsChildOf(from.Backpack) || m_Book.IsLockedDown)
                             {
                                 if (recipe.Amount == 0)
                                 {
-                                    m_From.SendLocalizedMessage(1158821); // The recipe selected is not available.
+                                    from.SendLocalizedMessage(1158821); // The recipe selected is not available.
+                                    m_Book.Using = false;
                                     break;
                                 }
 
                                 Item item = new RecipeScroll(recipe.RecipeID);
 
-                                if (m_From.AddToBackpack(item))
+                                if (from.AddToBackpack(item))
                                 {
                                     m_Book.Recipes.ForEach(x =>
                                     {
@@ -433,41 +442,40 @@ namespace Server.Items
 
                                     m_Book.InvalidateProperties();
 
-                                    m_From.SendLocalizedMessage(1158820); // The recipe has been placed in your backpack.
+                                    from.SendLocalizedMessage(1158820); // The recipe has been placed in your backpack.
 
-                                    m_From.SendGump(new RecipeBookGump(m_From, m_Book, m_Page, null));
+                                    from.SendGump(new RecipeBookGump(from, m_Book, m_Page, null));
                                 }
                                 else
                                 {
+                                    m_Book.Using = false;
                                     item.Delete();
-                                    m_From.SendLocalizedMessage(1158819); // There is not enough room in your backpack for the recipe.                                    
+                                    from.SendLocalizedMessage(1158819); // There is not enough room in your backpack for the recipe.                                    
                                 }
                             }
-                        }
-                        else 
-                        {
-                            if (m_Book.IsChildOf(m_From.Backpack))
+                            else
                             {
-                                m_From.Prompt = new SetPricePrompt(m_Book, recipe, m_Page, m_List);
-                                m_From.SendLocalizedMessage(1062383); // Type in a price for the deed:
+                                m_Book.Using = false;
+                            }
+                        }
+                        else
+                        {
+                            if (m_Book.IsChildOf(from.Backpack))
+                            {
+                                from.Prompt = new SetPricePrompt(m_Book, recipe, m_Page, m_List);
+                                from.SendLocalizedMessage(1062383); // Type in a price for the deed:
+                                m_Book.Using = false;
                             }
                             else if (m_Book.RootParent is PlayerVendor)
                             {
-                                PlayerVendor pv = (PlayerVendor)m_Book.RootParent;
-
-                                VendorItem vi = pv.GetVendorItem(m_Book);
-
-                                int price = 0;
-
-                                if (vi != null && !vi.IsForSale)
+                                if (recipe.Amount > 0)
                                 {
-                                    price = recipe.Price;
+                                    from.SendGump(new RecipeScrollBuyGump(from, m_Book, recipe, recipe.Price));
                                 }
-
-                                if (price == 0)
-                                    m_From.SendLocalizedMessage(1062382);
                                 else
-                                    m_From.SendGump(new RecipeScrollBuyGump(m_From, m_Book, recipe, price));
+                                {
+                                    m_Book.Using = false;
+                                }
                             }
                         }
 

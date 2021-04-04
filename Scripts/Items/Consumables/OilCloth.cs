@@ -1,47 +1,35 @@
-using System;
 using Server.Mobiles;
 using Server.Targeting;
+using System;
 
 namespace Server.Items
 {
     public class OilCloth : Item, IScissorable, IDyable
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1041498;
-            }
-        }// oil cloth
+        public override int LabelNumber => 1041498;// oil cloth
 
-        public override double DefaultWeight
-        {
-            get
-            {
-                return 1.0;
-            }
-        }
+        public override double DefaultWeight => 1.0;
 
         [Constructable]
         public OilCloth()
             : base(0x175D)
         {
-            this.Hue = 2001;
+            Hue = 2001;
         }
 
         public bool Dye(Mobile from, DyeTub sender)
         {
-            if (this.Deleted)
+            if (Deleted)
                 return false;
 
-            this.Hue = sender.DyedHue;
+            Hue = sender.DyedHue;
 
             return true;
         }
 
         public bool Scissor(Mobile from, Scissors scissors)
         {
-            if (this.Deleted || !from.CanSee(this))
+            if (Deleted || !from.CanSee(this))
                 return false;
 
             base.ScissorHelper(from, new Bandage(), 1);
@@ -51,9 +39,9 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
-            if (this.IsChildOf(from.Backpack))
+            if (IsChildOf(from.Backpack))
             {
-                from.BeginTarget(-1, false, TargetFlags.None, new TargetCallback(OnTarget));
+                from.BeginTarget(-1, false, TargetFlags.None, OnTarget);
                 from.SendLocalizedMessage(1005424); // Select the weapon or armor you wish to use the cloth on.
             }
             else
@@ -65,7 +53,7 @@ namespace Server.Items
         public void OnTarget(Mobile from, object obj)
         {
             // TODO: Need details on how oil cloths should get consumed here
-            if (!this.IsChildOf(from.Backpack))
+            if (!IsChildOf(from.Backpack))
             {
                 from.SendLocalizedMessage(1042001); // That must be in your pack for you to use it.
             }
@@ -107,7 +95,7 @@ namespace Server.Items
 
                     from.SendLocalizedMessage(1040006); // You wipe away all of your body paint.
 
-                    this.Consume();
+                    Consume();
                 }
                 else
                 {
@@ -121,14 +109,20 @@ namespace Server.Items
 
                 if (beverage.Content == BeverageType.Liquor)
                 {
-                    Firebomb bomb = new Firebomb(beverage.ItemID);
-                    bomb.Name = beverage.Name;
+                    Firebomb bomb = new Firebomb(beverage.ItemID)
+                    {
+                        Name = beverage.Name
+                    };
 
                     beverage.ReplaceWith(bomb);
 
                     from.SendLocalizedMessage(1060580); // You prepare a firebomb.
-                    this.Consume();
+                    Consume();
                 }
+            }
+            else if (obj is Meteorite && !((Meteorite)obj).Polished)
+            {
+                ((Meteorite)obj).TryPolish(from);
             }
             else if (obj is Firebomb)
             {
@@ -150,7 +144,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

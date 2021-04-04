@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Server.Items;
 using Server.Mobiles;
 using Server.Multis;
+using System;
+using System.Collections.Generic;
 
 namespace Server.Misc
 {
@@ -10,7 +10,7 @@ namespace Server.Misc
     {
         public static void Initialize()
         {
-            Timer.DelayCall(TimeSpan.FromSeconds(2.5), new TimerCallback(Run));
+            Timer.DelayCall(TimeSpan.FromSeconds(2.5), Run);
         }
 
         public static void Run()
@@ -117,7 +117,10 @@ namespace Server.Misc
                     Console.WriteLine("Cleanup: Detected {0} inaccessible items, removing..", items.Count);
 
                 for (int i = 0; i < items.Count; ++i)
+                {
+                    Console.WriteLine(items[i].ToString());
                     items[i].Delete();
+                }
             }
 
             if (hairCleanup.Count > 0)
@@ -134,7 +137,7 @@ namespace Server.Misc
             if (item is Fists)
                 return false;
 
-            if (item is ICommodity || item is Multis.BaseBoat ||
+            if (item is ICommodity || item is BaseBoat ||
                 item is Fish || item is BigFish ||
                 item is BasePotion || item is Food || item is CookableFood ||
                 item is SpecialFishingNet || item is BaseMagicFish ||
@@ -143,9 +146,9 @@ namespace Server.Misc
                 item is TreasureMap || item is MessageInABottle ||
                 item is BaseArmor || item is BaseWeapon ||
                 item is BaseClothing ||
-                (item is BaseJewel && Core.AOS) ||
-                (item is BasePotion && Core.ML)
-                #region Champion artifacts
+                item is BaseJewel ||
+                item is BasePotion
+            #region Champion artifacts
                 ||
                 item is SkullPole ||
                 item is EvilIdolSkull ||
@@ -164,7 +167,7 @@ namespace Server.Misc
                 item is WindSpirit ||
                 item is DirtPatch ||
                 item is Futon)
-            #endregion
+                #endregion
                 return true;
 
             return false;

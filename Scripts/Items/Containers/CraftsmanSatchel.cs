@@ -1,4 +1,3 @@
-using System;
 using Reward = Server.Engines.Quests.BaseReward;
 
 namespace Server.Items
@@ -9,27 +8,27 @@ namespace Server.Items
             : base()
         {
             Hue = Reward.SatchelHue();
-			
+
             int count = 1;
-			
+
             if (0.015 > Utility.RandomDouble())
                 count = 2;
-			
+
             bool equipment = false;
             bool jewlery = false;
             bool talisman = false;
-			
+
             while (Items.Count < count)
-            { 
+            {
                 if (0.33 > Utility.RandomDouble() && !talisman)
                 {
                     DropItem(Loot.RandomTalisman());
-                    talisman = true;					
+                    talisman = true;
                 }
                 else if (0.4 > Utility.RandomDouble() && !equipment)
                 {
-                    DropItem(RandomItem());		
-                    equipment = true;		
+                    DropItem(RandomItem());
+                    equipment = true;
                 }
                 else if (0.88 > Utility.RandomDouble() && !jewlery)
                 {
@@ -53,7 +52,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -72,7 +71,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.AlchemyRecipe();
+                Item recipe = Reward.AlchemyRecipe();
 
                 if (recipe != null)
                 {
@@ -95,7 +94,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -114,7 +113,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.FletcherRecipe();
+                Item recipe = Reward.FletcherRecipe();
 
                 if (recipe != null)
                 {
@@ -122,7 +121,7 @@ namespace Server.Items
                 }
             }
 
-            var runic = Reward.FletcherRunic();
+            Item runic = Reward.FletcherRunic();
 
             if (runic != null)
             {
@@ -144,7 +143,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -163,7 +162,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.TailorRecipe();
+                Item recipe = Reward.TailorRecipe();
 
                 if (recipe != null)
                 {
@@ -186,7 +185,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -205,7 +204,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.SmithRecipe();
+                Item recipe = Reward.SmithRecipe();
 
                 if (recipe != null)
                 {
@@ -228,7 +227,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -247,7 +246,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.TinkerRecipe();
+                Item recipe = Reward.TinkerRecipe();
 
                 if (recipe != null)
                 {
@@ -270,7 +269,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -289,7 +288,7 @@ namespace Server.Items
         {
             if (Items.Count < 2)
             {
-                var recipe = Reward.CarpentryRecipe();
+                Item recipe = Reward.CarpentryRecipe();
 
                 if (recipe != null)
                 {
@@ -297,14 +296,14 @@ namespace Server.Items
                 }
             }
 
-            var runic = Reward.CarpenterRunic();
+            Item runic = Reward.CarpenterRunic();
 
             if (runic != null)
             {
                 DropItem(runic);
             }
 
-            var furniture = Reward.RandomFurniture();
+            Item furniture = Reward.RandomFurniture();
 
             if (furniture != null)
             {
@@ -326,7 +325,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

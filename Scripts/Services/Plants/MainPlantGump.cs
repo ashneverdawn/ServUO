@@ -1,13 +1,14 @@
-using System;
 using Server.Gumps;
 using Server.Items;
 using Server.Network;
+using System;
 
 namespace Server.Engines.Plants
 {
     public class MainPlantGump : Gump
     {
         private readonly PlantItem m_Plant;
+
         public MainPlantGump(PlantItem plant)
             : base(20, 20)
         {
@@ -67,8 +68,16 @@ namespace Server.Engines.Plants
             AddButton(48, 183, 0xD2, 0xD2, 11, GumpButtonType.Reply, 0); // Help
             AddLabel(54, 183, 0x835, "?");
 
+            if (plant is MaginciaPlantItem || plant is GardenBedPlantItem)
+            {
+                AddItem(219, 180, 0x913);
+            }
+            else
+            {
+                AddItem(219, 180, 0x15FD);
+            }
+
             AddButton(232, 183, 0xD4, 0xD4, 12, GumpButtonType.Reply, 0); // Empty the bowl
-            AddItem(219, 180, 0x15FD);
         }
 
         public static Item GetPotion(Mobile from, PotionEffect[] effects)
@@ -105,7 +114,7 @@ namespace Server.Engines.Plants
 
             if (info.ButtonID == 0 || m_Plant.Deleted || m_Plant.PlantStatus >= PlantStatus.DecorativePlant)
                 return;
-			
+
             if (((info.ButtonID >= 6 && info.ButtonID <= 10) || info.ButtonID == 12) && !from.InRange(m_Plant.GetWorldLocation(), 3))
             {
                 from.LocalOverheadMessage(MessageType.Regular, 0x3E9, 500446); // That is too far away.
@@ -118,7 +127,7 @@ namespace Server.Engines.Plants
                 return;
             }
 
-            switch ( info.ButtonID )
+            switch (info.ButtonID)
             {
                 case 1: // Reproduction menu
                     {
@@ -170,15 +179,15 @@ namespace Server.Engines.Plants
                 case 6: // Water
                     {
                         Item[] item = from.Backpack.FindItemsByType(typeof(BaseBeverage));
-					
+
                         bool foundUsableWater = false;
-					
+
                         if (item != null && item.Length > 0)
                         {
                             for (int i = 0; i < item.Length; ++i)
                             {
                                 BaseBeverage beverage = (BaseBeverage)item[i];
-							
+
                                 if (!beverage.IsEmpty && beverage.Pourable && beverage.Content == BeverageType.Water)
                                 {
                                     foundUsableWater = true;
@@ -187,7 +196,7 @@ namespace Server.Engines.Plants
                                 }
                             }
                         }
-					
+
                         if (!foundUsableWater)
                         {
                             from.Target = new PlantPourTarget(m_Plant);
@@ -307,7 +316,7 @@ namespace Server.Engines.Plants
             {
                 int message = m_Plant.PlantSystem.GetLocalizedHealth();
 
-                switch ( m_Plant.PlantSystem.Health )
+                switch (m_Plant.PlantSystem.Health)
                 {
                     case PlantHealth.Dying:
                         {
@@ -351,7 +360,7 @@ namespace Server.Engines.Plants
 
         private void AddPlus(int x, int y, int value)
         {
-            switch ( value )
+            switch (value)
             {
                 case 1:
                     AddLabel(x, y, 0x35, "+");
@@ -364,7 +373,7 @@ namespace Server.Engines.Plants
 
         private void AddPlusMinus(int x, int y, int value)
         {
-            switch ( value )
+            switch (value)
             {
                 case 0:
                     AddLabel(x, y, 0x21, "-");
@@ -391,21 +400,21 @@ namespace Server.Engines.Plants
             if (!m_Plant.IsGrowable)
                 return;
 
-            switch ( m_Plant.PlantSystem.GrowthIndicator )
+            switch (m_Plant.PlantSystem.GrowthIndicator)
             {
-                case PlantGrowthIndicator.InvalidLocation :
+                case PlantGrowthIndicator.InvalidLocation:
                     AddLabel(x, y, 0x21, "!");
                     break;
-                case PlantGrowthIndicator.NotHealthy :
+                case PlantGrowthIndicator.NotHealthy:
                     AddLabel(x, y, 0x21, "-");
                     break;
-                case PlantGrowthIndicator.Delay :
+                case PlantGrowthIndicator.Delay:
                     AddLabel(x, y, 0x35, "-");
                     break;
-                case PlantGrowthIndicator.Grown :
+                case PlantGrowthIndicator.Grown:
                     AddLabel(x, y, 0x3, "+");
                     break;
-                case PlantGrowthIndicator.DoubleGrown :
+                case PlantGrowthIndicator.DoubleGrown:
                     AddLabel(x, y, 0x3F, "+");
                     break;
             }

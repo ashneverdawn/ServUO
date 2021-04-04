@@ -1,72 +1,49 @@
-using System;
 using Server.Items;
 using Server.Spells;
+using System;
 
 namespace Server.Mobiles
 {
-    [CorpseName("a juka corpse")] // Why is this 'juka' and warriors 'jukan' ? :-(
+    [CorpseName("a juka corpse")]
     public class JukaMage : BaseCreature
     {
         private DateTime m_NextAbilityTime;
+
         [Constructable]
         public JukaMage()
             : base(AIType.AI_Mage, FightMode.Closest, 10, 1, 0.2, 0.4)
         {
-            this.Name = "a juka mage";
-            this.Body = 765;
+            Name = "a juka mage";
+            Body = 765;
 
-            this.SetStr(201, 300);
-            this.SetDex(71, 90);
-            this.SetInt(451, 500);
+            SetStr(201, 300);
+            SetDex(71, 90);
+            SetInt(451, 500);
 
-            this.SetHits(121, 180);
+            SetHits(121, 180);
 
-            this.SetDamage(4, 10);
+            SetDamage(4, 10);
 
-            this.SetDamageType(ResistanceType.Physical, 100);
+            SetDamageType(ResistanceType.Physical, 100);
 
-            this.SetResistance(ResistanceType.Physical, 20, 30);
-            this.SetResistance(ResistanceType.Fire, 35, 45);
-            this.SetResistance(ResistanceType.Cold, 30, 40);
-            this.SetResistance(ResistanceType.Poison, 10, 20);
-            this.SetResistance(ResistanceType.Energy, 35, 45);
+            SetResistance(ResistanceType.Physical, 20, 30);
+            SetResistance(ResistanceType.Fire, 35, 45);
+            SetResistance(ResistanceType.Cold, 30, 40);
+            SetResistance(ResistanceType.Poison, 10, 20);
+            SetResistance(ResistanceType.Energy, 35, 45);
 
-            this.SetSkill(SkillName.Anatomy, 80.1, 90.0);
-            this.SetSkill(SkillName.EvalInt, 80.2, 100.0);
-            this.SetSkill(SkillName.Magery, 99.1, 100.0);
-            this.SetSkill(SkillName.Meditation, 80.2, 100.0);
-            this.SetSkill(SkillName.MagicResist, 140.1, 150.0);
-            this.SetSkill(SkillName.Tactics, 80.1, 90.0);
-            this.SetSkill(SkillName.Wrestling, 80.1, 90.0);
+            SetSkill(SkillName.Anatomy, 80.1, 90.0);
+            SetSkill(SkillName.EvalInt, 80.2, 100.0);
+            SetSkill(SkillName.Magery, 99.1, 100.0);
+            SetSkill(SkillName.Meditation, 80.2, 100.0);
+            SetSkill(SkillName.MagicResist, 140.1, 150.0);
+            SetSkill(SkillName.Tactics, 80.1, 90.0);
+            SetSkill(SkillName.Wrestling, 80.1, 90.0);
 
-            this.Fame = 15000;
-            this.Karma = -15000;
+            Fame = 15000;
+            Karma = -15000;
 
-            this.VirtualArmor = 16;
-
-            Container bag = new Bag();
-
-            int count = Utility.RandomMinMax(10, 20);
-
-            for (int i = 0; i < count; ++i)
-            {
-                Item item = Loot.RandomReagent();
-
-                if (item == null)
-                    continue;
-
-                if (!bag.TryDropItem(this, item, false))
-                    item.Delete();
-            }
-
-            this.PackItem(bag);
-
-            this.PackItem(new ArcaneGem());
-
-            if (Core.ML && Utility.RandomDouble() < .33)
-                this.PackItem(Engines.Plants.Seed.RandomPeculiarSeed(4));
-
-            this.m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(2, 5));
+            m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(2, 5));
         }
 
         public JukaMage(Serial serial)
@@ -74,31 +51,32 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool AlwaysMurderer
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool CanRummageCorpses
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override int Meat
-        {
-            get
-            {
-                return 1;
-            }
-        }
+        public override bool AlwaysMurderer => true;
+        public override bool CanRummageCorpses => true;
+
+        public override int TreasureMapLevel => 3;
+
+        public override int Meat => 1;
         public override void GenerateLoot()
         {
-            this.AddLoot(LootPack.Average, 2);
-            this.AddLoot(LootPack.MedScrolls, 2);
+            AddLoot(LootPack.Average, 2);
+            AddLoot(LootPack.MedScrolls, 2);
+            AddLoot(LootPack.PeculiarSeed2);
+            AddLoot(LootPack.LootItem<ArcaneGem>());
+            AddLoot(LootPack.LootItemCallback(RegBag));
+        }
+
+        private Item RegBag(IEntity e)
+        {
+            var bag = new Bag();
+            int count = Utility.RandomMinMax(10, 20);
+
+            for (int i = 0; i < count; ++i)
+            {
+                bag.DropItemStacked(Loot.RandomReagent());
+            }
+
+            return bag;
         }
 
         public override int GetIdleSound()
@@ -123,14 +101,14 @@ namespace Server.Mobiles
 
         public override void OnThink()
         {
-            if (DateTime.UtcNow >= this.m_NextAbilityTime)
+            if (DateTime.UtcNow >= m_NextAbilityTime)
             {
                 JukaLord toBuff = null;
                 IPooledEnumerable eable = GetMobilesInRange(8);
 
                 foreach (Mobile m in eable)
                 {
-                    if (m is JukaLord && this.IsFriend(m) && m.Combatant != null && this.CanBeBeneficial(m) && m.CanBeginAction(typeof(JukaMage)) && this.InLOS(m))
+                    if (m is JukaLord && IsFriend(m) && m.Combatant != null && CanBeBeneficial(m) && m.CanBeginAction(typeof(JukaMage)) && InLOS(m))
                     {
                         toBuff = (JukaLord)m;
                         break;
@@ -140,14 +118,14 @@ namespace Server.Mobiles
 
                 if (toBuff != null)
                 {
-                    if (this.CanBeBeneficial(toBuff) && toBuff.BeginAction(typeof(JukaMage)))
+                    if (CanBeBeneficial(toBuff) && toBuff.BeginAction(typeof(JukaMage)))
                     {
-                        this.m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(30, 60));
+                        m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(30, 60));
 
                         toBuff.Say(true, "Give me the power to destroy my enemies!");
-                        this.Say(true, "Fight well my lord!");
+                        Say(true, "Fight well my lord!");
 
-                        this.DoBeneficial(toBuff);
+                        DoBeneficial(toBuff);
 
                         object[] state = new object[] { toBuff, toBuff.HitsMaxSeed, toBuff.RawStr, toBuff.RawDex };
 
@@ -185,7 +163,7 @@ namespace Server.Mobiles
                 }
                 else
                 {
-                    this.m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(2, 5));
+                    m_NextAbilityTime = DateTime.UtcNow + TimeSpan.FromSeconds(Utility.RandomMinMax(2, 5));
                 }
             }
 
@@ -195,7 +173,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

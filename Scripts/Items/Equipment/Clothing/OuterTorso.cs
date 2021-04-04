@@ -1,5 +1,5 @@
-using System;
 using Server.Engines.VeteranRewards;
+using System;
 
 namespace Server.Items
 {
@@ -23,27 +23,19 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class ZooMemberSkirt : PlainDress
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073221;
-            }
-        }// Britannia Royal Zoo Member
+        public override int LabelNumber => 1073221; // Britannia Royal Zoo Member
 
         [Constructable]
         public ZooMemberSkirt()
@@ -62,36 +54,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class ZooMemberBodySash : BodySash
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073221;
-            }
-        }// Britannia Royal Zoo Member
+        public override int LabelNumber => 1073221; // Britannia Royal Zoo Member
 
         [Constructable]
         public ZooMemberBodySash()
@@ -110,36 +88,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class ZooMemberRobe : Robe
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073221;
-            }
-        }// Britannia Royal Zoo Member
+        public override int LabelNumber => 1073221; // Britannia Royal Zoo Member
 
         [Constructable]
         public ZooMemberRobe()
@@ -158,36 +122,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class ZooMemberCloak : Cloak
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073221;
-            }
-        }// Britannia Royal Zoo Member
+        public override int LabelNumber => 1073221; // Britannia Royal Zoo Member
 
         [Constructable]
         public ZooMemberCloak()
@@ -206,36 +156,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class LibraryFriendBodySash : BodySash
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073346;
-            }
-        }// Friends of the Library Sash
+        public override int LabelNumber => 1073346; // Friends of the Library Sash
 
         [Constructable]
         public LibraryFriendBodySash()
@@ -254,36 +190,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class LibraryFriendDoublet : Doublet
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073351;
-            }
-        }// Friends of the Library Doublet
+        public override int LabelNumber => 1073351; // Friends of the Library Doublet
 
         [Constructable]
         public LibraryFriendDoublet()
@@ -302,36 +224,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class LibraryFriendSurcoat : Surcoat
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073348;
-            }
-        }// Friends of the Library Surcoat
+        public override int LabelNumber => 1073348; // Friends of the Library Surcoat
 
         [Constructable]
         public LibraryFriendSurcoat()
@@ -350,36 +258,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class LibraryFriendCloak : Cloak
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073350;
-            }
-        }// Friends of the Library Cloak
+        public override int LabelNumber => 1073350; // Friends of the Library Cloak
 
         [Constructable]
         public LibraryFriendCloak()
@@ -398,36 +292,22 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            from.SendLocalizedMessage(sender.FailMessage);
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
         }
     }
 
     public class Adranath : BodySash
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073253;
-            }
-        }// Adranath - Museum of Vesper Replica
+        public override int LabelNumber => 1073253;// Adranath - Museum of Vesper Replica
 
         [Constructable]
         public Adranath()
@@ -450,7 +330,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -463,13 +343,7 @@ namespace Server.Items
 
     public class OdricsRobe : Robe
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073250;
-            }
-        }// Odric's Robe - Museum of Vesper Replica
+        public override int LabelNumber => 1073250;// Odric's Robe - Museum of Vesper Replica
 
         [Constructable]
         public OdricsRobe()
@@ -492,7 +366,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -505,13 +379,7 @@ namespace Server.Items
 
     public class BaronLenshiresCloak : Cloak
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073252;
-            }
-        }// Baron Lenshire's Cloak - Museum of Vesper Replica
+        public override int LabelNumber => 1073252;// Baron Lenshire's Cloak - Museum of Vesper Replica
 
         [Constructable]
         public BaronLenshiresCloak()
@@ -534,7 +402,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -570,7 +438,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -606,7 +474,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -624,13 +492,7 @@ namespace Server.Items
 
         private static readonly TimeSpan m_DefaultDecayTime = TimeSpan.FromMinutes(1.0);
 
-        public override bool DisplayLootType
-        {
-            get
-            {
-                return Core.ML;
-            }
-        }
+        public override bool DisplayLootType => true;
 
         [Constructable]
         public DeathRobe()
@@ -717,7 +579,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)2); // version
+            writer.Write(2); // version
 
             writer.Write(m_DecayTimer != null);
 
@@ -731,7 +593,7 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 2:
                     {
@@ -800,29 +662,7 @@ namespace Server.Items
             }
         }
 
-        public override int BasePhysicalResistance
-        {
-            get
-            {
-                return 3;
-            }
-        }
-
-        public override void OnAdded(object parent)
-        {
-            base.OnAdded(parent);
-
-            if (parent is Mobile)
-                ((Mobile)parent).VirtualArmorMod += 2;
-        }
-
-        public override void OnRemoved(object parent)
-        {
-            base.OnRemoved(parent);
-
-            if (parent is Mobile)
-                ((Mobile)parent).VirtualArmorMod -= 2;
-        }
+        public override int BasePhysicalResistance => 3;
 
         public override bool Dye(Mobile from, DyeTub sender)
         {
@@ -834,7 +674,7 @@ namespace Server.Items
         {
             base.GetProperties(list);
 
-            if (Core.ML && m_IsRewardItem)
+            if (m_IsRewardItem)
                 list.Add(RewardSystem.GetRewardYearLabel(this, new object[] { Hue, m_LabelNumber })); // X Year Veteran Reward
         }
 
@@ -877,10 +717,10 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
-            writer.Write((int)m_LabelNumber);
-            writer.Write((bool)m_IsRewardItem);
+            writer.Write(m_LabelNumber);
+            writer.Write(m_IsRewardItem);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -889,7 +729,7 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 0:
                     {
@@ -898,9 +738,6 @@ namespace Server.Items
                         break;
                     }
             }
-
-            if (Parent is Mobile)
-                ((Mobile)Parent).VirtualArmorMod += 2;
         }
     }
 
@@ -948,29 +785,7 @@ namespace Server.Items
             }
         }
 
-        public override int BasePhysicalResistance
-        {
-            get
-            {
-                return 3;
-            }
-        }
-
-        public override void OnAdded(object parent)
-        {
-            base.OnAdded(parent);
-
-            if (parent is Mobile)
-                ((Mobile)parent).VirtualArmorMod += 2;
-        }
-
-        public override void OnRemoved(object parent)
-        {
-            base.OnRemoved(parent);
-
-            if (parent is Mobile)
-                ((Mobile)parent).VirtualArmorMod -= 2;
-        }
+        public override int BasePhysicalResistance => 3;
 
         public override bool Dye(Mobile from, DyeTub sender)
         {
@@ -1025,10 +840,10 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
-            writer.Write((int)m_LabelNumber);
-            writer.Write((bool)m_IsRewardItem);
+            writer.Write(m_LabelNumber);
+            writer.Write(m_IsRewardItem);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1037,7 +852,7 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 0:
                     {
@@ -1046,17 +861,11 @@ namespace Server.Items
                         break;
                     }
             }
-
-            if (Parent is Mobile)
-                ((Mobile)Parent).VirtualArmorMod += 2;
         }
     }
 
     public class RewardGargishRobe : BaseOuterTorso, IRewardItem
     {
-        public override Race RequiredRace { get { return Race.Gargoyle; } }
-        public override bool CanBeWornByGargoyles { get { return true; } }
-
         private int m_LabelNumber;
         private bool m_IsRewardItem;
 
@@ -1085,7 +894,7 @@ namespace Server.Items
             }
         }
 
-        public override int BasePhysicalResistance { get { return 3; } }
+        public override int BasePhysicalResistance => 3;
 
         public override bool Dye(Mobile from, DyeTub sender)
         {
@@ -1140,10 +949,10 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
-            writer.Write((int)m_LabelNumber);
-            writer.Write((bool)m_IsRewardItem);
+            writer.Write(m_LabelNumber);
+            writer.Write(m_IsRewardItem);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1166,9 +975,6 @@ namespace Server.Items
 
     public class RewardGargishFancyRobe : BaseOuterTorso, IRewardItem
     {
-        public override Race RequiredRace { get { return Race.Gargoyle; } }
-        public override bool CanBeWornByGargoyles { get { return true; } }
-
         private int m_LabelNumber;
         private bool m_IsRewardItem;
 
@@ -1197,7 +1003,7 @@ namespace Server.Items
             }
         }
 
-        public override int BasePhysicalResistance { get { return 3; } }
+        public override int BasePhysicalResistance => 3;
 
         public override bool Dye(Mobile from, DyeTub sender)
         {
@@ -1252,10 +1058,10 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
 
-            writer.Write((int)m_LabelNumber);
-            writer.Write((bool)m_IsRewardItem);
+            writer.Write(m_LabelNumber);
+            writer.Write(m_IsRewardItem);
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1285,10 +1091,7 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public int MaxArcaneCharges
         {
-            get
-            {
-                return m_MaxArcaneCharges;
-            }
+            get { return m_MaxArcaneCharges; }
             set
             {
                 m_MaxArcaneCharges = value;
@@ -1300,10 +1103,7 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public int CurArcaneCharges
         {
-            get
-            {
-                return m_CurArcaneCharges;
-            }
+            get { return m_CurArcaneCharges; }
             set
             {
                 m_CurArcaneCharges = value;
@@ -1312,14 +1112,10 @@ namespace Server.Items
             }
         }
 
+        public int TempHue { get; set; }
+
         [CommandProperty(AccessLevel.GameMaster)]
-        public bool IsArcane
-        {
-            get
-            {
-                return (m_MaxArcaneCharges > 0 && m_CurArcaneCharges >= 0);
-            }
-        }
+        public bool IsArcane => m_MaxArcaneCharges > 0 && m_CurArcaneCharges >= 0;
 
         public void Update()
         {
@@ -1329,23 +1125,18 @@ namespace Server.Items
                 ItemID = 0x1F04;
 
             if (IsArcane && CurArcaneCharges == 0)
+            {
+                TempHue = Hue;
                 Hue = 0;
+            }
         }
 
-        public override void GetProperties(ObjectPropertyList list)
+        public override void AddCraftedProperties(ObjectPropertyList list)
         {
-            base.GetProperties(list);
+            base.AddCraftedProperties(list);
 
             if (IsArcane)
                 list.Add(1061837, "{0}\t{1}", m_CurArcaneCharges, m_MaxArcaneCharges); // arcane charges: ~1_val~ / ~2_val~
-        }
-
-        public override void OnSingleClick(Mobile from)
-        {
-            base.OnSingleClick(from);
-
-            if (IsArcane)
-                LabelTo(from, 1061837, String.Format("{0}\t{1}", m_CurArcaneCharges, m_MaxArcaneCharges));
         }
 
         public void Flip()
@@ -1376,19 +1167,17 @@ namespace Server.Items
         {
         }
 
-        public override bool CanBeWornByGargoyles { get { return true; } }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)1); // version
+            writer.Write(2); // version
 
             if (IsArcane)
             {
                 writer.Write(true);
-                writer.Write((int)m_CurArcaneCharges);
-                writer.Write((int)m_MaxArcaneCharges);
+                writer.Write(TempHue);
+                writer.Write(m_CurArcaneCharges);
+                writer.Write(m_MaxArcaneCharges);
             }
             else
             {
@@ -1399,20 +1188,27 @@ namespace Server.Items
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
+                case 2:
+                    {
+                        if (reader.ReadBool())
+                        {
+                            TempHue = reader.ReadInt();
+                            m_CurArcaneCharges = reader.ReadInt();
+                            m_MaxArcaneCharges = reader.ReadInt();
+                        }
+
+                        break;
+                    }
                 case 1:
                     {
                         if (reader.ReadBool())
                         {
                             m_CurArcaneCharges = reader.ReadInt();
                             m_MaxArcaneCharges = reader.ReadInt();
-
-                            if (Hue == 2118)
-                                Hue = ArcaneGem.DefaultArcaneHue;
                         }
 
                         break;
@@ -1437,20 +1233,8 @@ namespace Server.Items
             StrRequirement = 0;
         }
 
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1076584;
-            }
-        }// A monk's robe
-        public override bool CanBeBlessed
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override int LabelNumber => 1076584;// A monk's robe
+        public override bool CanBeBlessed => false;
         public override bool Dye(Mobile from, DyeTub sender)
         {
             from.SendLocalizedMessage(sender.FailMessage);
@@ -1466,7 +1250,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1502,7 +1286,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1510,9 +1294,6 @@ namespace Server.Items
             base.Deserialize(reader);
 
             int version = reader.ReadInt();
-
-            if (Weight == 3.0)
-                Weight = 2.0;
         }
     }
 
@@ -1541,7 +1322,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1577,7 +1358,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1604,13 +1385,7 @@ namespace Server.Items
             Weight = 3.0;
         }
 
-        public override bool AllowFemaleWearer
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool AllowFemaleWearer => false;
 
         public MaleKimono(Serial serial)
             : base(serial)
@@ -1621,7 +1396,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1648,13 +1423,7 @@ namespace Server.Items
             Weight = 3.0;
         }
 
-        public override bool AllowMaleWearer
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool AllowMaleWearer => false;
 
         public FemaleKimono(Serial serial)
             : base(serial)
@@ -1665,7 +1434,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1679,14 +1448,6 @@ namespace Server.Items
     [Flipable(0x2FB9, 0x3173)]
     public class MaleElvenRobe : BaseOuterTorso
     {
-        public override Race RequiredRace
-        {
-            get
-            {
-                return Race.Elf;
-            }
-        }
-
         [Constructable]
         public MaleElvenRobe()
             : this(0)
@@ -1723,13 +1484,6 @@ namespace Server.Items
     [Flipable(0x2FBA, 0x3174)]
     public class FemaleElvenRobe : BaseOuterTorso
     {
-        public override Race RequiredRace
-        {
-            get
-            {
-                return Race.Elf;
-            }
-        }
         [Constructable]
         public FemaleElvenRobe()
             : this(0)
@@ -1743,13 +1497,7 @@ namespace Server.Items
             Weight = 2.0;
         }
 
-        public override bool AllowMaleWearer
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool AllowMaleWearer => false;
 
         public FemaleElvenRobe(Serial serial)
             : base(serial)
@@ -1773,7 +1521,7 @@ namespace Server.Items
 
     public class FloweredDress : BaseOuterTorso
     {
-        public override int LabelNumber { get { return 1109622; } } // Flowered Dress
+        public override int LabelNumber => 1109622;  // Flowered Dress
 
         [Constructable]
         public FloweredDress()
@@ -1795,7 +1543,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1807,7 +1555,7 @@ namespace Server.Items
 
     public class EveningGown : BaseOuterTorso
     {
-        public override int LabelNumber { get { return 1109625; } } // Evening Gown
+        public override int LabelNumber => 1109625;  // Evening Gown
 
         [Constructable]
         public EveningGown()
@@ -1829,7 +1577,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1841,7 +1589,7 @@ namespace Server.Items
 
     public class Epaulette : BaseClothing
     {
-        public override int LabelNumber { get { return 1123325; } } // Epaulette
+        public override int LabelNumber => 1123325;  // Epaulette
 
         [Constructable]
         public Epaulette()
@@ -1864,39 +1612,19 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
-
-            if (Layer != Layer.OuterTorso)
-                Layer = Layer.OuterTorso;
         }
     }
 
     public class GargishEpaulette : BaseClothing
     {
-        public override int LabelNumber { get { return 1123326; } } // Gargish Epaulette
-
-        public override Race RequiredRace
-        {
-            get
-            {
-                return Race.Gargoyle;
-            }
-        }
-        public override bool CanBeWornByGargoyles
-        {
-            get
-            {
-                return true;
-            }
-        }
+        public override int LabelNumber => 1123326;  // Gargish Epaulette
 
         [Constructable]
         public GargishEpaulette()
@@ -1920,7 +1648,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -1928,9 +1656,6 @@ namespace Server.Items
             base.Deserialize(reader);
 
             int version = reader.ReadInt();
-
-            if (Layer != Layer.OuterTorso)
-                Layer = Layer.OuterTorso;
         }
     }
 }

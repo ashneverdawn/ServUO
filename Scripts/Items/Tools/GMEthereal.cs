@@ -1,37 +1,14 @@
 /*
-GMEthereal.cs
-Version 1.2 [RunUO 2.0]
 snicker7
 Released: 03/26/06
-Updated: 11/08/06
-Description:
-Single item that can function as any type of mount
-currently in the game. Only usable by counselors and
-above. The item self-deletes should a player try to use
-it.
-
-Use the [props command to change the type of
-EtherealMount you would like to use. Also functions
-as a functional ethereal seahorse if that option is
-selected.
-
-The GMEthereal has no mount time and you will mount
-immediately. This does not affect any other Ethereals
-in the game.
-
-To install, drop in your custom folder and do:
-[add GMEthereal [EtherealType]
-Where "EtherealType" is optional and can be any
-of the types listed below.
 */
-
-using System;
-using CustomsFramework;
 
 namespace Server.Mobiles
 {
     public class GMEthereal : EtherealMount
     {
+        public override int FollowerSlots => 0;
+
         private static readonly EtherealInfo[] EthyItemTypes = new EtherealInfo[]
         {
             new EtherealInfo(0x20DD, 0x3EAA), //Horse
@@ -51,7 +28,6 @@ namespace Server.Mobiles
             new EtherealInfo(11669, 16016), //Chimera
             new EtherealInfo(11670, 16017), //CuSidhe
             new EtherealInfo(8417, 16069), //PolarBear
-            new EtherealInfo(8403, 16239), //Daemon
             new EtherealInfo(0x46f8, 0x3EC6)
         };
         private EtherealTypes m_EthyType;
@@ -63,11 +39,11 @@ namespace Server.Mobiles
 
         [Constructable]
         public GMEthereal(EtherealTypes type)
-            : base(0,0,0)
+            : base(0, 0, 0)
         {
             EthyType = type;
             LootType = LootType.Blessed;
-            Hue = 2406;
+            Name = "Staff Ethereal Steed";
         }
 
         public GMEthereal(Serial serial)
@@ -94,9 +70,9 @@ namespace Server.Mobiles
             Chimera,
             CuSidhe,
             PolarBear,
-            Daemon,
             Boura
         }
+
         [CommandProperty(AccessLevel.Counselor)]
         public EtherealTypes EthyType
         {
@@ -115,26 +91,15 @@ namespace Server.Mobiles
                 StatueID = EthyItemTypes[(int)value].RegularID;
             }
         }
-        public override string DefaultName
-        {
-            get
-            {
-                return "A GM's Ethereal Mount";
-            }
-        }
-        public override int FollowerSlots
-        {
-            get
-            {
-                return 0;
-            }
-        }
+
         public override void OnDoubleClick(Mobile from)
         {
-            if (Utilities.IsStaff(from))
+            if (from.IsStaff())
             {
                 if (from.Mounted)
                     from.SendLocalizedMessage(1005583); // Please dismount first.
+                else if (from.Race == Race.Gargoyle)
+                    from.SendLocalizedMessage(1112281); // gargs can't mount
                 else if (from.HasTrade)
                     from.SendLocalizedMessage(1042317, "", 0x41); // You may not ride at this time
                 else if (Multis.DesignContext.Check(from))
@@ -149,7 +114,7 @@ namespace Server.Mobiles
             }
             else
             {
-                from.SendMessage("Players cannot ride  Sorry, BALEETED!");
+                from.SendMessage("This item is to only be used by staff members.");
                 Delete();
             }
         }
@@ -157,7 +122,7 @@ namespace Server.Mobiles
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)1); // version
+            writer.Write(1); // version
             writer.Write((int)m_EthyType);
         }
 
@@ -166,13 +131,6 @@ namespace Server.Mobiles
             base.Deserialize(reader);
             int version = reader.ReadInt();
             EthyType = (EtherealTypes)reader.ReadInt();
-
-            if (version == 0)
-            {
-                Timer.DelayCall(TimeSpan.FromSeconds(1), () => Transparent = false);
-
-                StatueHue = 2406;
-            }
         }
 
         public struct EtherealInfo

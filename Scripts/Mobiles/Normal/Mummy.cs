@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -10,41 +9,33 @@ namespace Server.Mobiles
         public Mummy()
             : base(AIType.AI_Melee, FightMode.Closest, 10, 1, 0.4, 0.8)
         {
-            this.Name = "a mummy";
-            this.Body = 154;
-            this.BaseSoundID = 471;
+            Name = "a mummy";
+            Body = 154;
+            BaseSoundID = 471;
 
-            this.SetStr(346, 370);
-            this.SetDex(71, 90);
-            this.SetInt(26, 40);
+            SetStr(346, 370);
+            SetDex(71, 90);
+            SetInt(26, 40);
 
-            this.SetHits(208, 222);
+            SetHits(208, 222);
 
-            this.SetDamage(13, 23);
+            SetDamage(13, 23);
 
-            this.SetDamageType(ResistanceType.Physical, 40);
-            this.SetDamageType(ResistanceType.Cold, 60);
+            SetDamageType(ResistanceType.Physical, 40);
+            SetDamageType(ResistanceType.Cold, 60);
 
-            this.SetResistance(ResistanceType.Physical, 45, 55);
-            this.SetResistance(ResistanceType.Fire, 10, 20);
-            this.SetResistance(ResistanceType.Cold, 50, 60);
-            this.SetResistance(ResistanceType.Poison, 20, 30);
-            this.SetResistance(ResistanceType.Energy, 20, 30);
+            SetResistance(ResistanceType.Physical, 45, 55);
+            SetResistance(ResistanceType.Fire, 10, 20);
+            SetResistance(ResistanceType.Cold, 50, 60);
+            SetResistance(ResistanceType.Poison, 20, 30);
+            SetResistance(ResistanceType.Energy, 20, 30);
 
-            this.SetSkill(SkillName.MagicResist, 15.1, 40.0);
-            this.SetSkill(SkillName.Tactics, 35.1, 50.0);
-            this.SetSkill(SkillName.Wrestling, 35.1, 50.0);
+            SetSkill(SkillName.MagicResist, 15.1, 40.0);
+            SetSkill(SkillName.Tactics, 35.1, 50.0);
+            SetSkill(SkillName.Wrestling, 35.1, 50.0);
 
-            this.Fame = 4000;
-            this.Karma = -4000;
-
-            this.VirtualArmor = 50;
-
-            if (Core.ML && Utility.RandomDouble() < .33)
-                this.PackItem(Engines.Plants.Seed.RandomPeculiarSeed(2));
-
-            this.PackItem(new Garlic(5));
-            this.PackItem(new Bandage(10));
+            Fame = 4000;
+            Karma = -4000;
         }
 
         public Mummy(Serial serial)
@@ -52,41 +43,26 @@ namespace Server.Mobiles
         {
         }
 
-        public override bool BleedImmune
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override Poison PoisonImmune
-        {
-            get
-            {
-                return Poison.Lesser;
-            }
-        }
+        public override int TreasureMapLevel => 1;
+        public override bool BleedImmune => true;
+        public override Poison PoisonImmune => Poison.Lesser;
 
-        public override TribeType Tribe { get { return TribeType.Undead; } }
+        public override TribeType Tribe => TribeType.Undead;
 
-        public override OppositionGroup OppositionGroup
-        {
-            get
-            {
-                return OppositionGroup.FeyAndUndead;
-            }
-        }
         public override void GenerateLoot()
         {
-            this.AddLoot(LootPack.Rich);
-            this.AddLoot(LootPack.Gems);
-            this.AddLoot(LootPack.Potions);
+            AddLoot(LootPack.Rich);
+            AddLoot(LootPack.Gems);
+            AddLoot(LootPack.Potions);
+            AddLoot(LootPack.LootItem<Bandage>(100.0, 10, false, true));
+            AddLoot(LootPack.LootItem<Garlic>(100.0, 5, false, true));
+            AddLoot(LootPack.PeculiarSeed3);
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0);
+            writer.Write(0);
         }
 
         public override void Deserialize(GenericReader reader)

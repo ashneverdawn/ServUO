@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using Server.HuePickers;
 using Server.Items;
 using Server.Mobiles;
 using Server.Network;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Server.Gumps
 {
@@ -23,7 +23,7 @@ namespace Server.Gumps
 
             AddHtmlLocalized(125, 20, 250, 24, 1019070, false, false); // You have agreed to purchase:
 
-            if (!String.IsNullOrEmpty(vi.Description))
+            if (!string.IsNullOrEmpty(vi.Description))
                 AddLabel(125, 45, 0, vi.Description);
             else
                 AddHtmlLocalized(125, 45, 250, 24, 1019072, false, false); // an item without a description
@@ -65,7 +65,7 @@ namespace Server.Gumps
 
                 if (from.Backpack != null)
                     totalGold += from.Backpack.GetAmount(typeof(Gold));
-				
+
                 totalGold += Banker.GetBalance(from);
 
                 if (totalGold < m_VI.Price)
@@ -86,7 +86,14 @@ namespace Server.Gumps
                     if (leftPrice > 0)
                         Banker.Withdraw(from, leftPrice);
 
-                    m_Vendor.HoldGold += m_VI.Price;
+                    int commission = 0;
+
+                    if (m_Vendor.IsCommission)
+                    {
+                        commission = (int)(m_VI.Price * (m_Vendor.CommissionPerc / 100));
+                    }
+
+                    m_Vendor.HoldGold += m_VI.Price - commission;
 
                     from.SendLocalizedMessage(503201); // You take the item.
                 }
@@ -144,7 +151,7 @@ namespace Server.Gumps
             if (!m_Vendor.CanInteractWith(from, true))
                 return;
 
-            switch ( info.ButtonID )
+            switch (info.ButtonID)
             {
                 case 1:
                     {
@@ -171,49 +178,60 @@ namespace Server.Gumps
         {
             m_Vendor = vendor;
 
-            int perRealWorldDay = vendor.ChargePerRealWorldDay;
             int goldHeld = vendor.HoldGold;
 
-            AddBackground(25, 10, 530, 180, 0x13BE);
+            AddBackground(25, 10, 530, 220, 0x13BE);
 
-            AddImageTiled(35, 20, 510, 160, 0xA40);
-            AddAlphaRegion(35, 20, 510, 160);
+            AddImageTiled(35, 20, 510, 200, 0xA40);
+            AddAlphaRegion(35, 20, 510, 200);
 
             AddImage(10, 0, 0x28DC);
-            AddImage(537, 175, 0x28DC);
-            AddImage(10, 175, 0x28DC);
+            AddImage(537, 215, 0x28DC);
+            AddImage(10, 215, 0x28DC);
             AddImage(537, 0, 0x28DC);
 
-            if (goldHeld < perRealWorldDay)
+            if (!vendor.IsCommission)
             {
-                int goldNeeded = perRealWorldDay - goldHeld;
+                int perRealWorldDay = vendor.ChargePerRealWorldDay;
 
-                AddHtmlLocalized(40, 35, 260, 20, 1038320, 0x7FFF, false, false); // Gold needed for 1 day of vendor salary: 
-                AddLabel(300, 35, 0x1F, goldNeeded.ToString());
+                if (goldHeld < perRealWorldDay)
+                {
+                    int goldNeeded = perRealWorldDay - goldHeld;
+
+                    AddHtmlLocalized(40, 35, 260, 20, 1038320, 0x7FFF, false, false); // Gold needed for 1 day of vendor salary: 
+                    AddLabel(300, 35, 0x1F, goldNeeded.ToString());
+                }
+                else
+                {
+                    int days = goldHeld / perRealWorldDay;
+
+                    AddHtmlLocalized(40, 35, 260, 20, 1038318, 0x7FFF, false, false); // # of days Vendor salary is paid for: 
+                    AddLabel(300, 35, 0x480, days.ToString());
+                }
+
+                AddHtmlLocalized(40, 78, 260, 20, 1038324, 0x7FFF, false, false); // My charge per real world day is: 
+                AddLabel(300, 78, 0x480, perRealWorldDay.ToString());
             }
             else
             {
-                int days = goldHeld / perRealWorldDay;
-
-                AddHtmlLocalized(40, 35, 260, 20, 1038318, 0x7FFF, false, false); // # of days Vendor salary is paid for: 
-                AddLabel(300, 35, 0x480, days.ToString());
+                AddHtmlLocalized(40, 78, 260, 20, 1159157, 0x7FFF, false, false); // My commission per sale:
+                AddLabel(300, 78, 0x480, string.Format("{0}%", vendor.CommissionPerc));
             }
 
-            AddHtmlLocalized(40, 58, 260, 20, 1038324, 0x7FFF, false, false); // My charge per real world day is: 
-            AddLabel(300, 58, 0x480, perRealWorldDay.ToString());
+            AddHtmlLocalized(40, 181, 260, 20, vendor.VendorSearch ? 1154633 : 1154634, 0x7FFF, false, false); // Vendor Search Enabled / Disable            
 
-            AddHtmlLocalized(40, 82, 260, 20, 1038322, 0x7FFF, false, false); // Gold held in my account: 
-            AddLabel(300, 82, 0x480, goldHeld.ToString());
+            AddHtmlLocalized(40, 102, 260, 20, 1038322, 0x7FFF, false, false); // Gold held in my account: 
+            AddLabel(300, 102, 0x480, goldHeld.ToString());
 
-            AddHtmlLocalized(40, 108, 260, 20, 1062509, 0x7FFF, false, false); // Shop Name:
-            AddLabel(140, 106, 0x66D, vendor.ShopName);
+            AddHtmlLocalized(40, 128, 260, 20, 1062509, 0x7FFF, false, false); // Shop Name:
+            AddLabel(140, 128, 0x66D, vendor.ShopName);
 
             if (vendor is RentedVendor)
             {
                 int days, hours;
                 ((RentedVendor)vendor).ComputeRentalExpireDelay(out days, out hours);
 
-                AddLabel(38, 132, 0x480, String.Format("Location rental will expire in {0} day{1} and {2} hour{3}.", days, days != 1 ? "s" : "", hours, hours != 1 ? "s" : ""));
+                AddLabel(40, 154, 0x480, string.Format("Location rental will expire in {0} day{1} and {2} hour{3}.", days, days != 1 ? "s" : "", hours, hours != 1 ? "s" : ""));
             }
 
             AddButton(390, 24, 0x15E1, 0x15E5, 1, GumpButtonType.Reply, 0);
@@ -232,13 +250,21 @@ namespace Server.Gumps
             AddHtmlLocalized(408, 101, 120, 20, 3006123, 0x7FFF, false, false); // Open Paperdoll
 
             AddButton(390, 124, 0x15E1, 0x15E5, 6, GumpButtonType.Reply, 0);
-            AddLabel(408, 121, 0x480, "Collect Gold");
+            AddHtmlLocalized(408, 121, 120, 20, 1071988, 0x7FFF, false, false); // Collect Gold
 
-            AddButton(390, 144, 0x15E1, 0x15E5, 7, GumpButtonType.Reply, 0);
-            AddLabel(408, 141, 0x480, "Dismiss Vendor");
+            if (!vendor.IsCommission)
+                AddButton(390, 144, 0x15E1, 0x15E5, 7, GumpButtonType.Reply, 0);
 
-            AddButton(390, 162, 0x15E1, 0x15E5, 0, GumpButtonType.Reply, 0);
-            AddHtmlLocalized(408, 161, 120, 20, 1011012, 0x7FFF, false, false); // CANCEL
+            AddHtmlLocalized(408, 141, 120, 20, 1156104, 0x7FFF, false, false); // Deposit Gold
+
+            AddButton(390, 162, 0x15E1, 0x15E5, 8, GumpButtonType.Reply, 0);
+            AddHtmlLocalized(408, 161, 120, 20, 1071987, 0x7FFF, false, false); // Dismiss Vendor
+
+            AddButton(390, 182, 0x15E1, 0x15E5, 9, GumpButtonType.Reply, 0);
+            AddHtmlLocalized(408, 181, 120, 20, 1154631, 0x7FFF, false, false); // Opt Out of Search
+
+            AddButton(390, 202, 0x15E1, 0x15E5, 0, GumpButtonType.Reply, 0);
+            AddHtmlLocalized(408, 201, 120, 20, 1011012, 0x7FFF, false, false); // CANCEL
         }
 
         public override void OnResponse(NetState sender, RelayInfo info)
@@ -251,7 +277,7 @@ namespace Server.Gumps
             if (!m_Vendor.CanInteractWith(from, true))
                 return;
 
-            switch ( info.ButtonID )
+            switch (info.ButtonID)
             {
                 case 1: // See goods
                     {
@@ -289,9 +315,28 @@ namespace Server.Gumps
 
                         break;
                     }
-                case 7: // Dismiss Vendor
+                case 7: // Deposit Gold
+                    {
+                        m_Vendor.DepositeGold(from);
+
+                        break;
+                    }
+                case 8: // Dismiss Vendor
                     {
                         m_Vendor.Dismiss(from);
+
+                        break;
+                    }
+                case 9: // Opt Out of Search
+                    {
+                        if (m_Vendor.VendorSearch)
+                        {
+                            m_Vendor.VendorSearch = false;
+                        }
+                        else
+                        {
+                            m_Vendor.VendorSearch = true;
+                        }
 
                         break;
                     }
@@ -305,12 +350,6 @@ namespace Server.Gumps
 
         private class CustomItem
         {
-            private readonly Type m_Type;
-            private readonly int m_ItemID;
-            private readonly int m_LocNum;
-            private readonly int m_ArtNum;
-            private readonly bool m_LongText;
-
             public CustomItem(int itemID, int loc)
                 : this(null, itemID, loc, 0, false)
             {
@@ -333,113 +372,55 @@ namespace Server.Gumps
 
             public CustomItem(Type type, int itemID, int loc, int art, bool longText)
             {
-                m_Type = type;
-                m_ItemID = itemID;
-                m_LocNum = loc;
-                m_ArtNum = art;
-                m_LongText = longText;
+                Type = type;
+                ItemID = itemID;
+                LocNumber = loc;
+                ArtNumber = art;
+                LongText = longText;
             }
 
             public Item Create()
             {
-                if (m_Type == null)
+                if (Type == null)
                     return null;
 
                 Item i = null;
-				
+
                 try
                 {
-                    ConstructorInfo ctor = m_Type.GetConstructor(new Type[0]);
+                    ConstructorInfo ctor = Type.GetConstructor(new Type[0]);
                     if (ctor != null)
                         i = ctor.Invoke(null) as Item;
                 }
-                catch
+                catch (Exception e)
                 {
+                    Diagnostics.ExceptionLogging.LogException(e);
                 }
-				
+
                 return i;
             }
 
-            public Type Type
-            {
-                get
-                {
-                    return m_Type;
-                }
-            }
-            public int ItemID
-            {
-                get
-                {
-                    return m_ItemID;
-                }
-            }
-            public int LocNumber
-            {
-                get
-                {
-                    return m_LocNum;
-                }
-            }
-            public int ArtNumber
-            {
-                get
-                {
-                    return m_ArtNum;
-                }
-            }
-            public bool LongText
-            {
-                get
-                {
-                    return m_LongText;
-                }
-            }
+            public Type Type { get; }
+            public int ItemID { get; }
+            public int LocNumber { get; }
+            public int ArtNumber { get; }
+            public bool LongText { get; }
         }
 
         private class CustomCategory
         {
-            private readonly CustomItem[] m_Entries;
-            private readonly Layer m_Layer;
-            private readonly bool m_CanDye;
-            private readonly int m_LocNum;
-
             public CustomCategory(Layer layer, int loc, bool canDye, CustomItem[] items)
             {
-                m_Entries = items;
-                m_CanDye = canDye;
-                m_Layer = layer;
-                m_LocNum = loc;
+                Entries = items;
+                CanDye = canDye;
+                Layer = layer;
+                LocNumber = loc;
             }
 
-            public bool CanDye
-            {
-                get
-                {
-                    return m_CanDye;
-                }
-            }
-            public CustomItem[] Entries
-            {
-                get
-                {
-                    return m_Entries;
-                }
-            }
-            public Layer Layer
-            {
-                get
-                {
-                    return m_Layer;
-                }
-            }
-            public int LocNumber
-            {
-                get
-                {
-                    return m_LocNum;
-                }
-            }
+            public bool CanDye { get; }
+            public CustomItem[] Entries { get; }
+            public Layer Layer { get; }
+            public int LocNumber { get; }
         }
 
         private static readonly CustomCategory[] Categories = new CustomCategory[]
@@ -447,9 +428,9 @@ namespace Server.Gumps
             new CustomCategory(Layer.InnerTorso, 1011357, true, new CustomItem[]
             { // Upper Torso
                 new CustomItem(typeof(Shirt), 1011359, 5399),
-                new CustomItem(typeof(FancyShirt),	1011360, 7933),
-                new CustomItem(typeof(PlainDress),	1011363, 7937),
-                new CustomItem(typeof(FancyDress),	1011364, 7935),
+                new CustomItem(typeof(FancyShirt),  1011360, 7933),
+                new CustomItem(typeof(PlainDress),  1011363, 7937),
+                new CustomItem(typeof(FancyDress),  1011364, 7935),
                 new CustomItem(typeof(Robe), 1011365, 7939)
             }),
             new CustomCategory(Layer.MiddleTorso, 1011371, true, new CustomItem[]
@@ -459,37 +440,37 @@ namespace Server.Gumps
                 new CustomItem(typeof(JesterSuit), 1011366, 8095),
                 new CustomItem(typeof(BodySash), 1011372, 5441),
                 new CustomItem(typeof(Surcoat), 1011362, 8189),
-                new CustomItem(typeof(HalfApron),	1011373, 5435),
-                new CustomItem(typeof(FullApron),	1011374, 5437),
+                new CustomItem(typeof(HalfApron),   1011373, 5435),
+                new CustomItem(typeof(FullApron),   1011374, 5437),
             }),
             new CustomCategory(Layer.Shoes, 1011388, true, new CustomItem[]
             { //Footwear
                 new CustomItem(typeof(Sandals), 1011389, 5901),
                 new CustomItem(typeof(Shoes), 1011390, 5904),
                 new CustomItem(typeof(Boots), 1011391, 5899),
-                new CustomItem(typeof(ThighBoots),	1011392, 5906),
+                new CustomItem(typeof(ThighBoots),  1011392, 5906),
             }),
             new CustomCategory(Layer.Helm, 1011375, true, new CustomItem[]
             { //Hats
                 new CustomItem(typeof(SkullCap), 1011376, 5444),
                 new CustomItem(typeof(Bandana), 1011377, 5440),
-                new CustomItem(typeof(FloppyHat),	1011378, 5907),
-                new CustomItem(typeof(WideBrimHat),	1011379, 5908),
+                new CustomItem(typeof(FloppyHat),   1011378, 5907),
+                new CustomItem(typeof(WideBrimHat), 1011379, 5908),
                 new CustomItem(typeof(Cap), 1011380, 5909),
-                new CustomItem(typeof(TallStrawHat),	1011382, 5910)
+                new CustomItem(typeof(TallStrawHat),    1011382, 5910)
             }),
             new CustomCategory(Layer.Helm, 1015319, true, new CustomItem[]
             { //More Hats
                 new CustomItem(typeof(StrawHat), 1011382, 5911),
                 new CustomItem(typeof(WizardsHat), 1011383, 5912),
                 new CustomItem(typeof(Bonnet), 1011384, 5913),
-                new CustomItem(typeof(FeatheredHat),	1011385, 5914),
-                new CustomItem(typeof(TricorneHat),	1011386, 5915),
-                new CustomItem(typeof(JesterHat),	1011387, 5916)
+                new CustomItem(typeof(FeatheredHat),    1011385, 5914),
+                new CustomItem(typeof(TricorneHat), 1011386, 5915),
+                new CustomItem(typeof(JesterHat),   1011387, 5916)
             }),
             new CustomCategory(Layer.Pants, 1011367, true, new CustomItem[]
             { //Lower Torso
-                new CustomItem(typeof(LongPants),	1011368, 5433),
+                new CustomItem(typeof(LongPants),   1011368, 5433),
                 new CustomItem(typeof(Kilt), 1011369, 5431),
                 new CustomItem(typeof(Skirt), 1011370, 5398),
             }),
@@ -523,22 +504,22 @@ namespace Server.Gumps
             { //Held items
                 new CustomItem(typeof(FishingPole), 1011406, 3520),
                 new CustomItem(typeof(Pickaxe), 1011407, 3717),
-                new CustomItem(typeof(Pitchfork),	1011408, 3720),
+                new CustomItem(typeof(Pitchfork),   1011408, 3720),
                 new CustomItem(typeof(Cleaver), 1015324, 3778),
                 new CustomItem(typeof(Mace), 1011409, 3933),
                 new CustomItem(typeof(Torch), 1011410, 3940),
                 new CustomItem(typeof(Hammer), 1011411, 4020),
-                new CustomItem(typeof(Longsword),	1011412, 3936),
+                new CustomItem(typeof(Longsword),   1011412, 3936),
                 new CustomItem(typeof(GnarledStaff), 1011413, 5113)
             }),
             new CustomCategory(Layer.FirstValid, 1015325, false, new CustomItem[]
             { //More held items
                 new CustomItem(typeof(Crossbow), 1011414, 3920),
                 new CustomItem(typeof(WarMace), 1011415, 5126),
-                new CustomItem(typeof(TwoHandedAxe),	1011416, 5186),
+                new CustomItem(typeof(TwoHandedAxe),    1011416, 5186),
                 new CustomItem(typeof(Spear), 1011417, 3939),
                 new CustomItem(typeof(Katana), 1011418, 5118),
-                new CustomItem(typeof(Spellbook),	1011419, 3834)
+                new CustomItem(typeof(Spellbook),   1011419, 3834)
             })
         };
 
@@ -546,7 +527,7 @@ namespace Server.Gumps
             : base(30, 40)
         {
             m_Vendor = v;
-            int x,y;
+            int x, y;
 
             from.CloseGump(typeof(PlayerVendorCustomizeGump));
 
@@ -562,7 +543,7 @@ namespace Server.Gumps
             y = 35;
             for (int i = 0; i < Categories.Length; i++)
             {
-                CustomCategory cat = (CustomCategory)Categories[i];
+                CustomCategory cat = Categories[i];
                 AddHtmlLocalized(5, y, 150, 25, cat.LocNumber, true, false);
                 AddButton(155, y, 4005, 4007, 0, GumpButtonType.Page, i + 1);
                 y += 25;
@@ -570,12 +551,12 @@ namespace Server.Gumps
 
             for (int i = 0; i < Categories.Length; i++)
             {
-                CustomCategory cat = (CustomCategory)Categories[i];
+                CustomCategory cat = Categories[i];
                 AddPage(i + 1);
 
                 for (int c = 0; c < cat.Entries.Length; c++)
                 {
-                    CustomItem entry = (CustomItem)cat.Entries[c];
+                    CustomItem entry = cat.Entries[c];
                     x = 198 + (c % 3) * 129;
                     y = 38 + (c / 3) * 67;
 
@@ -740,7 +721,7 @@ namespace Server.Gumps
                     {
                         cat -= 100;
 
-                        if (cat < Categories.Length && cat >= 0)
+                        if (cat < Categories.Length)
                         {
                             CustomCategory category = Categories[cat];
 
@@ -852,79 +833,64 @@ namespace Server.Gumps
 
         private class HairOrBeard
         {
-            private readonly int m_ItemID;
-            private readonly int m_Name;
-
-            public int ItemID
-            {
-                get
-                {
-                    return m_ItemID;
-                }
-            }
-            public int Name
-            {
-                get
-                {
-                    return m_Name;
-                }
-            }
+            public int ItemID { get; }
+            public int Name { get; }
 
             public HairOrBeard(int itemID, int name)
             {
-                m_ItemID = itemID;
-                m_Name = name;
+                ItemID = itemID;
+                Name = name;
             }
         }
-		
+
         #region Mondain's Legacy
         private static readonly HairOrBeard[] m_FemaleElfHairStyles = new HairOrBeard[]
         {
-            new HairOrBeard(0x2FCC,	1074389), // Flower
-            new HairOrBeard(0x2FC0,	1074386), // Long Feather
-            new HairOrBeard(0x2FC1,	1074387), // Short
-            new HairOrBeard(0x2FC2,	1074388), // Mullet
-            new HairOrBeard(0x2FCE,	1074391), // Topknot
-            new HairOrBeard(0x2FCF,	1074392), // Long Braid
-            new HairOrBeard(0x2FD0,	1074393), // Buns
-            new HairOrBeard(0x2FD1,	1074394)// Spiked
+            new HairOrBeard(0x2FCC, 1074389), // Flower
+            new HairOrBeard(0x2FC0, 1074386), // Long Feather
+            new HairOrBeard(0x2FC1, 1074387), // Short
+            new HairOrBeard(0x2FC2, 1074388), // Mullet
+            new HairOrBeard(0x2FCE, 1074391), // Topknot
+            new HairOrBeard(0x2FCF, 1074392), // Long Braid
+            new HairOrBeard(0x2FD0, 1074393), // Buns
+            new HairOrBeard(0x2FD1, 1074394)// Spiked
         };
 
         private static readonly HairOrBeard[] m_MaleElfHairStyles = new HairOrBeard[]
         {
-            new HairOrBeard(0x2FBF,	1074385), // Mid Long
-            new HairOrBeard(0x2FC0,	1074386), // Long Feather
-            new HairOrBeard(0x2FC1,	1074387), // Short
-            new HairOrBeard(0x2FC2,	1074388), // Mullet
-            new HairOrBeard(0x2FCE,	1074391), // Topknot
-            new HairOrBeard(0x2FCF,	1074392), // Long Braid
-            new HairOrBeard(0x2FCD,	1074390), // Long
-            new HairOrBeard(0x2FD1,	1074394)// Spiked
+            new HairOrBeard(0x2FBF, 1074385), // Mid Long
+            new HairOrBeard(0x2FC0, 1074386), // Long Feather
+            new HairOrBeard(0x2FC1, 1074387), // Short
+            new HairOrBeard(0x2FC2, 1074388), // Mullet
+            new HairOrBeard(0x2FCE, 1074391), // Topknot
+            new HairOrBeard(0x2FCF, 1074392), // Long Braid
+            new HairOrBeard(0x2FCD, 1074390), // Long
+            new HairOrBeard(0x2FD1, 1074394)// Spiked
         };
         #endregion
-		
+
         private static readonly HairOrBeard[] m_HairStyles = new HairOrBeard[]
         {
-            new HairOrBeard(0x203B,	1011052), // Short
-            new HairOrBeard(0x203C,	1011053), // Long
-            new HairOrBeard(0x203D,	1011054), // Ponytail
-            new HairOrBeard(0x2044,	1011055), // Mohawk
-            new HairOrBeard(0x2045,	1011047), // Pageboy
-            new HairOrBeard(0x204A,	1011050), // Topknot
-            new HairOrBeard(0x2047,	1011396), // Curly
-            new HairOrBeard(0x2048,	1011048), // Receding
-            new HairOrBeard(0x2049,	1011049)// 2-tails
+            new HairOrBeard(0x203B, 1011052), // Short
+            new HairOrBeard(0x203C, 1011053), // Long
+            new HairOrBeard(0x203D, 1011054), // Ponytail
+            new HairOrBeard(0x2044, 1011055), // Mohawk
+            new HairOrBeard(0x2045, 1011047), // Pageboy
+            new HairOrBeard(0x204A, 1011050), // Topknot
+            new HairOrBeard(0x2047, 1011396), // Curly
+            new HairOrBeard(0x2048, 1011048), // Receding
+            new HairOrBeard(0x2049, 1011049)// 2-tails
         };
 
         private static readonly HairOrBeard[] m_BeardStyles = new HairOrBeard[]
         {
-            new HairOrBeard(0x2041,	1011062), // Mustache
-            new HairOrBeard(0x203F,	1011060), // Short beard
-            new HairOrBeard(0x204B,	1015321), // Short Beard & Moustache
-            new HairOrBeard(0x203E,	1011061), // Long beard
-            new HairOrBeard(0x204C,	1015322), // Long Beard & Moustache
-            new HairOrBeard(0x2040,	1015323), // Goatee
-            new HairOrBeard(0x204D,	1011401)// Vandyke
+            new HairOrBeard(0x2041, 1011062), // Mustache
+            new HairOrBeard(0x203F, 1011060), // Short beard
+            new HairOrBeard(0x204B, 1015321), // Short Beard & Moustache
+            new HairOrBeard(0x203E, 1011061), // Long beard
+            new HairOrBeard(0x204C, 1015322), // Long Beard & Moustache
+            new HairOrBeard(0x2040, 1015323), // Goatee
+            new HairOrBeard(0x204D, 1011401)// Vandyke
         };
 
         public NewPlayerVendorCustomizeGump(PlayerVendor vendor)
@@ -1062,7 +1028,7 @@ namespace Server.Gumps
             if (!m_Vendor.CanInteractWith(from, true))
                 return;
 
-            switch ( info.ButtonID )
+            switch (info.ButtonID)
             {
                 case 0: // CLOSE
                     {

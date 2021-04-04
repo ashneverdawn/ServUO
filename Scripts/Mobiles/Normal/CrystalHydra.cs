@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -39,157 +38,47 @@ namespace Server.Mobiles
             SetSkill(SkillName.Tactics, 100.0, 110.0);
             SetSkill(SkillName.MagicResist, 80.0, 100.0);
             SetSkill(SkillName.Anatomy, 70.0, 80.0);
-			
+
             Fame = 17000;
             Karma = -17000;
 
-            for (int i = 0; i < Utility.RandomMinMax(0, 1); i++)
-            {
-                PackItem(Loot.RandomScroll(0, Loot.ArcanistScrollTypes.Length, SpellbookType.Arcanist));
-            }
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
-		
+
         public CrystalHydra(Serial serial)
             : base(serial)
         {
         }
-		
+
         public override void GenerateLoot()
         {
             AddLoot(LootPack.UltraRich, 2);
             AddLoot(LootPack.HighScrolls);
             AddLoot(LootPack.Parrot);
+            AddLoot(LootPack.ArcanistScrolls);
         }
-		
+
         public override void OnDeath(Container c)
         {
-            base.OnDeath(c);		
-			
+            base.OnDeath(c);
+
             if (Utility.RandomDouble() < 0.25)
                 c.DropItem(new ShatteredCrystals());
-				
-            c.DropItem(new CrystallineFragments());
-        }
-		
-        #region Breath
-        public override double BreathDamageScalar
-        {
-            get
-            {
-                return 0.13;
-            }
-        }
-        public override int BreathFireDamage
-        {
-            get
-            {
-                return 0;
-            }
-        }
-        public override int BreathColdDamage
-        {
-            get
-            {
-                return 100;
-            }
-        }
-        public override int BreathEffectHue
-        {
-            get
-            {
-                return 0x47E;
-            }
-        }
-        public override int BreathEffectSound
-        {
-            get
-            {
-                return 0x56D;
-            }
-        }
-        public override double BreathMinDelay
-        {
-            get
-            {
-                return 5.0;
-            }
-        }
-        public override double BreathMaxDelay
-        {
-            get
-            {
-                return 7.0;
-            }
-        }
-        public override bool HasBreath
-        {
-            get
-            {
-                return true;
-            }
-        }
-		
-        public override void BreathStart(IDamageable target)
-        { 
-            BreathStallMovement();
-            BreathPlayAngerSound();
-            BreathPlayAngerAnimation();
-						
-            Direction = GetDirectionTo(target);
-			
-            int count = 0;
-
-            IPooledEnumerable eable = GetMobilesInRange(5);
-
-            foreach (Mobile m in eable)
-            {
-                if (count++ > 3)
-                    break;
-					
-                if (m != null && m != target && m.Alive && !m.IsDeadBondedPet && CanBeHarmful(m) && m.Map == Map && !IsDeadBondedPet && m.InRange(this, 5) && InLOS(m) && !BardPacified)
-                    Timer.DelayCall(TimeSpan.FromSeconds(BreathEffectDelay), new TimerStateCallback(BreathEffect_Callback), m);
-            }
-
-            eable.Free();
-
-            Timer.DelayCall(TimeSpan.FromSeconds(BreathEffectDelay), new TimerStateCallback(BreathEffect_Callback), target);
         }
 
-        #endregion
-		
-        public override int Hides
-        {
-            get
-            {
-                return 40;
-            }
-        }
-        public override int Meat
-        {
-            get
-            {
-                return 19;
-            }
-        }
-        public override int TreasureMapLevel
-        {
-            get
-            {
-                return 5;
-            }
-        }
-		
+        public override int Hides => 40;
+        public override int Meat => 19;
+        public override int TreasureMapLevel => 5;
+
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-			
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-			
             int version = reader.ReadInt();
         }
     }

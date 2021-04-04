@@ -1,4 +1,3 @@
-using System;
 using Server.Items;
 
 namespace Server.Mobiles
@@ -42,73 +41,31 @@ namespace Server.Mobiles
             Fame = 28000;
             Karma = -28000;
 
-            for (int i = 0; i < Utility.RandomMinMax(0, 1); i++)
-            {
-                PackItem(Loot.RandomScroll(0, Loot.ArcanistScrollTypes.Length, SpellbookType.Arcanist));
-            }
-
             SetWeaponAbility(WeaponAbility.WhirlwindAttack);
+            SetSpecialAbility(SpecialAbility.DragonBreath);
         }
 
         public RedDeath(Serial serial)
             : base(serial)
         {
         }
-		public override bool CanBeParagon { get { return false; } }
-        public override bool GivesMLMinorArtifact
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool AlwaysMurderer
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override bool HasBreath
-        {
-            get
-            {
-                return true;
-            }
-        }
-        public override int BreathChaosDamage
-        {
-            get
-            {
-                return 100;
-            }
-        }
-        public override int BreathFireDamage
-        {
-            get
-            {
-                return 0;
-            }
-        }
+        public override bool CanBeParagon => false;
+        public override bool GivesMLMinorArtifact => true;
+        public override bool AlwaysMurderer => true;
         public override void GenerateLoot()
         {
             AddLoot(LootPack.UltraRich, 3);
             AddLoot(LootPack.MedScrolls, 2);
             AddLoot(LootPack.HighScrolls, 2);
-        }
-
-        public override void OnDeath(Container c)
-        {
-            base.OnDeath(c);
-
-            c.DropItem(new ResolvesBridle());
+            AddLoot(LootPack.ArcanistScrolls);
+            AddLoot(LootPack.LootItem<ResolvesBridle>());
         }
 
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

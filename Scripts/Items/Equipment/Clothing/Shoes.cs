@@ -1,4 +1,3 @@
-using System;
 using Server.Engines.Craft;
 
 namespace Server.Items
@@ -6,13 +5,7 @@ namespace Server.Items
     #region Reward Clothing
     public class ZooMemberThighBoots : ThighBoots
     {
-        public override int LabelNumber
-        {
-            get
-            {
-                return 1073221;
-            }
-        }// Britannia Royal Zoo Member
+        public override int LabelNumber => 1073221;// Britannia Royal Zoo Member
 
         [Constructable]
         public ZooMemberThighBoots()
@@ -41,7 +34,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -73,7 +66,7 @@ namespace Server.Items
 
         public override bool Scissor(Mobile from, Scissors scissors)
         {
-            if (this.DefaultResource == CraftResource.None)
+            if (DefaultResource == CraftResource.None)
                 return base.Scissor(from, scissors);
 
             from.SendLocalizedMessage(502440); // Scissors can not be used on that to produce anything.
@@ -84,7 +77,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)2); // version
+            writer.Write(2); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -93,25 +86,25 @@ namespace Server.Items
 
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
                 case 2:
                     break; // empty, resource removed
                 case 1:
                     {
-                        this.m_Resource = (CraftResource)reader.ReadInt();
+                        m_Resource = (CraftResource)reader.ReadInt();
                         break;
                     }
                 case 0:
                     {
-                        this.m_Resource = this.DefaultResource;
+                        m_Resource = DefaultResource;
                         break;
                     }
             }
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     [Flipable(0x2307, 0x2308)]
     public class FurBoots : BaseShoes
     {
@@ -125,7 +118,7 @@ namespace Server.Items
         public FurBoots(int hue)
             : base(0x2307, hue)
         {
-            this.Weight = 3.0;
+            Weight = 3.0;
         }
 
         public FurBoots(Serial serial)
@@ -137,7 +130,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -148,17 +141,11 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
-    [FlipableAttribute(0x170b, 0x170c)]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
+    [Flipable(0x170b, 0x170c)]
     public class Boots : BaseShoes
     {
-        public override CraftResource DefaultResource
-        {
-            get
-            {
-                return CraftResource.RegularLeather;
-            }
-        }
+        public override CraftResource DefaultResource => CraftResource.RegularLeather;
 
         [Constructable]
         public Boots()
@@ -170,7 +157,7 @@ namespace Server.Items
         public Boots(int hue)
             : base(0x170B, hue)
         {
-            this.Weight = 3.0;
+            Weight = 3.0;
         }
 
         public Boots(Serial serial)
@@ -182,7 +169,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -193,7 +180,7 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     [Flipable]
     public class ThighBoots : BaseShoes, IArcaneEquip
     {
@@ -203,15 +190,12 @@ namespace Server.Items
         [CommandProperty(AccessLevel.GameMaster)]
         public int MaxArcaneCharges
         {
-            get
-            {
-                return this.m_MaxArcaneCharges;
-            }
+            get { return m_MaxArcaneCharges; }
             set
             {
-                this.m_MaxArcaneCharges = value;
-                this.InvalidateProperties();
-                this.Update();
+                m_MaxArcaneCharges = value;
+                InvalidateProperties();
+                Update();
             }
         }
 
@@ -220,69 +204,54 @@ namespace Server.Items
         {
             get
             {
-                return this.m_CurArcaneCharges;
+                return m_CurArcaneCharges;
             }
             set
             {
-                this.m_CurArcaneCharges = value;
-                this.InvalidateProperties();
-                this.Update();
+                m_CurArcaneCharges = value;
+                InvalidateProperties();
+                Update();
             }
         }
+
+        public int TempHue { get; set; }
 
         [CommandProperty(AccessLevel.GameMaster)]
-        public bool IsArcane
-        {
-            get
-            {
-                return (this.m_MaxArcaneCharges > 0 && this.m_CurArcaneCharges >= 0);
-            }
-        }
+        public bool IsArcane => m_MaxArcaneCharges > 0 && m_CurArcaneCharges >= 0;
 
-        public override void OnSingleClick(Mobile from)
+        public override void AddCraftedProperties(ObjectPropertyList list)
         {
-            base.OnSingleClick(from);
+            base.AddCraftedProperties(list);
 
-            if (this.IsArcane)
-                this.LabelTo(from, 1061837, String.Format("{0}\t{1}", this.m_CurArcaneCharges, this.m_MaxArcaneCharges));
+            if (IsArcane)
+                list.Add(1061837, "{0}\t{1}", m_CurArcaneCharges, m_MaxArcaneCharges); // arcane charges: ~1_val~ / ~2_val~
         }
 
         public void Update()
         {
-            if (this.IsArcane)
-                this.ItemID = 0x26AF;
-            else if (this.ItemID == 0x26AF)
-                this.ItemID = 0x1711;
+            if (IsArcane)
+                ItemID = 0x26AF;
+            else if (ItemID == 0x26AF)
+                ItemID = 0x1711;
 
-            if (this.IsArcane && this.CurArcaneCharges == 0)
-                this.Hue = 0;
-        }
-
-        public override void GetProperties(ObjectPropertyList list)
-        {
-            base.GetProperties(list);
-
-            if (this.IsArcane)
-                list.Add(1061837, "{0}\t{1}", this.m_CurArcaneCharges, this.m_MaxArcaneCharges); // arcane charges: ~1_val~ / ~2_val~
+            if (IsArcane && CurArcaneCharges == 0)
+            {
+                TempHue = Hue;
+                Hue = 0;
+            }
         }
 
         public void Flip()
         {
-            if (this.ItemID == 0x1711)
-                this.ItemID = 0x1712;
-            else if (this.ItemID == 0x1712)
-                this.ItemID = 0x1711;
+            if (ItemID == 0x1711)
+                ItemID = 0x1712;
+            else if (ItemID == 0x1712)
+                ItemID = 0x1711;
         }
 
         #endregion
 
-        public override CraftResource DefaultResource
-        {
-            get
-            {
-                return CraftResource.RegularLeather;
-            }
-        }
+        public override CraftResource DefaultResource => CraftResource.RegularLeather;
 
         [Constructable]
         public ThighBoots()
@@ -294,7 +263,7 @@ namespace Server.Items
         public ThighBoots(int hue)
             : base(0x1711, hue)
         {
-            this.Weight = 4.0;
+            Weight = 4.0;
         }
 
         public ThighBoots(Serial serial)
@@ -305,14 +274,14 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
+            writer.Write(2); // version
 
-            writer.Write((int)1); // version
-
-            if (this.IsArcane)
+            if (IsArcane)
             {
                 writer.Write(true);
-                writer.Write((int)this.m_CurArcaneCharges);
-                writer.Write((int)this.m_MaxArcaneCharges);
+                writer.Write(TempHue);
+                writer.Write(m_CurArcaneCharges);
+                writer.Write(m_MaxArcaneCharges);
             }
             else
             {
@@ -323,20 +292,27 @@ namespace Server.Items
         public override void Deserialize(GenericReader reader)
         {
             base.Deserialize(reader);
-
             int version = reader.ReadInt();
 
-            switch ( version )
+            switch (version)
             {
+                case 2:
+                    {
+                        if (reader.ReadBool())
+                        {
+                            TempHue = reader.ReadInt();
+                            m_CurArcaneCharges = reader.ReadInt();
+                            m_MaxArcaneCharges = reader.ReadInt();
+                        }
+
+                        break;
+                    }
                 case 1:
                     {
                         if (reader.ReadBool())
                         {
-                            this.m_CurArcaneCharges = reader.ReadInt();
-                            this.m_MaxArcaneCharges = reader.ReadInt();
-
-                            if (this.Hue == 2118)
-                                this.Hue = ArcaneGem.DefaultArcaneHue;
+                            m_CurArcaneCharges = reader.ReadInt();
+                            m_MaxArcaneCharges = reader.ReadInt();
                         }
 
                         break;
@@ -345,17 +321,11 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
-    [FlipableAttribute(0x170f, 0x1710)]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
+    [Flipable(0x170f, 0x1710)]
     public class Shoes : BaseShoes
     {
-        public override CraftResource DefaultResource
-        {
-            get
-            {
-                return CraftResource.RegularLeather;
-            }
-        }
+        public override CraftResource DefaultResource => CraftResource.RegularLeather;
 
         [Constructable]
         public Shoes()
@@ -367,7 +337,7 @@ namespace Server.Items
         public Shoes(int hue)
             : base(0x170F, hue)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public Shoes(Serial serial)
@@ -379,7 +349,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -390,17 +360,11 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
-    [FlipableAttribute(0x170d, 0x170e)]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
+    [Flipable(0x170d, 0x170e)]
     public class Sandals : BaseShoes
     {
-        public override CraftResource DefaultResource
-        {
-            get
-            {
-                return CraftResource.RegularLeather;
-            }
-        }
+        public override CraftResource DefaultResource => CraftResource.RegularLeather;
 
         [Constructable]
         public Sandals()
@@ -412,7 +376,7 @@ namespace Server.Items
         public Sandals(int hue)
             : base(0x170D, hue)
         {
-            this.Weight = 1.0;
+            Weight = 1.0;
         }
 
         public Sandals(Serial serial)
@@ -420,16 +384,11 @@ namespace Server.Items
         {
         }
 
-        public override bool Dye(Mobile from, DyeTub sender)
-        {
-            return false;
-        }
-
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -440,7 +399,7 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     [Flipable(0x2797, 0x27E2)]
     public class NinjaTabi : BaseShoes
     {
@@ -454,7 +413,7 @@ namespace Server.Items
         public NinjaTabi(int hue)
             : base(0x2797, hue)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public NinjaTabi(Serial serial)
@@ -466,7 +425,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -477,7 +436,7 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     [Flipable(0x2796, 0x27E1)]
     public class SamuraiTabi : BaseShoes
     {
@@ -491,7 +450,7 @@ namespace Server.Items
         public SamuraiTabi(int hue)
             : base(0x2796, hue)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public SamuraiTabi(Serial serial)
@@ -503,7 +462,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -514,7 +473,7 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     [Flipable(0x2796, 0x27E1)]
     public class Waraji : BaseShoes
     {
@@ -528,7 +487,7 @@ namespace Server.Items
         public Waraji(int hue)
             : base(0x2796, hue)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public Waraji(Serial serial)
@@ -540,7 +499,7 @@ namespace Server.Items
         {
             base.Serialize(writer);
 
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)
@@ -551,25 +510,11 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
-    [FlipableAttribute(0x2FC4, 0x317A)]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
+    [Flipable(0x2FC4, 0x317A)]
     public class ElvenBoots : BaseShoes
     {
-        public override CraftResource DefaultResource
-        {
-            get
-            {
-                return CraftResource.RegularLeather;
-            }
-        }
-
-        public override Race RequiredRace
-        {
-            get
-            {
-                return Race.Elf;
-            }
-        }
+        public override CraftResource DefaultResource => CraftResource.RegularLeather;
 
         [Constructable]
         public ElvenBoots()
@@ -581,7 +526,7 @@ namespace Server.Items
         public ElvenBoots(int hue)
             : base(0x2FC4, hue)
         {
-            this.Weight = 2.0;
+            Weight = 2.0;
         }
 
         public ElvenBoots(Serial serial)
@@ -609,10 +554,10 @@ namespace Server.Items
         }
     }
 
-    [Alterable(typeof(DefTailoring), typeof(LeatherTalons))]
+    [Alterable(typeof(DefTailoring), typeof(LeatherTalons), true)]
     public class JesterShoes : BaseShoes
     {
-        public override int LabelNumber { get { return 1109617; } } // Jester Shoes
+        public override int LabelNumber => 1109617;  // Jester Shoes
 
         [Constructable]
         public JesterShoes()
@@ -634,7 +579,7 @@ namespace Server.Items
         public override void Serialize(GenericWriter writer)
         {
             base.Serialize(writer);
-            writer.Write((int)0); // version
+            writer.Write(0); // version
         }
 
         public override void Deserialize(GenericReader reader)

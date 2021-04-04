@@ -1,5 +1,5 @@
-using System;
 using Server.Items;
+using System;
 using System.Collections.Generic;
 
 namespace Server.Engines.Craft
@@ -27,20 +27,8 @@ namespace Server.Engines.Craft
                 return m_CraftSystem;
             }
         }
-        public override SkillName MainSkill
-        {
-            get
-            {
-                return SkillName.Cartography;
-            }
-        }
-        public override int GumpTitleNumber
-        {
-            get
-            {
-                return 1044008;
-            }// <CENTER>CARTOGRAPHY MENU</CENTER>
-        }
+        public override SkillName MainSkill => SkillName.Cartography;
+        public override int GumpTitleNumber => 1044008;
         public override double GetChanceAtMin(CraftItem item)
         {
             return 0.0; // 0%
@@ -83,17 +71,19 @@ namespace Server.Engines.Craft
                     return 1044156; // You create an exceptional quality item and affix your maker's mark.
                 else if (quality == 2)
                     return 1044155; // You create an exceptional quality item.
-                else 
+                else if (item.ItemType == typeof(StarChart))
+                    return 1158494; // Which telescope do you wish to create the star chart from?
+                else
                     return 1044154; // You create the item.
             }
         }
 
         public override void InitCraftList()
         {
-            this.AddCraft(typeof(LocalMap), 1044448, 1015230, 10.0, 70.0, typeof(BlankMap), 1044449, 1, 1044450);
-            this.AddCraft(typeof(CityMap), 1044448, 1015231, 25.0, 85.0, typeof(BlankMap), 1044449, 1, 1044450);
-            this.AddCraft(typeof(SeaChart), 1044448, 1015232, 35.0, 95.0, typeof(BlankMap), 1044449, 1, 1044450);
-            this.AddCraft(typeof(WorldMap), 1044448, 1015233, 39.5, 99.5, typeof(BlankMap), 1044449, 1, 1044450);
+            AddCraft(typeof(LocalMap), 1044448, 1015230, 10.0, 70.0, typeof(BlankMap), 1044449, 1, 1044450);
+            AddCraft(typeof(CityMap), 1044448, 1015231, 25.0, 85.0, typeof(BlankMap), 1044449, 1, 1044450);
+            AddCraft(typeof(SeaChart), 1044448, 1015232, 35.0, 95.0, typeof(BlankMap), 1044449, 1, 1044450);
+            AddCraft(typeof(WorldMap), 1044448, 1015233, 39.5, 99.5, typeof(BlankMap), 1044449, 1, 1044450);
 
             int index = AddCraft(typeof(TatteredWallMapSouth), 1044448, 1072891, 90.0, 150.0, typeof(TreasureMap), 1073494, 10, 1073495);
             AddRes(index, typeof(TreasureMap), 1073498, 5, 1073499);
@@ -101,7 +91,7 @@ namespace Server.Engines.Craft
             AddRes(index, typeof(TreasureMap), 1073502, 1, 1073503);
             AddResCallback(index, ConsumeTatteredWallMapRes);
 
-            index = AddCraft(typeof(TatteredWallMapEast), 1044448, 1072891, 90.0, 150.0, typeof(TreasureMap), 1073494, 10, 1073495);
+            index = AddCraft(typeof(TatteredWallMapEast), 1044448, 1072892, 90.0, 150.0, typeof(TreasureMap), 1073494, 10, 1073495);
             AddRes(index, typeof(TreasureMap), 1073498, 5, 1073499);
             AddRes(index, typeof(TreasureMap), 1073500, 3, 1073501);
             AddRes(index, typeof(TreasureMap), 1073502, 1, 1073503);
@@ -110,6 +100,9 @@ namespace Server.Engines.Craft
             index = AddCraft(typeof(EodonianWallMap), 1044448, 1156690, 65.0, 125.0, typeof(BlankMap), 1044449, 50, 1044450);
             AddRes(index, typeof(UnabridgedAtlasOfEodon), 1156721, 1, 1156722);
             AddRecipe(index, (int)CartographyRecipes.EodonianWallMap);
+
+            index = AddCraft(typeof(StarChart), 1044448, 1158493, 0.0, 60.0, typeof(BlankMap), 1044449, 1, 1044450);
+            SetForceSuccess(index, 75);
         }
 
         public int ConsumeTatteredWallMapRes(Mobile from, ConsumeType type)
@@ -138,25 +131,25 @@ namespace Server.Engines.Craft
                             }
                             break;
                         case 3:
-                             if (map.CompletedBy == from)
-                             {
+                            if (map.CompletedBy == from)
+                            {
                                 three--;
                                 toConsume.Add(map);
-                             }
+                            }
                             break;
                         case 4:
-                             if (map.CompletedBy == from)
-                             {
+                            if (map.CompletedBy == from)
+                            {
                                 four--;
                                 toConsume.Add(map);
-                             }
+                            }
                             break;
                         case 5:
-                             if (map.CompletedBy == from)
-                             {
+                            if (map.CompletedBy == from)
+                            {
                                 five--;
                                 toConsume.Add(map);
-                             }
+                            }
                             break;
                     }
                 }
